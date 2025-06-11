@@ -19,7 +19,7 @@ import React from 'react';
                         <div className="space-y-4">
                             <Link to="/" className="flex items-center gap-2">
                                 <Plane className="h-7 w-7 text-primary" />
-                                <span className="font-bold text-xl text-primary">Vibe Chile</span>
+                                <span className="font-bold text-xl text-primary">CHILE ao Vivo</span>
                             </Link>
                             <p className="text-sm">
                                 Sua aventura começa aqui. Explore as maravilhas do Chile conosco.
@@ -76,7 +76,7 @@ import React from 'react';
                     </div>
 
                     <div className="mt-10 md:mt-12 pt-8 border-t text-center text-sm">
-                        © {currentYear} Vibe Chile. Todos os direitos reservados.
+                        © {currentYear} CHILE ao Vivo. Todos os direitos reservados.
                     </div>
                 </div>
             </footer>

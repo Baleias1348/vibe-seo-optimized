@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import TourCard from '@/components/shared/TourCard';
 import TourCardSkeleton from '@/components/shared/TourCardSkeleton';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAllTours, getSiteConfig } from '@/lib/tourData';
+import { getAllTours, getSiteConfig, subscribeToConfigChanges } from '@/lib/tourData';
 import { supabase } from '@/lib/supabaseClient';
 import { 
     Thermometer, Cloud, CloudRain, MountainSnow, Sun, Landmark, Briefcase, AlertTriangle, Replace, 
@@ -219,34 +219,34 @@ const HomePage = () => {
     // Log para depuración de imágenes
     console.log('siteConfigData:', siteConfigData);
     
-    const heroImages = [
-        { 
-            src: siteConfigData.heroImage1, 
-            alt: siteConfigData.heroAlt1 || 'Imagen 1 del carrusel',
-            id: 'hero1'
-        },
-        { 
-            src: siteConfigData.heroImage2, 
-            alt: siteConfigData.heroAlt2 || 'Imagen 2 del carrusel',
-            id: 'hero2'
-        },
-        { 
-            src: siteConfigData.heroImage3, 
-            alt: siteConfigData.heroAlt3 || 'Imagen 3 del carrusel',
-            id: 'hero3'
-        },
-        { 
-            src: siteConfigData.heroImage4, 
-            alt: siteConfigData.heroAlt4 || 'Imagen 4 del carrusel',
-            id: 'hero4'
-        },
-    ].filter(img => {
+    // Obtener imágenes del carrusel desde hero_images o usar un array vacío si no existe
+    const heroImagesArray = Array.isArray(siteConfigData.hero_images) 
+        ? siteConfigData.hero_images 
+        : [];
+    
+    // Mapear las imágenes al formato esperado por el carrusel
+    const heroImages = heroImagesArray.map((img, index) => ({
+        src: img.url || '',
+        alt: img.alt || `Imagen ${index + 1} del carrusel`,
+        id: `hero-${index}`
+    })).filter(img => {
         const isValid = img && img.src && img.src.trim() !== '';
         if (!isValid) {
             console.warn(`Imagen inválida en el carrusel:`, img);
         }
         return isValid;
     });
+    
+    // Si no hay imágenes, usar una imagen por defecto
+    const defaultHeroImage = [{
+        src: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop',
+        alt: 'Paisaje de Chile',
+        id: 'default-hero'
+    }];
+    
+    const finalHeroImages = heroImages.length > 0 ? heroImages : defaultHeroImage;
+    
+    console.log('Imágenes del carrusel procesadas:', finalHeroImages);
     
     console.log('Imágenes del carrusel:', heroImages);
 
@@ -278,7 +278,7 @@ const HomePage = () => {
     return (
         <div className="bg-background">
             <NewsTicker tickerData={tickerData} />
-            <HeroCarousel images={heroImages.length > 0 ? heroImages : [{src: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop", alt: "Paisagem Padrão"}] } />
+            <HeroCarousel images={finalHeroImages} />
 
             <section className="container py-12 md:py-16">
                 <div className="flex justify-center items-center flex-wrap gap-x-8 gap-y-10 md:gap-x-12">

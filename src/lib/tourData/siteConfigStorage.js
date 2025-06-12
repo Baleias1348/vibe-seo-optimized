@@ -125,8 +125,14 @@ export const saveSiteConfig = async (config) => {
     
     // En caso de error, guardar en localStorage como respaldo
     try {
-      localStorage.setItem('vibechile-site-config', JSON.stringify(config));
-      console.warn('Configuración guardada en localStorage como respaldo');
+      const backupConfig = { ...config, _lastUpdated: new Date().toISOString(), _source: 'local-backup' };
+      localStorage.setItem('vibechile-site-config', JSON.stringify(backupConfig));
+      console.warn('Configuración guardada en localStorage como respaldo', backupConfig);
+      
+      // Mostrar notificación al usuario
+      if (typeof window !== 'undefined') {
+        alert(`Error al guardar en Supabase. Se guardó localmente como respaldo. Error: ${error.message}`);
+      }
     } catch (e) {
       console.error('Error al guardar en localStorage:', e);
     }
@@ -139,59 +145,133 @@ export const saveSiteConfig = async (config) => {
 export const subscribeToConfigChanges = (callback) => {
   console.log('Iniciando suscripción a cambios en tiempo real...');
   
-  const channel = supabase
-    .channel('site_config_changes', {
-      config: {
-        broadcast: { self: true },
-        presence: { key: 'site-config' }
-      }
-    })
-    .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'site_config',
-        filter: `id=eq.${DEFAULT_CONFIG_ID}`
-      },
-      (payload) => {
-        console.log('Cambio detectado en la configuración:', payload);
-        if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
-          const updatedConfig = { ...defaultConfig, ...mapToLegacyFormat(payload.new) };
-          console.log('Nueva configuración:', updatedConfig);
-          callback(updatedConfig);
-        }
-      }
-    )
-    .on('broadcast', { event: 'test' }, (payload) => {
-      console.log('Mensaje de prueba recibido:', payload);
-    })
-    .on('presence', { event: 'sync' }, () => {
-      console.log('Sincronización de presencia:', channel.presenceState());
-    })
-    .on('system', (event) => {
-      console.log('Evento del sistema:', event);
-    })
-    .subscribe((status, err) => {
-      console.log('Estado de la suscripción:', status);
-      if (err) {
-        console.error('Error en la suscripción:', err);
-      }
+  if (!supabase) {
+    console.error('Error: supabase client no está inicializado');
+    return () => {}; // Retorna una función vacía si no hay cliente
+  }
+  
+  let isSubscribed = true;
+  let reconnectTimeout;
+  let channel;
+  
+  const setupSubscription = () => {
+    try {
+      channel = supabase
+        .channel('site_config_changes', {
+          config: {
+            broadcast: { self: true },
+            presence: { key: 'site-config' },
+            reconnect: true
+          }
+        })
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'site_config',
+            filter: `id=eq.${DEFAULT_CONFIG_ID}`
+          },
+          (payload) => {
+            console.log('Cambio detectado en la configuración:', payload);
+            if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+              try {
+                const updatedConfig = { ...defaultConfig, ...mapToLegacyFormat(payload.new) };
+                console.log('Nueva configuración:', updatedConfig);
+                callback(updatedConfig);
+              } catch (error) {
+                console.error('Error al procesar la actualización:', error);
+              }
+            }
+          }
+        )
+        .on('broadcast', { event: 'test' }, (payload) => {
+          console.log('Mensaje de prueba recibido:', payload);
+        })
+        .on('presence', { event: 'sync' }, () => {
+          console.log('Sincronización de presencia:', channel?.presenceState());
+        })
+        .on('system', (event) => {
+          console.log('Evento del sistema:', event);
+          
+          // Manejar reconexión en caso de desconexión
+          if (event === 'CHANNEL_ERROR' || event === 'TIMED_OUT' || event === 'NETWORK_ERROR') {
+            console.log(`Evento del sistema detectado: ${event}. Intentando reconectar...`);
+            attemptReconnect();
+          }
+        })
+        .subscribe((status, err) => {
+          console.log('Estado de la suscripción:', status);
+          
+          if (err) {
+            console.error('Error en la suscripción:', err);
+            if (isSubscribed) {
+              attemptReconnect();
+            }
+            return;
+          }
+          
+          if (status === 'SUBSCRIBED') {
+            console.log('✅ Suscripción activa');
+          }
+        });
       
-      // Reconexión automática
-      if (status === 'CHANNEL_ERROR') {
-        console.log('Reconectando...');
-        channel.unsubscribe().subscribe();
+      return channel;
+    } catch (error) {
+      console.error('Error al configurar la suscripción:', error);
+      if (isSubscribed) {
+        attemptReconnect();
       }
-      
-      if (status === 'SUBSCRIBED') {
-        console.log('Suscripción activa');
+      return null;
+    }
+  };
+  
+  const attemptReconnect = () => {
+    if (!isSubscribed) return;
+    
+    console.log('🔁 Intentando reconectar en 3 segundos...');
+    
+    // Limpiar el timeout anterior si existe
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout);
+    }
+    
+    // Desuscribir el canal actual si existe
+    if (channel) {
+      try {
+        channel.unsubscribe();
+      } catch (e) {
+        console.error('Error al desuscribir el canal:', e);
       }
-    });
+    }
+    
+    // Intentar reconectar después de un retraso
+    reconnectTimeout = setTimeout(() => {
+      if (isSubscribed) {
+        console.log('🔄 Reconectando...');
+        setupSubscription();
+      }
+    }, 3000);
+  };
+  
+  // Iniciar la primera suscripción
+  setupSubscription();
   
   // Devolver función para cancelar la suscripción
   return () => {
-    console.log('Cancelando suscripción...');
-    channel.unsubscribe();
+    console.log('🛑 Cancelando suscripción...');
+    isSubscribed = false;
+    
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout);
+    }
+    
+    if (channel) {
+      try {
+        channel.unsubscribe();
+      } catch (e) {
+        console.error('Error al desuscribir el canal:', e);
+      }
+    }
   };
 };

@@ -137,8 +137,15 @@ export const saveSiteConfig = async (config) => {
 
 // Suscripción a cambios en tiempo real
 export const subscribeToConfigChanges = (callback) => {
-  return supabase
-    .channel('site_config_changes')
+  console.log('Iniciando suscripción a cambios en tiempo real...');
+  
+  const channel = supabase
+    .channel('site_config_changes', {
+      config: {
+        broadcast: { self: true },
+        presence: { key: 'site-config' }
+      }
+    })
     .on(
       'postgres_changes',
       {
@@ -148,10 +155,43 @@ export const subscribeToConfigChanges = (callback) => {
         filter: `id=eq.${DEFAULT_CONFIG_ID}`
       },
       (payload) => {
+        console.log('Cambio detectado en la configuración:', payload);
         if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
-          callback({ ...defaultConfig, ...mapToLegacyFormat(payload.new) });
+          const updatedConfig = { ...defaultConfig, ...mapToLegacyFormat(payload.new) };
+          console.log('Nueva configuración:', updatedConfig);
+          callback(updatedConfig);
         }
       }
     )
-    .subscribe();
+    .on('broadcast', { event: 'test' }, (payload) => {
+      console.log('Mensaje de prueba recibido:', payload);
+    })
+    .on('presence', { event: 'sync' }, () => {
+      console.log('Sincronización de presencia:', channel.presenceState());
+    })
+    .on('system', (event) => {
+      console.log('Evento del sistema:', event);
+    })
+    .subscribe((status, err) => {
+      console.log('Estado de la suscripción:', status);
+      if (err) {
+        console.error('Error en la suscripción:', err);
+      }
+      
+      // Reconexión automática
+      if (status === 'CHANNEL_ERROR') {
+        console.log('Reconectando...');
+        channel.unsubscribe().subscribe();
+      }
+      
+      if (status === 'SUBSCRIBED') {
+        console.log('Suscripción activa');
+      }
+    });
+  
+  // Devolver función para cancelar la suscripción
+  return () => {
+    console.log('Cancelando suscripción...');
+    channel.unsubscribe();
+  };
 };

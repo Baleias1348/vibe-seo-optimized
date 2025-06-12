@@ -25,32 +25,67 @@ import React, { useState, useEffect } from 'react';
         });
 
         useEffect(() => {
-            const loadConfig = async () => {
-                try {
-                    const currentConfig = await getSiteConfig();
+        let isMounted = true;
+        let unsubscribe = () => {};
+
+        const loadConfig = async () => {
+            try {
+                console.log('Cargando configuración inicial...');
+                const currentConfig = await getSiteConfig();
+                if (isMounted) {
+                    console.log('Configuración cargada:', currentConfig);
                     setConfig(prevConfig => ({ ...prevConfig, ...currentConfig }));
-                } catch (error) {
-                    console.error('Error loading site config:', error);
+                }
+            } catch (error) {
+                console.error('Error al cargar la configuración:', error);
+                if (isMounted) {
                     toast({
-                        title: "Erro ao carregar configurações",
-                        description: "Não foi possível carregar as configurações do site.",
+                        title: "Error al cargar configuración",
+                        description: error.message || "No se pudo cargar la configuración del sitio.",
                         variant: "destructive"
                     });
                 }
-            };
-            
-            loadConfig();
-            
-            // Configurar suscripción a cambios en tiempo real
-            const subscription = subscribeToConfigChanges((updatedConfig) => {
-                setConfig(prevConfig => ({ ...prevConfig, ...updatedConfig }));
+            }
+        };
+        
+        // Cargar configuración inicial
+        loadConfig();
+        
+        // Configurar suscripción a cambios en tiempo real
+        try {
+            console.log('Configurando suscripción a cambios...');
+            unsubscribe = subscribeToConfigChanges((updatedConfig) => {
+                console.log('Recibida actualización en tiempo real:', updatedConfig);
+                if (isMounted) {
+                    setConfig(prev => ({
+                        ...prev,
+                        ...updatedConfig
+                    }));
+                    toast({
+                        title: "Configuración actualizada",
+                        description: "Los cambios se han sincronizado correctamente.",
+                        variant: "default"
+                    });
+                }
             });
-            
-            return () => {
-                // Limpiar suscripción al desmontar el componente
-                subscription?.unsubscribe?.();
-            };
-        }, []);
+        } catch (error) {
+            console.error('Error al configurar la suscripción:', error);
+            toast({
+                title: "Error de conexión",
+                description: "No se pudo establecer la conexión en tiempo real. Los cambios no se sincronizarán automáticamente.",
+                variant: "destructive"
+            });
+        }
+        
+        // Limpiar al desmontar
+        return () => {
+            isMounted = false;
+            console.log('Limpiando suscripción...');
+            if (typeof unsubscribe === 'function') {
+                unsubscribe();
+            }
+        };
+    }, []);
 
         const handleChange = (e) => {
             const { name, value } = e.target;

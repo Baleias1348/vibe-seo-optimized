@@ -1,40 +1,157 @@
-const SITE_CONFIG_KEY = 'vibechile-site-config';
+import { supabase } from '../supabaseClient';
 
-    const defaultConfig = {
-        siteName: 'Vibe Chile',
-        logoUrl: 'https://placehold.co/120x50?text=VibeChile', // Placeholder logo
-        heroImage1: 'https://images.unsplash.com/photo-1518504680444-a75dce87508a?q=80&w=2070&auto=format&fit=crop',
-        heroAlt1: 'Montanhas majestosas dos Andes no Chile',
-        heroImage2: 'https://images.unsplash.com/photo-1508005244291-519cf9555922?q=80&w=2020&auto=format&fit=crop',
-        heroAlt2: 'Vinhedos exuberantes no vale central do Chile',
-        heroImage3: 'https://images.unsplash.com/photo-1478827387698-1527781a4887?q=80&w=2070&auto=format&fit=crop',
-        heroAlt3: 'Costa cênica do Oceano Pacífico no Chile',
-        heroImage4: 'https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=2070&auto=format&fit=crop',
-        heroAlt4: 'Deserto do Atacama sob um céu estrelado',
-        defaultShareImage: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1200&h=630&auto=format&fit=crop',
-        currencySymbol: 'R$',
-        currencyCode: 'BRL',
+// ID de configuración por defecto
+const DEFAULT_CONFIG_ID = 'default';
+
+// Configuración por defecto
+const defaultConfig = {
+  siteName: 'CHILE ao Vivo',
+  logoUrl: 'https://placehold.co/120x50?text=CHILEaoVivo',
+  heroImages: [
+    {
+      url: 'https://images.unsplash.com/photo-1518504680444-a75dce87508a?q=80&w=2070&auto=format&fit=crop',
+      alt: 'Montanhas majestosas dos Andes no Chile'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1508005244291-519cf9555922?q=80&w=2020&auto=format&fit=crop',
+      alt: 'Vinhedos exuberantes no vale central do Chile'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1478827387698-1527781a4887?q=80&w=2070&auto=format&fit=crop',
+      alt: 'Costa cênica do Oceano Pacífico no Chile'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=2070&auto=format&fit=crop',
+      alt: 'Deserto do Atacama sob um céu estrelado'
+    }
+  ],
+  defaultShareImage: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1200&h=630&auto=format&fit=crop',
+  currencySymbol: 'R$',
+  currencyCode: 'BRL',
+};
+
+// Mapeo para compatibilidad con el formato anterior
+const mapToLegacyFormat = (config) => ({
+  siteName: config.site_name,
+  logoUrl: config.logo_url,
+  heroImage1: config.hero_images?.[0]?.url || '',
+  heroAlt1: config.hero_images?.[0]?.alt || '',
+  heroImage2: config.hero_images?.[1]?.url || '',
+  heroAlt2: config.hero_images?.[1]?.alt || '',
+  heroImage3: config.hero_images?.[2]?.url || '',
+  heroAlt3: config.hero_images?.[2]?.alt || '',
+  heroImage4: config.hero_images?.[3]?.url || '',
+  heroAlt4: config.hero_images?.[3]?.alt || '',
+  defaultShareImage: config.default_share_image,
+  currencySymbol: config.currency_symbol,
+  currencyCode: config.currency_code,
+});
+
+// Mapeo para el formato de Supabase
+const mapToSupabaseFormat = (config) => ({
+  site_name: config.siteName,
+  logo_url: config.logoUrl,
+  hero_images: [
+    { url: config.heroImage1, alt: config.heroAlt1 },
+    { url: config.heroImage2, alt: config.heroAlt2 },
+    { url: config.heroImage3, alt: config.heroAlt3 },
+    { url: config.heroImage4, alt: config.heroAlt4 },
+  ].filter(img => img.url),
+  default_share_image: config.defaultShareImage,
+  currency_symbol: config.currencySymbol,
+  currency_code: config.currencyCode,
+});
+
+export const getSiteConfig = async () => {
+  try {
+    // Intentar obtener de Supabase primero
+    const { data, error } = await supabase
+      .from('site_config')
+      .select('*')
+      .eq('id', DEFAULT_CONFIG_ID)
+      .single();
+
+    if (error) throw error;
+    
+    if (data) {
+      // Convertir al formato esperado por la aplicación
+      return { ...defaultConfig, ...mapToLegacyFormat(data) };
+    }
+    
+    // Si no hay datos en Supabase, devolver los valores por defecto
+    return defaultConfig;
+    
+  } catch (error) {
+    console.error('Error al obtener la configuración de Supabase:', error);
+    // En caso de error, intentar obtener del localStorage como respaldo
+    try {
+      const storedConfig = localStorage.getItem('vibechile-site-config');
+      if (storedConfig) {
+        return { ...defaultConfig, ...JSON.parse(storedConfig) };
+      }
+    } catch (e) {
+      console.error('Error al leer del localStorage:', e);
+    }
+    
+    return defaultConfig;
+  }
+};
+
+export const saveSiteConfig = async (config) => {
+  try {
+    const supabaseData = {
+      id: DEFAULT_CONFIG_ID,
+      ...mapToSupabaseFormat(config)
     };
+    
+    const { data, error } = await supabase
+      .from('site_config')
+      .upsert(supabaseData, { onConflict: 'id' })
+      .select();
+      
+    if (error) throw error;
+    
+    // Opcional: Mantener una copia en localStorage como respaldo
+    try {
+      localStorage.setItem('vibechile-site-config', JSON.stringify(config));
+    } catch (e) {
+      console.warn('No se pudo guardar en localStorage:', e);
+    }
+    
+    return data;
+    
+  } catch (error) {
+    console.error('Error al guardar la configuración en Supabase:', error);
+    
+    // En caso de error, guardar en localStorage como respaldo
+    try {
+      localStorage.setItem('vibechile-site-config', JSON.stringify(config));
+      console.warn('Configuración guardada en localStorage como respaldo');
+    } catch (e) {
+      console.error('Error al guardar en localStorage:', e);
+    }
+    
+    throw error;
+  }
+};
 
-    export const getSiteConfig = () => {
-        try {
-            const storedConfig = localStorage.getItem(SITE_CONFIG_KEY);
-            if (storedConfig) {
-                return { ...defaultConfig, ...JSON.parse(storedConfig) };
-            }
-            return defaultConfig;
-        } catch (error) {
-            console.error("Erro ao ler configuração do site do localStorage:", error);
-            return defaultConfig;
+// Suscripción a cambios en tiempo real
+export const subscribeToConfigChanges = (callback) => {
+  return supabase
+    .channel('site_config_changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'site_config',
+        filter: `id=eq.${DEFAULT_CONFIG_ID}`
+      },
+      (payload) => {
+        if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+          callback({ ...defaultConfig, ...mapToLegacyFormat(payload.new) });
         }
-    };
-
-    export const saveSiteConfig = (config) => {
-        try {
-            const newConfig = { ...getSiteConfig(), ...config };
-            localStorage.setItem(SITE_CONFIG_KEY, JSON.stringify(newConfig));
-        } catch (error) {
-            console.error("Erro ao salvar configuração do site no localStorage:", error);
-            throw error; // Re-throw to be caught by the form
-        }
-    };
+      }
+    )
+    .subscribe();
+};

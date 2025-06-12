@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import { useToast } from "@/components/ui/use-toast";
-    import { getSiteConfig, saveSiteConfig } from '@/lib/tourData';
+    import { getSiteConfig, saveSiteConfig, subscribeToConfigChanges } from '@/lib/tourData';
     import { Globe, Image as ImageIcon, Shuffle } from 'lucide-react';
 
     const SiteSettingsForm = () => {
@@ -25,8 +25,31 @@ import React, { useState, useEffect } from 'react';
         });
 
         useEffect(() => {
-            const currentConfig = getSiteConfig();
-            setConfig(prevConfig => ({ ...prevConfig, ...currentConfig }));
+            const loadConfig = async () => {
+                try {
+                    const currentConfig = await getSiteConfig();
+                    setConfig(prevConfig => ({ ...prevConfig, ...currentConfig }));
+                } catch (error) {
+                    console.error('Error loading site config:', error);
+                    toast({
+                        title: "Erro ao carregar configurações",
+                        description: "Não foi possível carregar as configurações do site.",
+                        variant: "destructive"
+                    });
+                }
+            };
+            
+            loadConfig();
+            
+            // Configurar suscripción a cambios en tiempo real
+            const subscription = subscribeToConfigChanges((updatedConfig) => {
+                setConfig(prevConfig => ({ ...prevConfig, ...updatedConfig }));
+            });
+            
+            return () => {
+                // Limpiar suscripción al desmontar el componente
+                subscription?.unsubscribe?.();
+            };
         }, []);
 
         const handleChange = (e) => {
@@ -34,14 +57,21 @@ import React, { useState, useEffect } from 'react';
             setConfig(prev => ({ ...prev, [name]: value }));
         };
 
-        const handleSubmit = (e) => {
+        const handleSubmit = async (e) => {
             e.preventDefault();
             try {
-                saveSiteConfig(config);
-                toast({ title: "Configurações Salvas", description: "As configurações do site foram atualizadas." });
+                await saveSiteConfig(config);
+                toast({ 
+                    title: "Configurações Salvas", 
+                    description: "As configurações do site foram atualizadas com sucesso!" 
+                });
             } catch (error) {
                 console.error("Erro ao salvar configurações:", error);
-                toast({ title: "Erro ao Salvar", description: "Não foi possível salvar as configurações.", variant: "destructive" });
+                toast({ 
+                    title: "Erro ao Salvar", 
+                    description: error.message || "Não foi possível salvar as configurações.", 
+                    variant: "destructive" 
+                });
             }
         };
 

@@ -8,23 +8,39 @@ const supabaseOptions = {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
-  },
-  global: {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-      'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, Authorization, apikey, x-client-info',
-    }
+    detectSessionInUrl: true,
+    storage: typeof window !== 'undefined' ? window.localStorage : null
   },
   realtime: {
-    params: {
-      eventsPerSecond: 10,
-    },
+    eventsPerSecond: 10,
+    autoReconnect: true,
+    heartbeatIntervalMs: 15000,
+    timeoutMs: 10000
   },
+  db: {
+    schema: 'public'
+  }
 };
 
+// Crear cliente de Supabase
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, supabaseOptions);
+
+// Función para verificar la conexión a Supabase
+export const checkSupabaseConnection = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('site_config')
+      .select('*')
+      .limit(1);
+      
+    if (error) throw error;
+    console.log('✅ Conexión a Supabase exitosa');
+    return true;
+  } catch (error) {
+    console.error('❌ Error al conectar con Supabase:', error.message);
+    return false;
+  }
+};
 
 // Función de utilidad para verificar la conexión en tiempo real
 export const checkRealtimeConnection = async () => {

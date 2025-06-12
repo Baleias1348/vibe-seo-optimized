@@ -5,10 +5,66 @@ const HeroCarousel = ({ images = [] }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
-    const slides = images.length > 0 ? images : [{ 
-        src: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop", 
-        alt: 'Imagen de portada' 
-    }];
+    const [slides, setSlides] = useState(() => {
+        // Estado inicial con manejo de imágenes por defecto
+        return images.length > 0 ? images : [{ 
+            src: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop", 
+            alt: 'Imagen de portada',
+            id: 'default-hero'
+        }];
+    });
+    
+    // Efecto para manejar cambios en las imágenes
+    useEffect(() => {
+        if (!Array.isArray(images) || images.length === 0) {
+            // Si no hay imágenes, usar la imagen por defecto
+            setSlides([{ 
+                src: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop", 
+                alt: 'Imagen de portada',
+                id: 'default-hero'
+            }]);
+            return;
+        }
+        
+        // Verificar si las imágenes han cambiado realmente
+        const imagesChanged = JSON.stringify(images) !== JSON.stringify(slides);
+        
+        if (imagesChanged) {
+            console.log('🖼️ Actualizando imágenes del carrusel:', images);
+            // Filtrar solo las imágenes válidas
+            const validImages = images.filter(img => 
+                img && 
+                typeof img === 'object' && 
+                img.src && 
+                typeof img.src === 'string' && 
+                img.src.trim() !== ''
+            );
+            
+            if (validImages.length > 0) {
+                // Asegurar que cada imagen tenga un ID único
+                const processedImages = validImages.map((img, index) => ({
+                    ...img,
+                    id: img.id || `img-${index}-${Date.now()}`,
+                    alt: img.alt || `Imagen ${index + 1}`
+                }));
+                
+                setSlides(processedImages);
+                
+                // Si el índice actual es mayor que el nuevo número de imágenes, reiniciar a 0
+                if (currentIndex >= processedImages.length) {
+                    setCurrentIndex(0);
+                }
+            } else {
+                // Si no hay imágenes válidas, usar la imagen por defecto
+                setSlides([{ 
+                    src: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop", 
+                    alt: 'Imagen de portada',
+                    id: 'default-hero'
+                }]);
+                setCurrentIndex(0);
+            }
+        }
+    }, [images]); // Solo se ejecuta cuando cambia la prop images
 
     // Precargar todas las imágenes al montar el componente
     useEffect(() => {

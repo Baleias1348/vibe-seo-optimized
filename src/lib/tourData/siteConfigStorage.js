@@ -31,21 +31,62 @@ const defaultConfig = {
 };
 
 // Mapeo para compatibilidad con el formato anterior
-const mapToLegacyFormat = (config) => ({
-  siteName: config.site_name,
-  logoUrl: config.logo_url,
-  heroImage1: config.hero_images?.[0]?.url || '',
-  heroAlt1: config.hero_images?.[0]?.alt || '',
-  heroImage2: config.hero_images?.[1]?.url || '',
-  heroAlt2: config.hero_images?.[1]?.alt || '',
-  heroImage3: config.hero_images?.[2]?.url || '',
-  heroAlt3: config.hero_images?.[2]?.alt || '',
-  heroImage4: config.hero_images?.[3]?.url || '',
-  heroAlt4: config.hero_images?.[3]?.alt || '',
-  defaultShareImage: config.default_share_image,
-  currencySymbol: config.currency_symbol,
-  currencyCode: config.currency_code,
-});
+const mapToLegacyFormat = (config) => {
+  try {
+    if (!config) {
+      console.warn('⚠️ mapToLegacyFormat recibió un valor nulo o indefinido');
+      return {};
+    }
+
+    // Si ya está en formato legado, devolver como está
+    if (config.siteName !== undefined || config.heroImage1 !== undefined) {
+      console.log('ℹ️ El formato ya es legado, devolviendo sin cambios');
+      return { ...config };
+    }
+
+    console.log('🔄 Convirtiendo configuración al formato legado:', config);
+    
+    // Si hay un array de hero_images, usarlo
+    let heroImages = [];
+    if (Array.isArray(config.hero_images)) {
+      heroImages = config.hero_images;
+    } else if (config.hero_images && typeof config.hero_images === 'object') {
+      // Si hero_images es un objeto (puede pasar con algunas versiones de Supabase)
+      heroImages = Object.values(config.hero_images);
+    }
+    
+    // Crear el objeto con los campos legados
+    const legacyConfig = {
+      // Campos directos
+      siteName: config.site_name || config.siteName || 'CHILE ao Vivo',
+      logoUrl: config.logo_url || config.logoUrl || 'https://placehold.co/120x50?text=CHILEaoVivo',
+      defaultShareImage: config.default_share_image || config.defaultShareImage || '',
+      currencySymbol: config.currency_symbol || config.currencySymbol || 'R$',
+      currencyCode: config.currency_code || config.currencyCode || 'BRL',
+      
+      // Mapear las imágenes
+      hero_images: heroImages,
+      
+      // Mantener compatibilidad con el formato antiguo
+      ...(heroImages[0] && { heroImage1: heroImages[0].url }),
+      ...(heroImages[0] && { heroAlt1: heroImages[0].alt }),
+      ...(heroImages[1] && { heroImage2: heroImages[1].url }),
+      ...(heroImages[1] && { heroAlt2: heroImages[1].alt }),
+      ...(heroImages[2] && { heroImage3: heroImages[2].url }),
+      ...(heroImages[2] && { heroAlt3: heroImages[2].alt }),
+      ...(heroImages[3] && { heroImage4: heroImages[3].url }),
+      ...(heroImages[3] && { heroAlt4: heroImages[3].alt })
+    };
+    
+    console.log('✅ Configuración convertida a formato legado:', legacyConfig);
+    return legacyConfig;
+    
+  } catch (error) {
+    console.error('❌ Error en mapToLegacyFormat:', error);
+    // En caso de error, devolver un objeto vacío para que se usen los valores por defecto
+    return {};
+  }
+};
 
 // Mapeo para el formato de Supabase
 const mapToSupabaseFormat = (config) => ({
@@ -62,9 +103,23 @@ const mapToSupabaseFormat = (config) => ({
   currency_code: config.currencyCode,
 });
 
-export const getSiteConfig = async () => {
+// Cache en memoria para la configuración
+let cachedConfig = null;
+let lastFetchTime = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos en milisegundos
+
+export const getSiteConfig = async (forceRefresh = false) => {
+  // Usar caché si está disponible y no se fuerza la actualización
+  const now = Date.now();
+  if (!forceRefresh && cachedConfig && (now - lastFetchTime) < CACHE_DURATION) {
+    console.log('📦 Usando configuración en caché');
+    return { ...defaultConfig, ...cachedConfig };
+  }
+
   try {
-    // Intentar obtener de Supabase primero
+    console.log('🌐 Obteniendo configuración desde Supabase...');
+    
+    // Intentar obtener de Supabase
     const { data, error } = await supabase
       .from('site_config')
       .select('*')
@@ -74,26 +129,44 @@ export const getSiteConfig = async () => {
     if (error) throw error;
     
     if (data) {
+      console.log('✅ Configuración obtenida de Supabase');
+      
       // Convertir al formato esperado por la aplicación
-      return { ...defaultConfig, ...mapToLegacyFormat(data) };
+      const config = { ...defaultConfig, ...mapToLegacyFormat(data) };
+      
+      // Actualizar caché
+      cachedConfig = { ...config };
+      lastFetchTime = now;
+      
+      // Guardar en localStorage como respaldo
+      try {
+        localStorage.setItem('vibechile-site-config', JSON.stringify(config));
+      } catch (e) {
+        console.warn('⚠️ No se pudo guardar en localStorage:', e.message);
+      }
+      
+      return config;
     }
     
-    // Si no hay datos en Supabase, devolver los valores por defecto
-    return defaultConfig;
+    console.log('ℹ️ No se encontró configuración en Supabase, usando valores por defecto');
+    return { ...defaultConfig };
     
   } catch (error) {
-    console.error('Error al obtener la configuración de Supabase:', error);
+    console.error('❌ Error al obtener la configuración de Supabase:', error);
+    
     // En caso de error, intentar obtener del localStorage como respaldo
     try {
       const storedConfig = localStorage.getItem('vibechile-site-config');
       if (storedConfig) {
+        console.log('📱 Usando configuración del localStorage como respaldo');
         return { ...defaultConfig, ...JSON.parse(storedConfig) };
       }
     } catch (e) {
-      console.error('Error al leer del localStorage:', e);
+      console.error('❌ Error al leer del localStorage:', e);
     }
     
-    return defaultConfig;
+    console.log('⚠️ Usando configuración por defecto debido a errores');
+    return { ...defaultConfig };
   }
 };
 
@@ -156,14 +229,9 @@ export const subscribeToConfigChanges = (callback) => {
   
   const setupSubscription = () => {
     try {
+      // Usar el método de suscripción de Supabase Realtime
       channel = supabase
-        .channel('site_config_changes', {
-          config: {
-            broadcast: { self: true },
-            presence: { key: 'site-config' },
-            reconnect: true
-          }
-        })
+        .channel('site_config_changes')
         .on(
           'postgres_changes',
           {
@@ -176,30 +244,31 @@ export const subscribeToConfigChanges = (callback) => {
             console.log('Cambio detectado en la configuración:', payload);
             if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
               try {
-                const updatedConfig = { ...defaultConfig, ...mapToLegacyFormat(payload.new) };
-                console.log('Nueva configuración:', updatedConfig);
-                callback(updatedConfig);
+                // Usar payload.new o payload.record según la versión de Supabase
+                const record = payload.new || payload.record;
+                if (!record) {
+                  console.error('No se encontraron datos en el payload:', payload);
+                  return;
+                }
+                
+                // Convertir al formato esperado por la aplicación
+                const updatedConfig = { 
+                  ...defaultConfig, 
+                  ...mapToLegacyFormat(record)
+                };
+                
+                console.log('Nueva configuración procesada:', updatedConfig);
+                
+                // Llamar al callback con los nuevos datos
+                if (typeof callback === 'function') {
+                  callback(updatedConfig);
+                }
               } catch (error) {
                 console.error('Error al procesar la actualización:', error);
               }
             }
           }
         )
-        .on('broadcast', { event: 'test' }, (payload) => {
-          console.log('Mensaje de prueba recibido:', payload);
-        })
-        .on('presence', { event: 'sync' }, () => {
-          console.log('Sincronización de presencia:', channel?.presenceState());
-        })
-        .on('system', (event) => {
-          console.log('Evento del sistema:', event);
-          
-          // Manejar reconexión en caso de desconexión
-          if (event === 'CHANNEL_ERROR' || event === 'TIMED_OUT' || event === 'NETWORK_ERROR') {
-            console.log(`Evento del sistema detectado: ${event}. Intentando reconectar...`);
-            attemptReconnect();
-          }
-        })
         .subscribe((status, err) => {
           console.log('Estado de la suscripción:', status);
           
@@ -212,7 +281,7 @@ export const subscribeToConfigChanges = (callback) => {
           }
           
           if (status === 'SUBSCRIBED') {
-            console.log('✅ Suscripción activa');
+            console.log('✅ Suscripción activa a cambios en tiempo real');
           }
         });
       

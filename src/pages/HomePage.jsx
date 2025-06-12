@@ -123,50 +123,196 @@ const HomePage = () => {
     const [tickerData, setTickerData] = useState([]);
 
     // Obtener configuración del sitio
-    const fetchSiteConfig = useCallback(async () => {
-        try {
-            console.log('Obteniendo configuración del sitio...');
-            const config = await getSiteConfig();
-            console.log('Configuración obtenida:', config);
-            setSiteConfigData(config);
-        } catch (error) {
-            console.error('Error al obtener la configuración:', error);
-            // Usar valores por defecto en caso de error
-            setSiteConfigData({
-                heroImage1: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop',
-                heroAlt1: 'Paisaje de Chile',
-                heroImage2: 'https://images.unsplash.com/photo-1518509562904-e23f38707bcc?q=80&w=1470&auto=format&fit=crop',
-                heroAlt2: 'Montañas de los Andes',
-                heroImage3: 'https://images.unsplash.com/photo-1508005244291-519cf9555922?q=80&w=1470&auto=format&fit=crop',
-                heroAlt3: 'Viñedos chilenos',
-                heroImage4: 'https://images.unsplash.com/photo-1478827387698-1527781a4887?q=80&w=1470&auto=format&fit=crop',
-                heroAlt4: 'Costa del Pacífico',
-                siteName: 'CHILE ao Vivo',
-                logoUrl: 'https://placehold.co/120x50?text=CHILEaoVivo',
-                currencySymbol: 'R$',
-                currencyCode: 'BRL'
-            });
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchSiteConfig();
-        
-        // Suscribirse a cambios en tiempo real
-        const unsubscribe = subscribeToConfigChanges((newConfig) => {
-            console.log('Cambio en tiempo real detectado:', newConfig);
-            setSiteConfigData(prev => ({
-                ...prev,
-                ...newConfig
-            }));
+  const fetchSiteConfig = useCallback(async () => {
+    console.log('🔄 Obteniendo configuración del sitio...');
+    let config;
+    
+    try {
+      // 1. Intentar obtener de Supabase
+      config = await getSiteConfig();
+      console.log('✅ Configuración obtenida de Supabase:', config);
+      
+      // 2. Verificar si la configuración tiene datos válidos
+      if (!config || (typeof config === 'object' && Object.keys(config).length === 0)) {
+        throw new Error('La configuración devuelta está vacía');
+      }
+      
+      // 3. Procesar las imágenes del carrusel
+      const processedConfig = {
+        ...config,
+        // Asegurar que hero_images esté definido y sea un array
+        hero_images: Array.isArray(config.hero_images) 
+          ? config.hero_images 
+          : []
+      };
+      
+      // 4. Actualizar el estado solo si hay cambios
+      setSiteConfigData(prev => {
+        // Usar JSON.stringify para comparación profunda
+        const prevStr = JSON.stringify({
+          ...prev,
+          _lastUpdated: undefined,
+          _fetchId: undefined
         });
         
-        return () => {
-            if (unsubscribe && typeof unsubscribe === 'function') {
-                unsubscribe();
-            }
-        };
-    }, [fetchSiteConfig]);
+        const newStr = JSON.stringify({
+          ...processedConfig,
+          _lastUpdated: new Date().toISOString(),
+          _fetchId: Math.random().toString(36).substr(2, 9)
+        });
+        
+        // Solo actualizar si hay cambios reales
+        if (prevStr !== newStr) {
+          console.log('🔄 Actualizando configuración con nuevos datos');
+          return {
+            ...processedConfig,
+            _lastUpdated: new Date().toISOString(),
+            _fetchId: Math.random().toString(36).substr(2, 9)
+          };
+        }
+        
+        console.log('ℹ️ No hay cambios en la configuración');
+        return prev;
+      });
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error al obtener la configuración:', error);
+      
+      // Usar valores por defecto en caso de error
+      const defaultConfig = {
+        siteName: 'CHILE ao Vivo',
+        logoUrl: 'https://placehold.co/120x50?text=CHILEaoVivo',
+        hero_images: [
+          {
+            url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop',
+            alt: 'Paisaje de Chile'
+          },
+          {
+            url: 'https://images.unsplash.com/photo-1518509562904-e23f38707bcc?q=80&w=1470&auto=format&fit=crop',
+            alt: 'Montañas de los Andes'
+          },
+          {
+            url: 'https://images.unsplash.com/photo-1508005244291-519cf9555922?q=80&w=1470&auto=format&fit=crop',
+            alt: 'Viñedos chilenos'
+          },
+          {
+            url: 'https://images.unsplash.com/photo-1478827387698-1527781a4887?q=80&w=1470&auto=format&fit=crop',
+            alt: 'Costa del Pacífico'
+          }
+        ],
+        currencySymbol: 'R$',
+        currencyCode: 'BRL',
+        _lastUpdated: new Date().toISOString(),
+        _isDefault: true
+      };
+      
+      // Solo actualizar si es necesario
+      setSiteConfigData(prev => {
+        if (prev._isDefault) return prev; // Ya está usando valores por defecto
+        return defaultConfig;
+      });
+      
+      return false;
+    }
+  }, []);
+
+  // Efecto para manejar la suscripción a cambios en tiempo real
+  useEffect(() => {
+    let isMounted = true;
+    let unsubscribe;
+    let retryCount = 0;
+    const MAX_RETRIES = 5;
+
+    const handleConfigUpdate = (newConfig) => {
+      console.log('🔔 Cambio en tiempo real detectado:', newConfig);
+      
+      if (!isMounted) return;
+      
+      // Verificar si hay cambios reales antes de actualizar el estado
+      setSiteConfigData(prev => {
+        // Usar JSON.stringify para comparación profunda
+        const prevStr = JSON.stringify({
+          ...prev,
+          // Excluir propiedades que pueden cambiar en cada render
+          _lastUpdated: undefined,
+          _subscriptionId: undefined
+        });
+        
+        const newStr = JSON.stringify({
+          ...newConfig,
+          _lastUpdated: new Date().toISOString(),
+          _subscriptionId: Math.random().toString(36).substr(2, 9)
+        });
+        
+        // Solo actualizar si hay cambios reales
+        if (prevStr !== newStr) {
+          console.log('🔄 Actualizando configuración con cambios...');
+          return {
+            ...newConfig,
+            _lastUpdated: new Date().toISOString(),
+            _subscriptionId: Math.random().toString(36).substr(2, 9)
+          };
+        }
+        
+        console.log('ℹ️ No hay cambios significativos para actualizar');
+        return prev;
+      });
+    };
+
+    const initializeSubscription = async () => {
+      if (!isMounted) return;
+      
+      try {
+        // Cargar configuración inicial
+        await fetchSiteConfig();
+        
+        if (!isMounted) return;
+        
+        console.log('🔍 Configurando suscripción a cambios en tiempo real...');
+        
+        // Configurar la suscripción
+        unsubscribe = subscribeToConfigChanges(handleConfigUpdate);
+        
+        // Reiniciar el contador de reintentos en caso de éxito
+        retryCount = 0;
+      } catch (error) {
+        console.error('❌ Error al inicializar la suscripción:', error);
+        
+        // Reintentar si no hemos alcanzado el máximo de reintentos
+        if (retryCount < MAX_RETRIES) {
+          retryCount++;
+          const delay = Math.min(1000 * Math.pow(2, retryCount), 30000); // Backoff exponencial, máximo 30s
+          console.log(`🔄 Reintentando en ${delay/1000} segundos... (${retryCount}/${MAX_RETRIES})`);
+          
+          setTimeout(() => {
+            if (isMounted) initializeSubscription();
+          }, delay);
+        } else {
+          console.error('❌ Se alcanzó el máximo número de reintentos');
+        }
+      }
+    };
+    
+    // Inicializar la suscripción
+    initializeSubscription();
+    
+    // Función de limpieza
+    return () => {
+      console.log('🧹 Limpiando suscripción...');
+      isMounted = false;
+      
+      if (unsubscribe && typeof unsubscribe === 'function') {
+        try {
+          console.log('🔴 Cancelando suscripción...');
+          unsubscribe();
+        } catch (error) {
+          console.error('Error al cancelar la suscripción:', error);
+        }
+      }
+    };
+  }, [fetchSiteConfig]);
 
     useEffect(() => {
         const handleStorageChange = (event) => {
@@ -219,36 +365,53 @@ const HomePage = () => {
     // Log para depuración de imágenes
     console.log('siteConfigData:', siteConfigData);
     
-    // Obtener imágenes del carrusel desde hero_images o usar un array vacío si no existe
-    const heroImagesArray = Array.isArray(siteConfigData.hero_images) 
-        ? siteConfigData.hero_images 
-        : [];
-    
-    // Mapear las imágenes al formato esperado por el carrusel
-    const heroImages = heroImagesArray.map((img, index) => ({
-        src: img.url || '',
-        alt: img.alt || `Imagen ${index + 1} del carrusel`,
-        id: `hero-${index}`
-    })).filter(img => {
-        const isValid = img && img.src && img.src.trim() !== '';
-        if (!isValid) {
+    // Obtener imágenes del carrusel
+    const getHeroImages = () => {
+      // Si hay un array de hero_images, usarlo
+      if (Array.isArray(siteConfigData.hero_images) && siteConfigData.hero_images.length > 0) {
+        return siteConfigData.hero_images.map((img, index) => ({
+          src: img.url || '',
+          alt: img.alt || `Imagen ${index + 1} del carrusel`,
+          id: `hero-${index}`
+        })).filter(img => {
+          const isValid = img && img.src && img.src.trim() !== '';
+          if (!isValid) {
             console.warn(`Imagen inválida en el carrusel:`, img);
+          }
+          return isValid;
+        });
+      }
+      
+      // Si no hay hero_images, verificar las propiedades individuales (backward compatibility)
+      const legacyImages = [];
+      
+      for (let i = 1; i <= 4; i++) {
+        const url = siteConfigData[`heroImage${i}`] || siteConfigData[`hero_image_${i}`];
+        const alt = siteConfigData[`heroAlt${i}`] || siteConfigData[`hero_alt_${i}`] || `Imagen ${i} del carrusel`;
+        
+        if (url && url.trim() !== '') {
+          legacyImages.push({
+            src: url,
+            alt: alt,
+            id: `hero-legacy-${i}`
+          });
         }
-        return isValid;
-    });
-    
-    // Si no hay imágenes, usar una imagen por defecto
-    const defaultHeroImage = [{
+      }
+      
+      if (legacyImages.length > 0) {
+        return legacyImages;
+      }
+      
+      // Si no hay imágenes, usar una por defecto
+      return [{
         src: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop',
         alt: 'Paisaje de Chile',
         id: 'default-hero'
-    }];
+      }];
+    };
     
-    const finalHeroImages = heroImages.length > 0 ? heroImages : defaultHeroImage;
-    
+    const finalHeroImages = getHeroImages();
     console.log('Imágenes del carrusel procesadas:', finalHeroImages);
-    
-    console.log('Imágenes del carrusel:', heroImages);
 
     const quickAccessItems = [
         { icon: Thermometer, label: "Clima", link: "/clima" },

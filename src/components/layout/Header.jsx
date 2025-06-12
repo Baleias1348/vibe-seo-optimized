@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, MountainSnow, X, LogOut, UserCircle, Settings, ShoppingBag, Star, Compass } from 'lucide-react';
-import { getSiteConfig } from '@/lib/tourData';
+import { getSiteConfig, subscribeToConfigChanges } from '@/lib/tourData';
 import { cn } from '@/lib/utils';
 
 const NavItem = ({ to, children, onClick, className, exact = false, isScrolled }) => {
@@ -57,38 +57,86 @@ const Header = ({ isLandingMode = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Función para cargar la configuración del sitio
+  const fetchSiteConfig = async () => {
+    try {
+      const config = await getSiteConfig();
+      setSiteConfigData(prev => ({
+        ...prev,
+        ...config,
+        // Asegurar que los campos críticos tengan valores por defecto
+        siteName: config.siteName || 'CHILE ao Vivo',
+        logoUrl: config.logoUrl || 'https://placehold.co/120x50?text=CHILEaoVivo'
+      }));
+    } catch (error) {
+      console.error('Error al cargar la configuración:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchUser = async () => {
+    // Cargar configuración inicial
+    fetchSiteConfig();
+
+    // Suscribirse a cambios en tiempo real
+    const unsubscribe = subscribeToConfigChanges((newConfig) => {
+      console.log('🚀 Actualizando configuración en Header:', newConfig);
+      setSiteConfigData(prev => ({
+        ...prev,
+        ...newConfig,
+        // Asegurar que los campos críticos tengan valores por defecto
+        siteName: newConfig.siteName || prev.siteName || 'CHILE ao Vivo',
+        logoUrl: newConfig.logoUrl || prev.logoUrl || 'https://placehold.co/120x50?text=CHILEaoVivo'
+      }));
+    });
+
+    // Configurar autenticación
+    const setupAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
+
+      const { data: authListener } = supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          setUser(session?.user ?? null);
+          // Recargar configuración cuando cambia la autenticación
+          fetchSiteConfig();
+        }
+      );
+
+      return () => {
+        if (authListener?.subscription) {
+          authListener.subscription.unsubscribe();
+        }
+      };
     };
-    fetchUser();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-        setSiteConfigData(getSiteConfig()); // Re-fetch site config on auth change in case logo changed
-      }
-    );
+    const authCleanup = setupAuth();
 
+    // Configurar scroll
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-
     window.addEventListener('scroll', handleScroll);
     
-    // Listener for localStorage changes to update siteConfig (e.g., logo)
+    // Listener para cambios en localStorage
     const handleStorageChange = (event) => {
       if (event.key === 'vibechile-site-config') {
-        setSiteConfigData(getSiteConfig());
+        fetchSiteConfig();
       }
     };
     window.addEventListener('storage', handleStorageChange);
 
+    // Limpieza
     return () => {
-      authListener.subscription.unsubscribe();
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('storage', handleStorageChange);
+      
+      // Limpiar suscripción de autenticación
+      if (authCleanup && typeof authCleanup.then === 'function') {
+        authCleanup.then(cleanup => cleanup && cleanup());
+      }
     };
   }, []);
 

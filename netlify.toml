@@ -1,0 +1,47 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    
+[dev]
+  framework = "vite"
+  targetPort = 5173
+  publish = "dist"
+  command = "npm run dev"
+
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+
+[context.production.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+  VITE_SUPABASE_URL = "https://your-supabase-url.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "your-supabase-anon-key"
+
+[context.deploy-preview.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+  VITE_SUPABASE_URL = "https://your-supabase-url.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "your-supabase-anon-key"
+
+[context.branch-deploy.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+  VITE_SUPABASE_URL = "https://your-supabase-url.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "your-supabase-anon-key"

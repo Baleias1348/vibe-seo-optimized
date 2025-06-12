@@ -45,3 +45,28 @@ yarn-error.log*
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Config files with secrets
+*config*.json
+*credentials*.json
+
+# Scripts with sensitive data
+scripts/*.js
+scripts/*.sql
+
+# Supabase local
+supabase/
+
+# Local development
+.local-*
+
+# Secrets
+secrets.*
+*.pem
+*.key
+*.cert

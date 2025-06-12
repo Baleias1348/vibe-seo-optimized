@@ -196,20 +196,32 @@ export default defineConfig({
 		https: false,
 		host: true,
 		open: true,
+		cors: {
+			origin: '*',
+			methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+			allowedHeaders: ['Content-Type', 'Authorization', 'apikey', 'x-client-info'],
+			credentials: true
+		},
+		headers: {
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+			'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, Authorization, apikey, x-client-info',
+			'Cross-Origin-Embedder-Policy': 'credentialless',
+		},
+		proxy: {
+			'/api': {
+				target: 'https://yfgqpaxajeatchcqrehe.supabase.co',
+				changeOrigin: true,
+				secure: false,
+				rewrite: (path) => path.replace(/^\/api/, '')
+			}
+		}
 	},
 	plugins: [
 		react(),
 		...(isDev ? [inlineEditPlugin?.(), editModeDevPlugin?.()] : []),
-		react(),
 		addTransformIndexHtml
 	],
-	server: {
-		cors: true,
-		headers: {
-			'Cross-Origin-Embedder-Policy': 'credentialless',
-		},
-		allowedHosts: true,
-	},
 	resolve: {
 		extensions: ['.jsx', '.js', '.tsx', '.ts', '.json', ],
 		alias: {

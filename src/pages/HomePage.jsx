@@ -105,17 +105,70 @@ const QuickAccessButton = ({ icon: Icon, label, onClick }) => (
 
 const HomePage = () => {
     const [featuredTours, setFeaturedTours] = useState([]);
-    const [siteConfigData, setSiteConfigData] = useState(getSiteConfig()); // Renamed to avoid conflict
+    const [siteConfigData, setSiteConfigData] = useState({
+        heroImage1: '',
+        heroImage2: '',
+        heroImage3: '',
+        heroImage4: '',
+        heroAlt1: '',
+        heroAlt2: '',
+        heroAlt3: '',
+        heroAlt4: '',
+        siteName: 'CHILE ao Vivo',
+        logoUrl: 'https://placehold.co/120x50?text=CHILEaoVivo',
+        currencySymbol: 'R$',
+        currencyCode: 'BRL'
+    });
     const [isLoadingTours, setIsLoadingTours] = useState(true);
     const [tickerData, setTickerData] = useState([]);
 
-    const fetchSiteConfig = useCallback(() => {
-        setSiteConfigData(getSiteConfig());
+    // Obtener configuración del sitio
+    const fetchSiteConfig = useCallback(async () => {
+        try {
+            console.log('Obteniendo configuración del sitio...');
+            const config = await getSiteConfig();
+            console.log('Configuración obtenida:', config);
+            setSiteConfigData(config);
+        } catch (error) {
+            console.error('Error al obtener la configuración:', error);
+            // Usar valores por defecto en caso de error
+            setSiteConfigData({
+                heroImage1: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop',
+                heroAlt1: 'Paisaje de Chile',
+                heroImage2: 'https://images.unsplash.com/photo-1518509562904-e23f38707bcc?q=80&w=1470&auto=format&fit=crop',
+                heroAlt2: 'Montañas de los Andes',
+                heroImage3: 'https://images.unsplash.com/photo-1508005244291-519cf9555922?q=80&w=1470&auto=format&fit=crop',
+                heroAlt3: 'Viñedos chilenos',
+                heroImage4: 'https://images.unsplash.com/photo-1478827387698-1527781a4887?q=80&w=1470&auto=format&fit=crop',
+                heroAlt4: 'Costa del Pacífico',
+                siteName: 'CHILE ao Vivo',
+                logoUrl: 'https://placehold.co/120x50?text=CHILEaoVivo',
+                currencySymbol: 'R$',
+                currencyCode: 'BRL'
+            });
+        }
     }, []);
 
     useEffect(() => {
-        fetchSiteConfig(); // Fetch on mount
+        fetchSiteConfig();
+        
+        // Suscribirse a cambios en tiempo real
+        const unsubscribe = subscribeToConfigChanges((newConfig) => {
+            console.log('Cambio en tiempo real detectado:', newConfig);
+            setSiteConfigData(prev => ({
+                ...prev,
+                ...newConfig
+            }));
+        });
+        
+        return () => {
+            if (unsubscribe && typeof unsubscribe === 'function') {
+                unsubscribe();
+            }
+        };
+    }, [fetchSiteConfig]);
 
+    useEffect(() => {
         const handleStorageChange = (event) => {
             if (event.key === 'vibechile-site-config') {
                 fetchSiteConfig(); // Re-fetch on storage change

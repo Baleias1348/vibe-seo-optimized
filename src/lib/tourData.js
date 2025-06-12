@@ -15,7 +15,8 @@ export {
 
     export { 
         getSiteConfig, 
-        saveSiteConfig 
+        saveSiteConfig,
+        subscribeToConfigChanges 
     } from './tourData/siteConfigStorage';
 
     export { 

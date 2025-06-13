@@ -13,7 +13,7 @@ import React from 'react';
     import AdminPage from '@/pages/AdminPage';
     import AdminLoginPage from '@/pages/AdminLoginPage';
     import AdminUpdatePasswordPage from '@/pages/AdminUpdatePasswordPage';
-    import ClimaPage from '@/pages/ClimaPage';
+    import WeatherPage from '@/pages/weather/WeatherPage';
     import ConversorPage from '@/pages/ConversorPage';
     import ProtectedRoute from '@/components/auth/ProtectedRoute';
     import WhatsAppButton from '@/components/shared/WhatsAppButton';
@@ -68,11 +68,10 @@ import React from 'react';
                             }
                         />
                         {/* Routes for quick access icons */}
-                        <Route path="/clima" element={<ClimaPage />} />
-                        <Route path="/cambio" element={<ConversorPage />} />
+                        <Route path="/clima" element={<WeatherPage />} />
+                        <Route path="/clima-detalhado" element={<WeatherPage />} />
                         <Route path="/voos" element={<div>Página de Voos (em construção)</div>} />
                         <Route path="/emergencias" element={<div>Página de Emergências (em construção)</div>} />
-                        <Route path="/clima-detalhado" element={<ClimaPage />} />
                         <Route path="/conversor-moeda" element={<ConversorPage />} />
                         <Route path="/investir-chile" element={<div>Página Investir no Chile (em construcción)</div>} />
                         <Route path="/blog/mariscos-chilenos" element={<div>Página Blog Mariscos (em construção)</div>} />

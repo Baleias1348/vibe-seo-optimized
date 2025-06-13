@@ -11,8 +11,16 @@ import {
 import logo from '../../assets/images/logo.svg';
 
 // Configuración de la API
-const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
-const BASE_URL = 'https://api.openweathermap.org/data/2.5';
+console.log('Variables de entorno:', import.meta.env);
+const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '';
+const BASE_URL = import.meta.env.VITE_OPENWEATHER_BASE_URL || 'https://api.openweathermap.org/data/2.5';
+
+if (!API_KEY) {
+  console.error('Error: No se encontró la clave de la API de OpenWeatherMap');
+  console.log('Asegúrate de que el archivo .env contenga VITE_OPENWEATHER_API_KEY');
+}
+
+console.log('URL base de la API:', BASE_URL);
 
 // Coordenadas de las principales ciudades chilenas
 const CHILEAN_CITIES = [

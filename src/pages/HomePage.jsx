@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAllTours, getSiteConfig, subscribeToConfigChanges } from '@/lib/tourData';
 import { supabase } from '@/lib/supabaseClient';
 import { 
-    Thermometer, Cloud, CloudRain, MountainSnow, Sun, Landmark, Briefcase, AlertTriangle, Replace, 
-    SunDim, Banknote, Flag, Globe, Map, HeartPulse, Shuffle, Newspaper
+    Thermometer, Cloud, CloudRain, MountainSnow, Sun, Utensils, Briefcase, AlertTriangle, Replace, 
+    SunDim, Banknote, Flag, Globe, Map, HeartPulse, Shuffle, Newspaper, Plane
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -90,18 +90,30 @@ const NewsTicker = ({ tickerData }) => {
 
 // HeroCarousel ha sido movido a un componente separado en @/components/HeroCarousel/HeroCarousel
 
-const QuickAccessButton = ({ icon: Icon, label, onClick }) => (
-    <motion.div
-        whileHover={{ y: -5, scale: 1.05 }}
-        className="flex flex-col items-center space-y-2 cursor-pointer group"
-        onClick={onClick}
-    >
-        <div className="p-4 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-            <Icon className="h-8 w-8 text-primary" />
-        </div>
-        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">{label}</span>
-    </motion.div>
-);
+const QuickAccessButton = ({ icon: Icon, label, onClick }) => {
+    const words = label.split(' ');
+    const isLongLabel = words.length > 2; // Para etiquetas con más de 2 palabras
+    
+    return (
+        <motion.div
+            whileHover={{ y: -3 }}
+            className="flex flex-col items-center space-y-2 cursor-pointer group w-24"
+            onClick={onClick}
+        >
+            <div className="p-3 bg-white/20 rounded-full group-hover:bg-white/30 transition-colors flex-shrink-0">
+                <Icon className="h-7 w-7 text-white" />
+            </div>
+            <span className={`text-sm font-medium text-white text-center min-h-[40px] flex items-center justify-center`}>
+                {isLongLabel ? (
+                    <span>
+                        {words.slice(0, 2).join(' ')}<br />
+                        {words.slice(2).join(' ')}
+                    </span>
+                ) : label}
+            </span>
+        </motion.div>
+    );
+};
 
 const HomePage = () => {
     const [featuredTours, setFeaturedTours] = useState([]);
@@ -415,19 +427,19 @@ const HomePage = () => {
 
     const quickAccessItems = [
         { icon: Thermometer, label: "Clima", link: "/clima" },
-        { icon: Banknote, label: "Câmbio", link: "/cambio" },
-        { icon: Landmark, label: "Gastronomia", link: "/restaurantes-santiago" },
-        { icon: Briefcase, label: "Voos", link: "/voos" },
+        { icon: Banknote, label: "Conversor de Moeda", link: "/cambio" },
+        { icon: Utensils, label: "Guia Gastronômico", link: "/restaurantes-santiago" },
+        { icon: Plane, label: "Estado do Voo", link: "/voos" },
         { icon: AlertTriangle, label: "Emergências", link: "/emergencias" },
-        { icon: Map, label: "Mapas Úteis", link: "/mapas" }, // New Icon
-        { icon: Newspaper, label: "Notícias", link: "/noticias" }, // New Icon
+        { icon: Map, label: "Mapas Úteis", link: "/mapas" },
+        { icon: Newspaper, label: "Notícias", link: "/noticias" },
     ];
 
     const infoCards = [
         { title: "Pronóstico del Clima", description: "Detalhes do clima para planejar sua viagem.", icon: CloudRain, link: "/clima-detalhado", sim: true },
         { title: "Conversor de Moeda", description: "Calcule o câmbio em tempo real.", icon: Replace, link: "/conversor-moeda", sim: true },
         { title: "Centros de Ski", description: "Aventura na neve nos melhores picos.", icon: MountainSnow, link: "/centros-de-esqui" },
-        { title: "Restaurantes", description: "Sabores do Chile: guia gastronômico.", icon: Landmark, link: "/restaurantes-santiago" },
+        { title: "Restaurantes", description: "Sabores do Chile: guia gastronômico.", icon: Utensils, link: "/restaurantes-santiago" },
     ];
 
     const simulatedTours = [
@@ -443,13 +455,16 @@ const HomePage = () => {
             <NewsTicker tickerData={tickerData} />
             <HeroCarousel images={finalHeroImages} />
 
-            <section className="container py-12 md:py-16">
-                <div className="flex justify-center items-center flex-wrap gap-x-8 gap-y-10 md:gap-x-12">
-                    {quickAccessItems.map(item => (
-                        <Link to={item.link} key={item.label}>
-                             <QuickAccessButton icon={item.icon} label={item.label} />
-                        </Link>
-                    ))}
+            <section className="w-full bg-[#0b64ee] py-6">
+                <div className="container">
+                    <h2 className="text-center text-white text-2xl font-bold mb-6">INFORMAÇÕES EM TEMPO REAL</h2>
+                    <div className="flex justify-center items-start flex-wrap gap-x-6 gap-y-6 md:gap-x-10">
+                        {quickAccessItems.map(item => (
+                            <Link to={item.link} key={item.label} className="no-underline">
+                                <QuickAccessButton icon={item.icon} label={item.label} />
+                            </Link>
+                        ))}
+                    </div>
                 </div>
             </section>
 

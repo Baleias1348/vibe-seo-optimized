@@ -490,7 +490,7 @@ const HomePage = () => {
                                 </CardContent>
                                 <div className="p-4 pt-0 text-center">
                                     <Button asChild variant="outline" className="w-full">
-                                        <Link to={card.link}>{card.sim ? "Saiba Mais (Simulado)" : "Explorar"}</Link>
+                                        <Link to={card.link}>Explorar</Link>
                                     </Button>
                                 </div>
                             </Card>

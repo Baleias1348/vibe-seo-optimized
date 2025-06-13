@@ -1,0 +1,251 @@
+import React, { Suspense, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { FiGithub, FiZap, FiUser, FiHome, FiDollarSign, FiCloud } from 'react-icons/fi';
+
+// Componentes de la aplicación
+import CurrencyConverter from './components/currency-converter/CurrencyConverter';
+import Weather from './components/weather/Weather';
+
+// Importación diferida para mejor rendimiento
+const RestaurantsPage = React.lazy(() => import('./features/restaurants/RestaurantsPage'));
+
+// Componentes de autenticación
+import { AuthProvider, useAuth } from './components/auth/AuthProvider';
+import LoginButtons from './components/auth/LoginButtons';
+import UserProfile from './components/auth/UserProfile';
+
+// Componente para mostrar el estado de autenticación
+const AuthStatus = () => {
+  const { user } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  return (
+    <>
+      {user ? (
+        <UserProfile />
+      ) : (
+        <button
+          onClick={() => setShowAuthModal(true)}
+          className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors"
+        >
+          <FiUser className="h-5 w-5" />
+          <span className="hidden md:inline">Iniciar sesión</span>
+        </button>
+      )}
+
+      {/* Modal de autenticación */}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Iniciar sesión</h3>
+              <button 
+                onClick={() => setShowAuthModal(false)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <span className="sr-only">Cerrar</span>
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="mt-4">
+              <LoginButtons onLoginSuccess={() => setShowAuthModal(false)} />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+// Componente de navegación
+const Navigation = () => {
+  const { user } = useAuth();
+  const location = useLocation();
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const currentPath = location.pathname;
+
+  const navItems = [
+    { name: 'Inicio', path: '/', icon: <FiHome className="h-5 w-5" /> },
+    { name: 'Conversor', path: '/conversor', icon: <FiDollarSign className="h-5 w-5" /> },
+    { name: 'Clima', path: '/clima', icon: <FiCloud className="h-5 w-5" /> },
+    { name: 'Restaurantes', path: '/restaurantes', icon: <FiZap className="h-5 w-5" /> },
+  ];
+
+  return (
+    <nav className="bg-white shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex">
+            <div className="flex-shrink-0 flex items-center">
+              <FiZap className="h-8 w-8 text-blue-500" />
+              <span className="ml-2 text-xl font-bold text-gray-900">API Lab</span>
+            </div>
+            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+              {navItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`${
+                    currentPath === item.path
+                      ? 'border-blue-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                >
+                  <span className="mr-2">{item.icon}</span>
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+          <div className="hidden sm:ml-6 sm:flex sm:items-center">
+            <div className="ml-4 flex items-center md:ml-6">
+              <AuthStatus />
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-4 p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                title="Ver en GitHub"
+              >
+                <FiGithub className="h-6 w-6" />
+              </a>
+            </div>
+          </div>
+          <div className="-mr-2 flex items-center sm:hidden">
+            <button
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+            >
+              <span className="sr-only">Abrir menú principal</span>
+              <svg
+                className="block h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Menú móvil */}
+      {showMobileMenu && (
+        <div className="sm:hidden">
+          <div className="pt-2 pb-3 space-y-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setShowMobileMenu(false)}
+                className={`${
+                  currentPath === item.path
+                    ? 'bg-blue-50 border-blue-500 text-blue-700'
+                    : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'
+                } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+              >
+                <div className="flex items-center">
+                  <span className="mr-2">{item.icon}</span>
+                  {item.name}
+                </div>
+              </Link>
+            ))}
+            <div className="pt-4 pb-3 border-t border-gray-200">
+              <div className="flex items-center px-4">
+                <AuthStatus />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+// Componente principal de la aplicación
+function App() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Navigation />
+      
+      <main className="flex-grow p-4 sm:p-6">
+        <Suspense fallback={
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        }>
+          <Routes>
+            <Route path="/" element={
+              <div className="max-w-7xl mx-auto">
+                <h1 className="text-3xl font-bold text-gray-900 mb-8">Bienvenido a API Lab</h1>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Link to="/conversor" className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+                    <div className="text-blue-600 mb-3">
+                      <FiDollarSign className="h-8 w-8" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Conversor de Moneda</h2>
+                    <p className="text-gray-600">Convierte entre diferentes monedas con tasas actualizadas.</p>
+                  </Link>
+                  
+                  <Link to="/clima" className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+                    <div className="text-blue-600 mb-3">
+                      <FiCloud className="h-8 w-8" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Clima</h2>
+                    <p className="text-gray-600">Consulta el pronóstico del tiempo en cualquier ciudad del mundo.</p>
+                  </Link>
+                  
+                  <Link to="/restaurantes" className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+                    <div className="text-blue-600 mb-3">
+                      <FiZap className="h-8 w-8" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Restaurantes</h2>
+                    <p className="text-gray-600">Descubre los mejores restaurantes en Chile.</p>
+                  </Link>
+                </div>
+              </div>
+            } />
+            <Route path="/conversor" element={<CurrencyConverter />} />
+            <Route path="/clima" element={<Weather />} />
+            <Route 
+              path="/restaurantes" 
+              element={
+                <Suspense fallback={
+                  <div className="flex justify-center items-center min-h-[50vh]">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                  </div>
+                }>
+                  <RestaurantsPage />
+                </Suspense>
+              } 
+            />
+          </Routes>
+        </Suspense>
+      </main>
+
+      <footer className="bg-white border-t border-gray-200">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-gray-500 text-sm">
+            &copy; {new Date().getFullYear()} API Lab. Todos los derechos reservados.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+// Componente raíz que envuelve la aplicación con los proveedores necesarios
+const Root = () => (
+  <Router>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </Router>
+);
+
+export default Root;

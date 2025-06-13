@@ -457,7 +457,7 @@ const HomePage = () => {
 
             <section className="w-full bg-[#0b64ee] py-6">
                 <div className="container">
-                    <h2 className="text-center text-white text-2xl font-bold mb-6">INFORMAÇÕES EM TEMPO REAL</h2>
+                    <h2 className="text-center text-white text-2xl font-bold mb-6">INFORMAÇÕES EM TEMPO REAL DO CHILE</h2>
                     <div className="flex justify-center items-start flex-wrap gap-x-6 gap-y-6 md:gap-x-10">
                         {quickAccessItems.map(item => (
                             <Link to={item.link} key={item.label} className="no-underline">

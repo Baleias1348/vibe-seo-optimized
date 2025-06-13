@@ -1,28 +1,47 @@
 import { format, parseISO, isToday, isAfter, isBefore, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-// Coordenadas de las principales ciudades chilenas
+// Coordenadas de las principales ciudades chilenas organizadas en grupos
 export const CHILEAN_CITIES = [
+  // Ciudades principales (ya existentes)
   { name: 'Santiago', lat: -33.4489, lon: -70.6693 },
   { name: 'Valparaíso', lat: -33.0458, lon: -71.6197 },
   { name: 'Viña del Mar', lat: -33.0245, lon: -71.5518 },
   { name: 'Concepción', lat: -36.8269, lon: -73.0503 },
-  { name: 'La Serena', lat: -29.9027, lon: -71.2519 },
-  { name: 'Antofagasta', lat: -23.6509, lon: -70.4000 },
-  { name: 'Iquique', lat: -20.2307, lon: -70.1357 },
-  { name: 'Pucón', lat: -39.2700, lon: -71.9667 },
-  { name: 'Puerto Montt', lat: -41.4689, lon: -72.9411 },
-  { name: 'Punta Arenas', lat: -53.1620, lon: -70.9331 },
+  
+  // Otras ciudades importantes
   { name: 'Arica', lat: -18.4783, lon: -70.3126 },
-  { name: 'Calama', lat: -22.4544, lon: -68.9294 },
+  { name: 'Iquique', lat: -20.2307, lon: -70.1357 },
+  { name: 'Antofagasta', lat: -23.6509, lon: -70.4000 },
   { name: 'Copiapó', lat: -27.3667, lon: -70.3333 },
-  { name: 'Ovalle', lat: -30.5983, lon: -71.2003 },
-  { name: 'Quillota', lat: -32.8833, lon: -71.2667 },
+  { name: 'La Serena', lat: -29.9027, lon: -71.2519 },
+  { name: 'Coquimbo', lat: -29.9533, lon: -71.3436 },
+  { name: 'Rancagua', lat: -34.1708, lon: -70.7444 },
+  { name: 'Talca', lat: -35.4264, lon: -71.6556 },
+  { name: 'Chillán', lat: -36.6067, lon: -72.1033 },
+  { name: 'Temuco', lat: -38.7399, lon: -72.5901 },
   { name: 'Valdivia', lat: -39.8142, lon: -73.2459 },
   { name: 'Osorno', lat: -40.5667, lon: -73.1500 },
+  { name: 'Puerto Montt', lat: -41.4689, lon: -72.9411 },
+  { name: 'Chiloé', lat: -42.6021, lon: -73.9450 }, // Usando Castro como referencia para Chiloé
   { name: 'Coyhaique', lat: -45.5667, lon: -72.0667 },
-  { name: 'Aysén', lat: -45.4000, lon: -72.7000 },
-  { name: 'Porvenir', lat: -53.3000, lon: -70.3667 },
+  { name: 'Punta Arenas', lat: -53.1620, lon: -70.9331 }
+];
+
+// Grupos de ciudades para el selector
+export const CITY_GROUPS = [
+  {
+    label: 'Ciudades principales',
+    cities: ['Santiago', 'Valparaíso', 'Viña del Mar', 'Concepción']
+  },
+  {
+    label: 'Otras ciudades',
+    cities: [
+      'Arica', 'Iquique', 'Antofagasta', 'Copiapó', 'La Serena', 'Coquimbo',
+      'Rancagua', 'Talca', 'Chillán', 'Temuco', 'Valdivia', 'Osorno',
+      'Puerto Montt', 'Chiloé', 'Coyhaique', 'Punta Arenas'
+    ]
+  }
 ];
 
 // Función para obtener el ícono del clima según el código de OpenWeatherMap

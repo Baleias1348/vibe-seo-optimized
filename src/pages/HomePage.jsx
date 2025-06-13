@@ -427,7 +427,7 @@ const HomePage = () => {
 
     const quickAccessItems = [
         { icon: Thermometer, label: "Clima", link: "/clima" },
-        { icon: Banknote, label: "Conversor de Moeda", link: "/cambio" },
+        { icon: Banknote, label: "Conversor de Moeda", link: "/conversor-moeda" },
         { icon: Utensils, label: "Guia Gastronômico", link: "/restaurantes-santiago" },
         { icon: Plane, label: "Estado do Voo", link: "/voos" },
         { icon: AlertTriangle, label: "Emergências", link: "/emergencias" },

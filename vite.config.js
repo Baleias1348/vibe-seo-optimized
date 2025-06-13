@@ -207,6 +207,15 @@ export default defineConfig({
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
 			'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, Authorization, apikey, x-client-info',
 			'Cross-Origin-Embedder-Policy': 'credentialless',
+			'Content-Security-Policy': [
+				"default-src 'self';",
+				"connect-src 'self' https://yfgqpaxajeatchcqrehe.supabase.co https://*.supabase.co https://*.supabase.in https://*.supabase.co https://api.openweathermap.org http://localhost:8081 https://www.google-analytics.com https://analytics.google.com https://play.google.com https://www.recaptcha.net https://www.gstatic.com https://*.ingest.sentry.io https://api.segment.io https://csp.withgoogle.com;",
+				"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://www.google-analytics.com https://analytics.google.com;",
+				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
+				"font-src 'self' https://fonts.gstatic.com;",
+				"img-src 'self' data: https: http:;",
+				"frame-src 'self' https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/;",
+			].join(' ').replace(/\s+/g, ' ').trim(),
 		},
 		proxy: {
 			'/api': {

@@ -9,24 +9,31 @@ import {
   CloudSun, CloudMoon
 } from 'lucide-react';
 import { format, parseISO, isToday, isTomorrow } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { CHILEAN_CITIES, getWeatherIcon, processForecastData, formatDate } from '@/utils/weatherUtils';
+import es from 'date-fns/locale/es';
+import { CHILEAN_CITIES, CITY_GROUPS, getWeatherIcon, processForecastData, formatDate } from '@/utils/weatherUtils';
 import './weather.css';
 
 // Configuración de la API
-console.log('Variables de entorno:', import.meta.env);
-const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '';
+console.log('Variables de entorno en el módulo:', import.meta.env);
+
+// Usar valores de las variables de entorno o valores predeterminados
+const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '7e90ddaf235cba0c3a0ce7f6a99c0af2';
 const BASE_URL = import.meta.env.VITE_OPENWEATHER_BASE_URL || 'https://api.openweathermap.org/data/2.5';
 
-console.log('Clave API:', API_KEY ? '***' + API_KEY.slice(-4) : 'No configurada');
-console.log('URL base:', BASE_URL);
+// Efecto para depurar las variables de entorno en el navegador
+const DebugEnvVars = () => {
+  useEffect(() => {
+    console.log('=== DEBUG - Variables de entorno en el navegador ===');
+    console.log('VITE_OPENWEATHER_API_KEY:', API_KEY ? '***' + API_KEY.slice(-4) : 'No configurada');
+    console.log('VITE_OPENWEATHER_BASE_URL:', BASE_URL);
+    console.log('Todas las variables:', Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')));
+    console.log('==================================================');
+  }, []);
+  
+  return null;
+};
 
-if (!API_KEY) {
-  console.error('Error: No se ha configurado la clave de la API de OpenWeatherMap');
-  console.log('Asegúrate de que el archivo .env contenga VITE_OPENWEATHER_API_KEY');
-}
-
-// Componente para renderizar el ícono del clima
+// Componente para renderizar o ícone do clima
 const WeatherIcon = ({ iconCode, className = '', size = 'text-4xl' }) => {
   // Default icon in case the mapping fails
   const defaultIcon = <Cloud className={`${size} text-gray-400`} />;
@@ -85,7 +92,7 @@ const ErrorMessage = ({ message, onRetry }) => (
               onClick={onRetry}
               className="text-sm bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200 transition-colors"
             >
-              Reintentar
+              Tentar novamente
             </button>
           </div>
         )}
@@ -96,50 +103,45 @@ const ErrorMessage = ({ message, onRetry }) => (
 
 const WeatherPage = () => {
   const navigate = useNavigate();
-  const [selectedCity, setSelectedCity] = useState(CHILEAN_CITIES[0]);
+  const [selectedCity, setSelectedCity] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const [forecastData, setForecastData] = useState([]);
   const [featuredCities, setFeaturedCities] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredCities, setFilteredCities] = useState(CHILEAN_CITIES);
-
-  // Filtrar ciudades según la búsqueda
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredCities(CHILEAN_CITIES);
-    } else {
-      const query = searchQuery.toLowerCase().trim();
-      const filtered = CHILEAN_CITIES.filter(city => 
-        city.name.toLowerCase().includes(query)
-      );
-      setFilteredCities(filtered);
-    }
-  }, [searchQuery]);
 
   // Obtener clima actual
   const fetchCurrentWeather = useCallback(async (lat, lon, cityName = '') => {
+    console.log(`[fetchCurrentWeather] Iniciando para lat=${lat}, lon=${lon}, cityName=${cityName}`);
+    
     if (!API_KEY) {
-      throw new Error('No se ha configurado la clave de la API de OpenWeatherMap');
+      const errorMsg = 'No se ha configurado la clave de la API de OpenWeatherMap';
+      console.error(errorMsg);
+      throw new Error(errorMsg);
     }
 
     try {
-      const response = await fetch(
-        `${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=es`
-      );
+      const url = `${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=es`;
+      console.log(`[fetchCurrentWeather] URL de la API: ${url}`);
+      
+      const response = await fetch(url);
+      console.log(`[fetchCurrentWeather] Respuesta recibida, estado: ${response.status}`);
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'No se pudo obtener los datos del clima');
+        const errorData = await response.json().catch(() => ({}));
+        const errorMsg = errorData.message || 'No se pudo obtener los datos del clima';
+        console.error(`[fetchCurrentWeather] Error en la respuesta:`, { status: response.status, errorData });
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();
+      console.log('[fetchCurrentWeather] Datos recibidos:', data);
       
       // Asegurarse de que el nombre de la ciudad sea consistente
       if (cityName) {
         data.name = cityName;
+        console.log(`[fetchCurrentWeather] Nombre de ciudad actualizado a: ${cityName}`);
       }
       
       return data;
@@ -151,20 +153,33 @@ const WeatherPage = () => {
 
   // Obtener pronóstico extendido
   const fetchForecast = useCallback(async (lat, lon) => {
-    if (!API_KEY) return [];
+    console.log(`[fetchForecast] Iniciando para lat=${lat}, lon=${lon}`);
+    
+    if (!API_KEY) {
+      const errorMsg = 'No se ha configurado la clave de la API de OpenWeatherMap';
+      console.error(errorMsg);
+      throw new Error(errorMsg);
+    }
 
     try {
-      const response = await fetch(
-        `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=es&cnt=40`
-      );
+      const url = `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=es&cnt=40`;
+      console.log(`[fetchForecast] URL de la API: ${url}`);
+      
+      const response = await fetch(url);
+      console.log(`[fetchForecast] Respuesta recibida, estado: ${response.status}`);
 
       if (!response.ok) {
-        console.error('Error en la respuesta del pronóstico:', await response.text());
-        return [];
+        const errorData = await response.json().catch(() => ({}));
+        const errorMsg = errorData.message || 'No se pudo obtener el pronóstico';
+        console.error(`[fetchForecast] Error en la respuesta:`, { status: response.status, errorData });
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();
-      return processForecastData(data.list || []);
+      console.log('[fetchForecast] Datos recibidos, procesando...');
+      const processedData = processForecastData(data.list || []);
+      console.log('[fetchForecast] Datos procesados:', processedData);
+      return processedData;
     } catch (err) {
       console.error('Error al obtener el pronóstico:', err);
       return [];
@@ -173,31 +188,44 @@ const WeatherPage = () => {
 
   // Cargar datos del clima
   const loadWeatherData = useCallback(async (city) => {
-    if (!city) return;
+    console.log('Cargando datos para la ciudad:', city);
+    if (!city) {
+      console.error('No se proporcionó una ciudad');
+      return;
+    }
     
     setIsLoading(true);
     setError(null);
     
     try {
+      console.log('Iniciando carga de datos...');
       // Obtener clima actual y pronóstico en paralelo
       const [current, forecast] = await Promise.all([
         fetchCurrentWeather(city.lat, city.lon, city.name),
         fetchForecast(city.lat, city.lon)
       ]);
       
+      console.log('Datos del clima actual recibidos:', current);
+      console.log('Datos del pronóstico recibidos:', forecast);
+      
       setWeatherData(current);
       setForecastData(forecast);
       setLastUpdated(new Date());
       
-      // Cargar ciudades destacadas (excluyendo la actual)
+      console.log('Cargando ciudades destacadas...');
+      // Carregar cidades em destaque (excluindo a atual)
       const otherCities = CHILEAN_CITIES
         .filter(c => c.name !== city.name)
         .slice(0, 3);
       
+      console.log('Otras ciudades a cargar:', otherCities);
+      
       const featured = await Promise.all(
         otherCities.map(async (c) => {
           try {
+            console.log(`Cargando datos para ciudad destacada: ${c.name}`);
             const weather = await fetchCurrentWeather(c.lat, c.lon, c.name);
+            console.log(`Datos cargados para ${c.name}:`, weather);
             return { ...c, weather };
           } catch (err) {
             console.error(`Error al cargar datos para ${c.name}:`, err);
@@ -206,6 +234,7 @@ const WeatherPage = () => {
         })
       );
       
+      console.log('Ciudades destacadas cargadas:', featured.filter(Boolean));
       setFeaturedCities(featured.filter(Boolean));
     } catch (err) {
       console.error('Error al cargar los datos del clima:', err);
@@ -215,18 +244,53 @@ const WeatherPage = () => {
     }
   }, [fetchCurrentWeather, fetchForecast]);
 
+  // Buscar ciudad por nombre
+  const findCityByName = (name) => {
+    return CHILEAN_CITIES.find(c => c.name === name);
+  };
+
+  // Manejar selección de ciudad
+  const handleCitySelect = (cityName) => {
+    console.log('handleCitySelect - Ciudad seleccionada:', cityName);
+    if (!cityName) {
+      console.log('handleCitySelect - No se proporcionó nombre de ciudad');
+      return;
+    }
+    const city = findCityByName(cityName);
+    console.log('handleCitySelect - Ciudad encontrada:', city);
+    if (city) {
+      console.log('handleCitySelect - Estableciendo ciudad seleccionada:', city.name);
+      setSelectedCity(city);
+    } else {
+      console.error('handleCitySelect - No se encontró la ciudad:', cityName);
+    }
+  };
+
   // Cargar datos cuando cambia la ciudad seleccionada
   useEffect(() => {
     if (selectedCity) {
       loadWeatherData(selectedCity);
     }
-  }, [selectedCity, loadWeatherData]);
+  }, [selectedCity]);
 
-  // Manejar cambio de ciudad
-  const handleCitySelect = (city) => {
-    setSelectedCity(city);
-    setSearchQuery('');
-  };
+  // Cargar datos de la ciudad por defecto al inicio
+  useEffect(() => {
+    console.log('useEffect - Cargando ciudad por defecto');
+    // Seleccionar Santiago por defecto solo si no hay una ciudad seleccionada
+    if (!selectedCity) {
+      console.log('No hay ciudad seleccionada, buscando Santiago...');
+      const defaultCity = findCityByName('Santiago');
+      console.log('Ciudad por defecto encontrada:', defaultCity);
+      if (defaultCity) {
+        console.log('Estableciendo ciudad por defecto:', defaultCity.name);
+        setSelectedCity(defaultCity);
+      } else {
+        console.error('No se pudo encontrar la ciudad por defecto (Santiago)');
+      }
+    } else {
+      console.log('Ya hay una ciudad seleccionada:', selectedCity.name);
+    }
+  }, []); // Eliminamos selectedCity de las dependencias para evitar bucles
 
   // Manejar retroceso
   const handleBack = () => {
@@ -285,6 +349,9 @@ const WeatherPage = () => {
 
   return (
     <div className="weather-container">
+      {/* Componente de depuración de variables de entorno */}
+      <DebugEnvVars />
+      
       {/* Metadatos SEO */}
       <Helmet>
         <title>{pageTitle}</title>
@@ -293,7 +360,7 @@ const WeatherPage = () => {
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:locale" content="es_CL" />
+        <meta property="og:locale" content="pt_BR" />
         <link rel="canonical" href={window.location.href} />
       </Helmet>
 
@@ -319,41 +386,71 @@ const WeatherPage = () => {
 
       <main className="container mx-auto px-4 py-6 max-w-6xl">
         {/* Selector de ciudad */}
-        <div className="mb-8 relative">
+        <div className="mb-8" style={{ border: '2px solid red', padding: '10px', borderRadius: '8px' }}>
+          <label 
+            htmlFor="city-select" 
+            className="block text-sm font-medium text-gray-700 mb-2"
+            style={{ color: 'blue', fontWeight: 'bold' }}
+          >
+            Selecione uma cidade
+          </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+            <select
+              id="city-select"
+              value={selectedCity?.name || ''}
+              onChange={(e) => {
+                console.log('Evento onChange del select:', e.target.value);
+                handleCitySelect(e.target.value);
+              }}
+              className="block w-full pl-3 pr-10 py-3 text-base border-2 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-lg shadow-sm appearance-none bg-white"
+              aria-label="Selecione uma cidade"
+              style={{
+                backgroundColor: '#ffffff',
+                borderColor: '#3b82f6',
+                color: '#1f2937',
+                padding: '12px',
+                fontSize: '16px',
+                borderRadius: '8px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <option value="">(Selecione uma cidade)</option>
+              
+              {CITY_GROUPS.map((group, groupIndex) => {
+                console.log(`Renderizando grupo ${groupIndex}:`, group.label, 'con ciudades:', group.cities);
+                return (
+                  <optgroup key={groupIndex} label={group.label}>
+                    {group.cities.map((cityName) => {
+                      const city = CHILEAN_CITIES.find(c => c.name === cityName);
+                      console.log(`Ciudad en el mapeo: ${cityName}`, 'Encontrada:', !!city);
+                      return city ? (
+                        <option key={city.name} value={city.name}>
+                          {city.name}
+                        </option>
+                      ) : null;
+                    })}
+                  </optgroup>
+                );
+              })}
+            </select>
+            <div 
+              className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+              style={{
+                pointerEvents: 'none',
+                position: 'absolute',
+                top: 0,
+                right: '8px',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                color: '#6b7280'
+              }}
+            >
+              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+              </svg>
             </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar ciudad en Chile..."
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
-              aria-label="Buscar ciudad"
-            />
           </div>
-          
-          {searchQuery && filteredCities.length > 0 && (
-            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-              {filteredCities.map((city) => (
-                <button
-                  key={`${city.name}-${city.lat}-${city.lon}`}
-                  onClick={() => handleCitySelect(city)}
-                  className="w-full text-left px-4 py-2 hover:bg-blue-50 flex items-center transition-colors"
-                >
-                  <MapPin className="w-4 h-4 mr-2 text-blue-500" />
-                  {city.name}
-                </button>
-              ))}
-            </div>
-          )}
-          
-          {searchQuery && filteredCities.length === 0 && (
-            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-gray-500">
-              No se encontraron ciudades que coincidan con "{searchQuery}"
-            </div>
-          )}
         </div>
 
         {/* Clima actual */}
@@ -395,7 +492,7 @@ const WeatherPage = () => {
                 <div className="weather-detail">
                   <ThermometerSun className="w-5 h-5 text-blue-500" />
                   <div>
-                    <p className="text-sm text-gray-500">Sensación</p>
+                    <p className="text-sm text-gray-500">Sensação</p>
                     <p className="font-medium">{Math.round(weatherData.main.feels_like)}°C</p>
                   </div>
                 </div>
@@ -478,7 +575,7 @@ const WeatherPage = () => {
               {forecastData.map((day, index) => (
                 <div key={day.dt} className="weather-card p-4 text-center">
                   <h3 className="font-medium text-gray-800 mb-2">
-                    {index === 0 ? 'Hoy' : formatDisplayDate(day.dt)}
+                    {index === 0 ? 'Hoje' : formatDisplayDate(day.dt)}
                   </h3>
                   
                   {day.weather?.[0]?.icon && (
@@ -547,8 +644,8 @@ const WeatherPage = () => {
       {/* Pie de página */}
       <footer className="bg-gray-50 border-t border-gray-200 mt-12 py-6">
         <div className="container mx-auto px-4 text-center text-gray-500 text-sm">
-          <p>Datos meteorológicos proporcionados por <a href="https://openweathermap.org/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">OpenWeatherMap</a></p>
-          <p className="mt-1">Actualizado: {lastUpdated ? format(lastUpdated, "d 'de' MMMM 'de' yyyy 'a las' HH:mm", { locale: es }) : 'Cargando...'}</p>
+          <p>Dados meteorológicos fornecidos por <a href="https://openweathermap.org/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">OpenWeatherMap</a></p>
+          <p className="mt-1">Atualizado: {lastUpdated ? format(lastUpdated, "d 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: es }) : 'Carregando...'}</p>
         </div>
       </footer>
     </div>

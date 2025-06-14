@@ -54,13 +54,13 @@ import React from 'react';
                     <Label htmlFor="stripe_adult_signal_price_id" className="text-md">Stripe Price ID - Sinal Adulto</Label>
                     <Input id="stripe_adult_signal_price_id" name="stripe_adult_signal_price_id" value={formData.stripe_adult_signal_price_id} onChange={handleChange} placeholder="price_xxxxxxxxxxxxxx" className="text-base mt-1" />
                     {formErrors.stripe_adult_signal_price_id && <p className="text-red-500 text-xs mt-1">{formErrors.stripe_adult_signal_price_id}</p>}
-                    <p className="text-xs text-muted-foreground mt-1">Obrigatório se Preço por Adulto > 0.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Obrigatório se Preço por Adulto &gt; 0.</p>
                 </div>
                 <div>
                     <Label htmlFor="stripe_child_signal_price_id" className="text-md">Stripe Price ID - Sinal Criança</Label>
                     <Input id="stripe_child_signal_price_id" name="stripe_child_signal_price_id" value={formData.stripe_child_signal_price_id} onChange={handleChange} placeholder="price_yyyyyyyyyyyyyy" className="text-base mt-1" />
                     {formErrors.stripe_child_signal_price_id && <p className="text-red-500 text-xs mt-1">{formErrors.stripe_child_signal_price_id}</p>}
-                    <p className="text-xs text-muted-foreground mt-1">Obrigatório se Preço por Criança > 0. Deixe em branco se não aplicável.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Obrigatório se Preço por Criança &gt; 0. Deixe em branco se não aplicável.</p>
                 </div>
             </div>
         );

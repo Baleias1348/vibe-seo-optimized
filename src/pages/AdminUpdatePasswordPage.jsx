@@ -102,7 +102,7 @@ import React, { useState, useEffect } from 'react';
             >
                 <div className="w-full max-w-md">
                     <div className="text-center mb-8">
-                         <img  src="/placeholder-logo.png" alt="VibeChile! Logo" className="mx-auto h-16 mb-4" src="https://images.unsplash.com/photo-1699109137169-be70291d4593" />
+                         <img src="/placeholder-logo.png" alt="VibeChile! Logo" className="mx-auto h-16 mb-4" />
                         <h1 className="text-3xl font-bold text-primary">Atualizar Senha</h1>
                         <p className="text-muted-foreground">Crie uma nova senha para sua conta de administrador.</p>
                     </div>

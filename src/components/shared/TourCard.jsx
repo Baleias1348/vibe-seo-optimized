@@ -28,9 +28,9 @@ import React from 'react';
                         <Link to={`/tours/${tour.id}`} className="block">
                             <img 
                                 src={tour.image || "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop"}
-                                alt={`Imagem de ${combinedName}`}
+                                alt={`Imagen de ${combinedName}`}
                                 className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105"
-                             src="https://images.unsplash.com/photo-1696649307775-8e2adc61892e" />
+                            />
                         </Link>
                         {tour.pricePerAdult > 0 && (
                             <div className="absolute top-0 right-0 bg-primary text-primary-foreground p-2 m-3 rounded-md shadow-md">

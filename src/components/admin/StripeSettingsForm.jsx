@@ -179,7 +179,7 @@ import React, { useState, useEffect } from 'react';
                                 onChange={handleChange} 
                                 placeholder="pk_test_..."
                             />
-                            <p className="text-xs text-muted-foreground mt-1">Encontrada no seu Dashboard Stripe > Desenvolvedores > Chaves de API.</p>
+                            <p className="text-xs text-muted-foreground mt-1">Encontrada no seu Dashboard Stripe &gt; Desenvolvedores &gt; Chaves de API.</p>
                         </div>
                         <div>
                             <Label htmlFor="stripe_secret_key_test">Chave Secreta de Teste</Label>

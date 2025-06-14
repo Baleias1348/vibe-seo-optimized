@@ -3,25 +3,44 @@
  * Este archivo se puede ejecutar durante el build o como una ruta de API
  */
 
+// Cargar dotenv en entorno Node.js
+if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+  require('dotenv').config();
+}
+
 // Función segura para obtener la URL base
 function getBaseUrl() {
   try {
     // 1. Primero intentamos con Netlify (si está disponible)
-    if (process.env.NETLIFY && process.env.URL) {
-      return `https://${process.env.URL}`.replace(/^https?:\/\//, 'https://');
+    if (typeof process !== 'undefined' && process.env) {
+      if (process.env.NETLIFY && process.env.URL) {
+        return process.env.URL.startsWith('http') 
+          ? process.env.URL 
+          : `https://${process.env.URL}`;
+      }
+      
+      // 2. Luego con Node.js process.env (para Netlify y otros entornos)
+      if (process.env.VITE_BASE_URL) {
+        return process.env.VITE_BASE_URL;
+      }
+      
+      // 3. Verificar en process.env (para compatibilidad)
+      if (process.env.BASE_URL) {
+        return process.env.BASE_URL;
+      }
     }
     
-    // 2. Luego con Node.js process.env (para Netlify y otros entornos)
-    if (process.env.VITE_BASE_URL) {
-      return process.env.VITE_BASE_URL;
+    // 4. Luego intentamos con Vite (en el navegador o SSR)
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      if (import.meta.env.VITE_BASE_URL) {
+        return import.meta.env.VITE_BASE_URL;
+      }
+      if (import.meta.env.BASE_URL) {
+        return import.meta.env.BASE_URL;
+      }
     }
     
-    // 3. Luego intentamos con Vite (en el navegador o SSR)
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_BASE_URL) {
-      return import.meta.env.VITE_BASE_URL;
-    }
-    
-    // 4. Valor por defecto seguro
+    // 5. Valor por defecto seguro
     return 'https://chileaovivo.com';
   } catch (error) {
     console.error('Error al obtener la URL base:', error);
@@ -30,10 +49,16 @@ function getBaseUrl() {
 }
 
 // Obtenemos la URL base de manera segura
-const BASE_URL = getBaseUrl().replace(/\/+$/, ''); // Aseguramos que no termine en /
+let BASE_URL = getBaseUrl();
+
+// Limpieza de la URL base
+BASE_URL = BASE_URL
+  .replace(/\/+$/, '') // Eliminar barras al final
+  .replace(/^(https?:\/\/|\/\/)/, 'https://') // Asegurar protocolo https
+  .replace(/\s+/g, ''); // Eliminar espacios en blanco
 
 // Función para depuración
-console.log('Sitemap - URL base:', BASE_URL);
+console.log('Sitemap - URL base configurada como:', BASE_URL);
 
 // Datos de ejemplo - reemplazar con datos reales de tu aplicación
 const staticRoutes = [

@@ -3,47 +3,52 @@
  * Este archivo se puede ejecutar durante el build o como una ruta de API
  */
 
-// Cargar dotenv en entorno Node.js
-if (typeof process !== 'undefined' && process.versions && process.versions.node) {
-  require('dotenv').config();
-}
-
 // Función segura para obtener la URL base
-function getBaseUrl() {
+function getBaseUrl(customBaseUrl) {
+  // Si se proporciona una URL base personalizada, usarla
+  if (customBaseUrl) {
+    return customBaseUrl.endsWith('/') ? customBaseUrl.slice(0, -1) : customBaseUrl;
+  }
+  
   try {
     // 1. Primero intentamos con Netlify (si está disponible)
     if (typeof process !== 'undefined' && process.env) {
       if (process.env.NETLIFY && process.env.URL) {
-        return process.env.URL.startsWith('http') 
+        const url = process.env.URL.startsWith('http') 
           ? process.env.URL 
           : `https://${process.env.URL}`;
+        return url.endsWith('/') ? url.slice(0, -1) : url;
       }
       
       // 2. Luego con Node.js process.env (para Netlify y otros entornos)
       if (process.env.VITE_BASE_URL) {
-        return process.env.VITE_BASE_URL;
+        const url = process.env.VITE_BASE_URL;
+        return url.endsWith('/') ? url.slice(0, -1) : url;
       }
       
       // 3. Verificar en process.env (para compatibilidad)
       if (process.env.BASE_URL) {
-        return process.env.BASE_URL;
+        const url = process.env.BASE_URL;
+        return url.endsWith('/') ? url.slice(0, -1) : url;
       }
     }
     
     // 4. Luego intentamos con Vite (en el navegador o SSR)
     if (typeof import.meta !== 'undefined' && import.meta.env) {
       if (import.meta.env.VITE_BASE_URL) {
-        return import.meta.env.VITE_BASE_URL;
+        const url = import.meta.env.VITE_BASE_URL;
+        return url.endsWith('/') ? url.slice(0, -1) : url;
       }
       if (import.meta.env.BASE_URL) {
-        return import.meta.env.BASE_URL;
+        const url = import.meta.env.BASE_URL;
+        return url.endsWith('/') ? url.slice(0, -1) : url;
       }
     }
     
     // 5. Valor por defecto seguro
     return 'https://chileaovivo.com';
   } catch (error) {
-    console.error('Error al obtener la URL base:', error);
+    console.warn('No se pudo determinar la URL base, usando valor por defecto');
     return 'https://chileaovivo.com';
   }
 }
@@ -77,9 +82,12 @@ const staticRoutes = [
 ];
 
 // Función para generar el XML del sitemap
-export const generateSitemap = (routes = staticRoutes) => {
+export const generateSitemap = (routes = staticRoutes, baseUrl) => {
+  // Obtener la URL base, usando el parámetro si se proporciona
+  const siteUrl = baseUrl || getBaseUrl();
+  
   const urlElements = routes.map(route => {
-    const url = new URL(route.url, getBaseUrl()).toString();
+    const url = new URL(route.url, siteUrl).toString();
     return `
     <url>
       <loc>${url}</loc>
@@ -102,9 +110,28 @@ if (typeof module !== 'undefined' && module.exports) {
   const fs = require('fs');
   const path = require('path');
   
-  const sitemap = generateSitemap();
-  const outputPath = path.join(process.cwd(), 'public', 'sitemap.xml');
+  // Obtener la URL base de las variables de entorno o usar un valor por defecto
+  const baseUrl = process.env.VITE_BASE_URL || 'https://chileaovivo.com';
   
-  fs.writeFileSync(outputPath, sitemap);
-  console.log('Sitemap generado en:', outputPath);
+  try {
+    // Generar sitemap durante el build con la URL base
+    const sitemap = generateSitemap(staticRoutes, baseUrl);
+    const publicDir = path.join(process.cwd(), 'public');
+    const distDir = path.join(process.cwd(), 'dist');
+    
+    // Asegurarse de que exista el directorio de salida
+    [publicDir, distDir].forEach(dir => {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      
+      // Escribir el sitemap en ambos directorios para mayor compatibilidad
+      fs.writeFileSync(path.join(dir, 'sitemap.xml'), sitemap);
+      console.log(`Sitemap generado en: ${path.join(dir, 'sitemap.xml')}`);
+    });
+    
+  } catch (error) {
+    console.error('Error al generar el sitemap:', error);
+    process.exit(1);
+  }
 }

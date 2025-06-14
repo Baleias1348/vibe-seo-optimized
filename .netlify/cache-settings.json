@@ -1,0 +1,14 @@
+{
+  "paths": [
+    "node_modules",
+    "dist",
+    ".cache"
+  ],
+  "cacheControl": {
+    "public": true,
+    "maxAge": 31536000,
+    "sMaxAge": 31536000,
+    "staleWhileRevalidate": 86400
+  },
+  "purgeOnDeploy": false
+}

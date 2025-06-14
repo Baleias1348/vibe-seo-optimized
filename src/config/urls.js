@@ -29,6 +29,7 @@ const urls = {
   casasCambio: '/casas-de-cambio',
   vinhosEVinhedos: '/vinhos-e-vinhedos',
   vinicolas: '/vinicolas',
+  vinicolaDetail: (slug) => `/vinicolas/${slug}`,
   emergencias: '/emergencias',
   inversion: '/inversion',
   blog: '/blog',
@@ -53,6 +54,26 @@ const urls = {
     conversorMoeda: '/conversor-moeda',
     investirChile: '/investir-chile',
     contact: '/contact',
+    vinhosEVinhedos: '/vinhos-e-vinhedos',
+  },
+  
+  // Redes sociales
+  redesSociales: {
+    facebook: 'https://www.facebook.com/ChileTravel',
+    instagram: 'https://www.instagram.com/chiletravel/',
+    twitter: 'https://twitter.com/chiletravel',
+    youtube: 'https://www.youtube.com/chiletravel',
+    pinterest: 'https://pinterest.com/chiletravel',
+    tiktok: 'https://www.tiktok.com/@chiletravel',
+    whatsapp: 'https://wa.me/56912345678',
+    email: 'hola@chile.travel',
+    telefono: '+56912345678',
+  },
+  
+  // Vinhos e Vinhedos - Redes
+  redesVinhos: {
+    facebookVinhos: 'https://www.facebook.com/ChileWine',
+    instagramVinhos: 'https://www.instagram.com/chilewine/',
   },
   
   // URLs completas para SEO

@@ -1,0 +1,13 @@
+{
+  "plugins": [
+    {
+      "package": "@netlify/plugin-cache",
+      "inputs": {
+        "paths": [
+          "node_modules",
+          ".netlify/cache"
+        ]
+      }
+    }
+  ]
+}

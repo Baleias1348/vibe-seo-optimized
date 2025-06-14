@@ -5,9 +5,10 @@
   "private": true,
   "scripts": {
     "dev": "vite --config vite.simple.config.js",
-    "presitebuild": "node -e \"import('fs').then(fs => import('path').then(path => { const { generateSitemap } = require('./src/utils/generateSitemap'); fs.writeFileSync(path.join(process.cwd(), 'public', 'sitemap.xml'), generateSitemap()); }))\"",
+    "presitebuild": "node -e \"const fs = require('fs'); const path = require('path'); require('dotenv').config(); const { generateSitemap } = require('./src/utils/generateSitemap'); const publicDir = path.join(process.cwd(), 'public'); if (!fs.existsSync(publicDir)) { fs.mkdirSync(publicDir, { recursive: true }); } fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), generateSitemap()); console.log('Sitemap generado correctamente en:', path.join(publicDir, 'sitemap.xml'));\"",
     "build": "npm run presitebuild && vite build --config vite.simple.config.js",
-    "preview": "vite preview --port 8081"
+    "preview": "vite preview --port 8081",
+    "postbuild": "node -e \"const fs = require('fs'); if (fs.existsSync('dist/public')) { require('child_process').execSync('cp -r public/* dist/public/', { stdio: 'inherit' }); }\""
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.2.1",
@@ -51,6 +52,7 @@
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.16",
+    "dotenv": "^16.5.0",
     "esbuild": "^0.25.5",
     "eslint": "^8.57.1",
     "eslint-config-react-app": "^7.0.1",

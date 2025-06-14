@@ -159,6 +159,7 @@ const Header = ({ isLandingMode = false }) => {
   const navLinks = [
     { to: urls.home, label: "Inicio", icon: Compass, exact: true },
     { to: urls.tours, label: "Tours", icon: ShoppingBag },
+    { to: urls.vinhosEVinhedos, label: "Vinhos e Vinhedos", icon: Wine },
     { to: urls.restaurantes, label: "Restaurantes", icon: Star },
     { to: urls.centrosEsqui, label: "Centros de Esquí", icon: MountainSnow },
     { to: urls.clima, label: "Clima", icon: Sun },

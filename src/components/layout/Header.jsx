@@ -158,7 +158,7 @@ const Header = ({ isLandingMode = false }) => {
   const navLinks = [
     { to: "/", label: "Início", icon: Compass, exact: true },
     { to: "/tours", label: "Passeios", icon: ShoppingBag },
-    { to: "/restaurantes-santiago", label: "Restaurantes", icon: Star },
+    { to: "/restaurantes", label: "Restaurantes", icon: Star },
     { to: "/centros-de-esqui", label: "Centros de Ski", icon: MountainSnow },
   ];
   

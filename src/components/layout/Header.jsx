@@ -4,9 +4,10 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, MountainSnow, X, LogOut, UserCircle, Settings, ShoppingBag, Star, Compass } from 'lucide-react';
+import { Menu, MountainSnow, X, LogOut, UserCircle, Settings, ShoppingBag, Star, Compass, Sun, BookOpen } from 'lucide-react';
 import { getSiteConfig, subscribeToConfigChanges } from '@/lib/tourData';
 import { cn } from '@/lib/utils';
+import urls from '@/config/urls';
 
 const NavItem = ({ to, children, onClick, className, exact = false, isScrolled }) => {
   const location = useLocation();
@@ -156,10 +157,12 @@ const Header = ({ isLandingMode = false }) => {
   }
 
   const navLinks = [
-    { to: "/", label: "Início", icon: Compass, exact: true },
-    { to: "/tours", label: "Passeios", icon: ShoppingBag },
-    { to: "/restaurantes", label: "Restaurantes", icon: Star },
-    { to: "/centros-de-esqui", label: "Centros de Ski", icon: MountainSnow },
+    { to: urls.home, label: "Inicio", icon: Compass, exact: true },
+    { to: urls.tours, label: "Tours", icon: ShoppingBag },
+    { to: urls.restaurantes, label: "Restaurantes", icon: Star },
+    { to: urls.centrosEsqui, label: "Centros de Esquí", icon: MountainSnow },
+    { to: urls.clima, label: "Clima", icon: Sun },
+    { to: urls.blog, label: "Blog", icon: BookOpen },
   ];
   
   return (

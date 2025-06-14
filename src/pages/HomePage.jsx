@@ -9,7 +9,7 @@ import { getAllTours, getSiteConfig, subscribeToConfigChanges } from '@/lib/tour
 import { supabase } from '@/lib/supabaseClient';
 import { 
     Thermometer, Cloud, CloudRain, MountainSnow, Sun, Utensils, Briefcase, AlertTriangle, Replace, 
-    SunDim, Banknote, Flag, Globe, Map, HeartPulse, Shuffle, Newspaper, Plane
+    SunDim, Banknote, Flag, Globe, Map, HeartPulse, Shuffle, Newspaper, Plane, Wine
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -428,18 +428,18 @@ const HomePage = () => {
     const quickAccessItems = [
         { icon: Thermometer, label: "Clima", link: "/clima" },
         { icon: Banknote, label: "Conversor de Moeda", link: "/conversor-moeda" },
-        { icon: Utensils, label: "Guia Gastronômico", link: "/restaurantes-santiago" },
+        { icon: Utensils, label: "Guia Gastronômico", link: "/restaurantes" },
         { icon: Plane, label: "Estado do Voo", link: "/voos" },
         { icon: AlertTriangle, label: "Emergências", link: "/emergencias" },
         { icon: Map, label: "Mapas Úteis", link: "/mapas" },
-        { icon: Newspaper, label: "Notícias", link: "/noticias" },
+        { icon: Banknote, label: "Casas de Cambio", link: "/casas-de-cambio" },
     ];
 
     const infoCards = [
         { title: "Pronóstico del Clima", description: "Detalhes do clima para planejar sua viagem.", icon: CloudRain, link: "/clima-detalhado", sim: true },
         { title: "Conversor de Moeda", description: "Calcule o câmbio em tempo real.", icon: Replace, link: "/conversor-moeda", sim: true },
         { title: "Centros de Ski", description: "Aventura na neve nos melhores picos.", icon: MountainSnow, link: "/centros-de-esqui" },
-        { title: "Restaurantes", description: "Sabores do Chile: guia gastronômico.", icon: Utensils, link: "/restaurantes-santiago" },
+        { title: "Vinos y Vinícolas", description: "Descubre las mejores rutas del vino chileno.", icon: Wine, link: "/vinos-y-vinicolas" },
     ];
 
     const simulatedTours = [

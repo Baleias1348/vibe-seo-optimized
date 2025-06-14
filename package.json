@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "vite --config vite.simple.config.js",
-    "build": "vite build --config vite.simple.config.js",
+    "presitebuild": "node -e \"import('fs').then(fs => import('path').then(path => { const { generateSitemap } = require('./src/utils/generateSitemap'); fs.writeFileSync(path.join(process.cwd(), 'public', 'sitemap.xml'), generateSitemap()); }))\"",
+    "build": "npm run presitebuild && vite build --config vite.simple.config.js",
     "preview": "vite preview --port 8081"
   },
   "dependencies": {
@@ -35,6 +36,7 @@
     "react-day-picker": "^8.9.1",
     "react-dom": "^18.2.0",
     "react-helmet-async": "^2.0.5",
+    "react-icons": "^5.5.0",
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.16.0",
     "react-toastify": "^11.0.5",

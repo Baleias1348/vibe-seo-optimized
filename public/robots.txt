@@ -1,0 +1,24 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://tudominio.com/sitemap.xml
+
+# Deshabilitar crawling de rutas de administración
+Disallow: /admin/
+Disallow: /api/
+Disallow: /*?*
+Disallow: /*&*
+
+# Permitir todos los bots de motores de búsqueda
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Crawl-delay: 10  # Descomentar si es necesario para limitar la frecuencia de rastreo

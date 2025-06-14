@@ -23,9 +23,6 @@ const RestaurantsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedNeighborhood, setSelectedNeighborhood] = useState('');
-  const [priceRange, setPriceRange] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
@@ -147,41 +144,20 @@ const RestaurantsPage = () => {
 
   // Filtrar restaurantes cuando cambian los filtros
   useEffect(() => {
-    if (!Array.isArray(restaurants)) {
-      setFilteredRestaurants([]);
-      return;
-    }
-
-    let results = [...restaurants];
-
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      results = results.filter(
-        (restaurant) =>
-          restaurant.name.toLowerCase().includes(searchLower) ||
-          (restaurant.cuisine && restaurant.cuisine.toLowerCase().includes(searchLower)) ||
-          (restaurant.description && restaurant.description.toLowerCase().includes(searchLower))
-      );
-    }
-
+    let filtered = [...restaurants];
+    
     if (selectedCuisine) {
-      results = results.filter((restaurant) => restaurant.cuisine === selectedCuisine);
+      filtered = filtered.filter(restaurant => restaurant.cuisine === selectedCuisine);
     }
-
+    
     if (selectedNeighborhood) {
-      results = results.filter(
-        (restaurant) => restaurant.address && restaurant.address.includes(selectedNeighborhood)
+      filtered = filtered.filter(restaurant => 
+        extractNeighborhood(restaurant.address) === selectedNeighborhood
       );
     }
-
-    if (priceRange) {
-      results = results.filter(
-        (restaurant) => restaurant.priceLevel && restaurant.priceLevel.length === priceRange.length
-      );
-    }
-
-    setFilteredRestaurants(results);
-  }, [restaurants, searchTerm, selectedCuisine, selectedNeighborhood, priceRange]);
+    
+    setFilteredRestaurants(filtered);
+  }, [restaurants, selectedCuisine, selectedNeighborhood]);
 
   // Obtener tipos de cocina únicos
   const cuisines = useMemo(() => {
@@ -192,8 +168,16 @@ const RestaurantsPage = () => {
         uniqueCuisines.add(restaurant.cuisine);
       }
     });
-    return Array.from(uniqueCuisines).sort();
+    return Array.from(uniqueCuisines);
   }, [restaurants]);
+  
+  // Ordenar y agrupar las cocinas
+  const sortedCuisines = useMemo(() => {
+    const maisProcuradas = ['Chilena', 'Frutos do Mar', 'Churrascaria', 'Peruana', 'Italiana', 'Pizzaria'];
+    const outrasCozinhas = cuisines.filter(cuisine => !maisProcuradas.includes(cuisine)).sort();
+    
+    return { maisProcuradas, outrasCozinhas };
+  }, [cuisines]);
 
   // Obtener barrios únicos
   const neighborhoods = useMemo(() => {
@@ -232,13 +216,11 @@ const RestaurantsPage = () => {
     });
   }, []);
 
-  // Limpiar todos los filtros
-  const clearFilters = useCallback(() => {
-    setSearchTerm('');
+  // Limpiar filtros
+  const clearFilters = () => {
     setSelectedCuisine('');
     setSelectedNeighborhood('');
-    setPriceRange('');
-  }, []);
+  };
 
   // Renderizar estrellas de calificación
   const renderStars = (rating) => {
@@ -267,90 +249,61 @@ const RestaurantsPage = () => {
   return (
     <div className="restaurants-page">
       {/* Header */}
-      <header className="restaurants-header">
+      <header className="header">
         <div className="container">
-          <h1>Los Mejores Restaurantes de Santiago</h1>
-          <p>Descubre los mejores lugares para comer en Santiago</p>
-          
-          {/* Barra de búsqueda */}
-          <div className="search-bar">
-            <div className="search-input-container">
-              <FaSearch className="search-icon" />
-              <input
-                type="text"
-                placeholder="Buscar restaurantes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {searchTerm && (
-                <button 
-                  className="clear-search"
-                  onClick={() => setSearchTerm('')}
-                >
-                  <FaTimes />
-                </button>
-              )}
-            </div>
-            
-            <button 
-              className={`filter-btn ${showFilters ? 'active' : ''}`}
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <FaFilter className="filter-icon" />
-              Filtros
-            </button>
-          </div>
-          
+          <h1>Os Melhores Restaurantes de Santiago em 2025</h1>
+          <p>Descubra os sabores da culinária chilena que estão bombando no TripAdvisor e no Instagram</p>
+        </div>
+      </header>
+
+      {/* Contenido principal */}
+      <main className="main-content">
+        <div className="container">
           {/* Filtros */}
-          {showFilters && (
-            <div className="filters-container">
-              <div className="filters-grid">
-                <div className="filter-group">
-                  <label>Tipo de Cocina</label>
-                  <select
-                    value={selectedCuisine}
-                    onChange={(e) => setSelectedCuisine(e.target.value)}
-                  >
-                    <option value="">Todas las cocinas</option>
-                    {cuisines.map((cuisine) => (
+          <div className="filters-container">
+            <div className="filters-row">
+              <div className="filter-group">
+                <label htmlFor="cuisine">Tipo de cocina:</label>
+                <select
+                  id="cuisine"
+                  value={selectedCuisine}
+                  onChange={(e) => setSelectedCuisine(e.target.value)}
+                >
+                  <option value="">Todas</option>
+                  <optgroup label="O mais procurado">
+                    {sortedCuisines.maisProcuradas.map((cuisine) => (
                       <option key={cuisine} value={cuisine}>
                         {cuisine}
                       </option>
                     ))}
-                  </select>
-                </div>
-                
-                <div className="filter-group">
-                  <label>Barrio</label>
-                  <select
-                    value={selectedNeighborhood}
-                    onChange={(e) => setSelectedNeighborhood(e.target.value)}
-                  >
-                    <option value="">Todos los barrios</option>
-                    {neighborhoods.map((neighborhood) => (
-                      <option key={neighborhood} value={neighborhood}>
-                        {neighborhood}
+                  </optgroup>
+                  <optgroup label="Outras opções">
+                    {sortedCuisines.outrasCozinhas.map((cuisine) => (
+                      <option key={cuisine} value={cuisine}>
+                        {cuisine}
                       </option>
                     ))}
-                  </select>
-                </div>
-                
-                <div className="filter-group">
-                  <label>Precio</label>
-                  <select
-                    value={priceRange}
-                    onChange={(e) => setPriceRange(e.target.value)}
-                  >
-                    <option value="">Cualquier precio</option>
-                    <option value="$">$ - Económico</option>
-                    <option value="$$">$$ - Moderado</option>
-                    <option value="$$$">$$$ - Caro</option>
-                    <option value="$$$$">$$$$ - Muy caro</option>
-                  </select>
-                </div>
+                  </optgroup>
+                </select>
               </div>
               
-              {(selectedCuisine || selectedNeighborhood || priceRange) && (
+              <div className="filter-group">
+                <label htmlFor="neighborhood">Barrio:</label>
+                <select
+                  id="neighborhood"
+                  value={selectedNeighborhood}
+                  onChange={(e) => setSelectedNeighborhood(e.target.value)}
+                >
+                  <option value="">Todos</option>
+                  {neighborhoods.map((neighborhood) => (
+                    <option key={neighborhood} value={neighborhood}>
+                      {neighborhood}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {(selectedCuisine || selectedNeighborhood) && (
                 <button
                   onClick={clearFilters}
                   className="clear-filters"
@@ -359,13 +312,8 @@ const RestaurantsPage = () => {
                 </button>
               )}
             </div>
-          )}
-        </div>
-      </header>
-
-      {/* Contenido principal */}
-      <main className="main-content">
-        <div className="container">
+          </div>
+          
           {/* Contador de resultados */}
           <div className="results-count">
             {filteredRestaurants.length} {filteredRestaurants.length === 1 ? 'restaurante encontrado' : 'restaurantes encontrados'}
@@ -404,15 +352,18 @@ const RestaurantsPage = () => {
                     
                     {/* Rating y contador de reseñas */}
                     <div className="restaurant-rating">
-                      {renderStars(restaurant.rating)}
+                      <div className="stars-container">
+                        {renderStars(restaurant.rating)}
+                        <span className="rating">{restaurant.rating.toFixed(1)}</span>
+                      </div>
                       {restaurant.reviewCount > 0 && (
                         <span className="review-count">{restaurant.reviewCount} avaliações</span>
                       )}
-                    </div>
-                    
-                    {/* Nivel de precios */}
-                    <div className="price-level">
-                      {restaurant.priceLevel || '$$'}
+                      
+                      {/* Nivel de precios */}
+                      <div className="price-level">
+                        {restaurant.priceLevel || '$$'}
+                      </div>
                     </div>
                     
                     {/* Dirección completa */}
@@ -443,9 +394,7 @@ const RestaurantsPage = () => {
                     {/* Descripción */}
                     {restaurant.description && (
                       <div className="restaurant-description">
-                        {restaurant.description.length > 100 
-                          ? `${restaurant.description.substring(0, 100)}...` 
-                          : restaurant.description}
+                        <p>{restaurant.description}</p>
                       </div>
                     )}
                     

@@ -4,40 +4,27 @@
   functions = "netlify/functions"
 
 [build.environment]
-  # ======================================
-  # Configuración de Versiones
-  # ======================================
+  # Versiones de Node.js y npm
   NODE_VERSION = "18.19.1"
   NPM_VERSION = "9.8.1"
   
-  # ======================================
-  # Configuración de NPM y Caché
-  # ======================================
+  # Configuración de NPM
   NPM_FLAGS = "--legacy-peer-deps"
-  NETLIFY_USE_YARN = "false"
-  YARN_VERSION = "1.22.19"
   
-  # ======================================
-  # Variables de Entorno de la Aplicación
-  # ======================================
-  # Configuración Base
+  # Variables de entorno de la aplicación
   NODE_ENV = "production"
+  CI = "false"
+  NODE_OPTIONS = "--max_old_space_size=4096"
+  
+  # URL base de la aplicación
   VITE_BASE_URL = "https://chileaovivo.com"
   
-  # Configuración de Supabase (reemplaza con tus valores)
+  # Configuración de Supabase (configurar en el panel de Netlify)
   VITE_SUPABASE_URL = "${VITE_SUPABASE_URL}"
   VITE_SUPABASE_ANON_KEY = "${VITE_SUPABASE_ANON_KEY}"
-  VITE_SUPABASE_SERVICE_KEY = "${VITE_SUPABASE_SERVICE_KEY}"
   
-  # Configuración de OpenWeatherMap (reemplaza con tus valores)
+  # Configuración de OpenWeatherMap (configurar en el panel de Netlify)
   VITE_OPENWEATHER_API_KEY = "${VITE_OPENWEATHER_API_KEY}"
-  VITE_OPENWEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5"
-  
-  # ======================================
-  # Optimización
-  # ======================================
-  NODE_OPTIONS = "--max_old_space_size=4096"
-  CI = "false"
 
 # Redirecciones SPA (Single Page Application)
 [[redirects]]
@@ -54,52 +41,3 @@
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https:;"
-    
-# Configuración de desarrollo local
-[dev]
-  framework = "vite"
-  targetPort = 5173
-  publish = "dist"
-  command = "npm run dev"
-  port = 8888
-  autoLaunch = true
-
-# Plugins de Netlify
-[[plugins]]
-  package = "@netlify/plugin-lighthouse"
-  
-# Configuración de caché
-[[plugins]]
-  package = "@netlify/plugin-cache"
-  [plugins.inputs]
-    paths = [
-      "node_modules",
-      ".netlify/cache"
-    ]
-
-# Configuración de encabezados de seguridad
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-
-[context.production.environment]
-  NODE_VERSION = "18"
-  NPM_VERSION = "9"
-  VITE_SUPABASE_URL = "https://your-supabase-url.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "your-supabase-anon-key"
-
-[context.deploy-preview.environment]
-  NODE_VERSION = "18"
-  NPM_VERSION = "9"
-  VITE_SUPABASE_URL = "https://your-supabase-url.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "your-supabase-anon-key"
-
-[context.branch-deploy.environment]
-  NODE_VERSION = "18"
-  NPM_VERSION = "9"
-  VITE_SUPABASE_URL = "https://your-supabase-url.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "your-supabase-anon-key"

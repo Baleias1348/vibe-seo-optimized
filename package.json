@@ -5,10 +5,10 @@
   "private": true,
   "scripts": {
     "dev": "vite --config vite.simple.config.js",
-    "presitebuild": "node -e \"const fs = require('fs'); const path = require('path'); require('dotenv').config(); const { generateSitemap } = require('./src/utils/generateSitemap'); const publicDir = path.join(process.cwd(), 'public'); if (!fs.existsSync(publicDir)) { fs.mkdirSync(publicDir, { recursive: true }); } fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), generateSitemap()); console.log('Sitemap generado correctamente en:', path.join(publicDir, 'sitemap.xml'));\"",
-    "build": "npm run presitebuild && vite build --config vite.simple.config.js",
-    "preview": "vite preview --port 8081",
-    "postbuild": "node -e \"const fs = require('fs'); if (fs.existsSync('dist/public')) { require('child_process').execSync('cp -r public/* dist/public/', { stdio: 'inherit' }); }\""
+    "prebuild": "node -e \"const fs = require('fs'); const path = require('path'); require('dotenv').config(); const publicDir = path.join(process.cwd(), 'public'); if (!fs.existsSync(publicDir)) { fs.mkdirSync(publicDir, { recursive: true }); }\"",
+    "build": "vite build --config vite.simple.config.js",
+    "postbuild": "node scripts/postbuild.js",
+    "preview": "vite preview --port 8081"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.2.1",

@@ -56,8 +56,9 @@ Thumbs.db
 *credentials*.json
 
 # Scripts with sensitive data
-scripts/*.js
 scripts/*.sql
+# Allow build scripts
+!scripts/postbuild.js
 
 # Supabase local
 supabase/

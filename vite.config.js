@@ -194,6 +194,17 @@ export default defineConfig({
 	server: {
 		port: 8081,
 		https: false,
+		headers: {
+			'Content-Security-Policy': `
+				default-src 'self';
+				connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.supabase.com;
+				img-src 'self' data: https:;
+				script-src 'self' 'unsafe-inline' 'unsafe-eval';
+				style-src 'self' 'unsafe-inline';
+				font-src 'self' data:;
+				frame-src 'self';
+			`.replace(/\s+/g, ' ').trim()
+		},
 		host: true,
 		open: true,
 		cors: {

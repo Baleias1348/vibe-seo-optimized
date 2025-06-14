@@ -299,24 +299,32 @@ const HomePage = () => {
   }, [fetchFeaturedTours, fetchSiteConfig, fetchTickerData, handleStorageChange]);
 
   // Process hero images
-  const getHeroImages = () => {
-    const { hero_images = [] } = siteConfigData;
+  const getHeroImages = useCallback(() => {
+    console.log('📝 siteConfigData:', siteConfigData);
+    const { hero_images = [] } = siteConfigData || {};
+    console.log('🖼️ hero_images:', hero_images);
     
-    // If we have hero_images array, use it
-    if (hero_images.length > 0) {
-      return hero_images.map(img => ({
-        src: img.url || '',
-        alt: img.alt || 'Imagen del carrusel',
-        caption: img.caption || ''
-      }));
+    // Si hay imágenes en hero_images, usarlas
+    if (Array.isArray(hero_images) && hero_images.length > 0) {
+      const validImages = hero_images
+        .filter(img => img && (img.url || img.src))
+        .map(img => ({
+          src: img.url || img.src || '',
+          alt: img.alt || 'Imagem do carrossel',
+          caption: img.caption || ''
+        }));
+      
+      if (validImages.length > 0) {
+        return validImages;
+      }
     }
     
-    // Fallback to individual image fields
+    // Intentar con los campos individuales de imagen
     const images = [];
     
     for (let i = 1; i <= 4; i++) {
-      const url = siteConfigData[`heroImage${i}`];
-      const alt = siteConfigData[`heroAlt${i}`] || `Imagen ${i}`;
+      const url = siteConfigData?.[`heroImage${i}`];
+      const alt = siteConfigData?.[`heroAlt${i}`] || `Imagem ${i}`;
       
       if (url) {
         images.push({
@@ -327,18 +335,36 @@ const HomePage = () => {
       }
     }
     
-    // If no images found, use a default
+    // Si no hay imágenes, usar imágenes por defecto
     if (images.length === 0) {
-      return [{
-        src: 'https://placehold.co/1200x600?text=CHILEaoVivo',
-        alt: 'Imagen predeterminada',
-        caption: 'Bienvenido a CHILE ao Vivo'
-      }];
+      return [
+        {
+          src: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1794&q=80',
+          alt: 'Paisagem do Chile',
+          caption: 'Descubra as belezas do Chile'
+        },
+        {
+          src: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80',
+          alt: 'Vinícolas do Chile',
+          caption: 'Vinhos de classe mundial'
+        },
+        {
+          src: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80',
+          alt: 'Montanhas e neve',
+          caption: 'Aventuras na neve'
+        },
+        {
+          src: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80',
+          alt: 'Cultura local',
+          caption: 'Cultura e tradições'
+        }
+      ];
     }
     
     return images;
-  };
+  }, [siteConfigData]);
 
+  // Obtener las imágenes para el carrusel
   const finalHeroImages = getHeroImages();
   
   // Quick access items
@@ -372,6 +398,75 @@ const HomePage = () => {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Feature Cards Section */}
+      <section className="container mx-auto py-8 px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Weather Card */}
+          <Link to="/clima" className="group">
+            <Card className="h-full transition-all duration-300 hover:shadow-lg hover:border-blue-500">
+              <CardContent className="p-6 text-center">
+                <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-50 transition-colors">
+                  <Thermometer className="h-8 w-8 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Previsão do Tempo</h3>
+                <p className="text-gray-600 text-sm mb-4">Detalhes do clima para planejar sua viagem.</p>
+                <Button variant="outline" size="sm" className="mt-2 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                  Explorar
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Currency Converter Card */}
+          <Link to="/conversor-moeda" className="group">
+            <Card className="h-full transition-all duration-300 hover:shadow-lg hover:border-green-500">
+              <CardContent className="p-6 text-center">
+                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-green-50 transition-colors">
+                  <RefreshCw className="h-8 w-8 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Conversor de Moeda</h3>
+                <p className="text-gray-600 text-sm mb-4">Calcule o câmbio em tempo real.</p>
+                <Button variant="outline" size="sm" className="mt-2 group-hover:bg-green-50 group-hover:text-green-600 transition-colors">
+                  Explorar
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Ski Centers Card */}
+          <Link to="/centros-esqui" className="group">
+            <Card className="h-full transition-all duration-300 hover:shadow-lg hover:border-purple-500">
+              <CardContent className="p-6 text-center">
+                <div className="mx-auto w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-purple-50 transition-colors">
+                  <MountainSnow className="h-8 w-8 text-purple-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Centros de Esqui</h3>
+                <p className="text-gray-600 text-sm mb-4">Aventura na neve nos melhores picos.</p>
+                <Button variant="outline" size="sm" className="mt-2 group-hover:bg-purple-50 group-hover:text-purple-600 transition-colors">
+                  Explorar
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Wineries Card */}
+          <Link to="/vinos-y-vinicolas" className="group">
+            <Card className="h-full transition-all duration-300 hover:shadow-lg hover:border-red-500">
+              <CardContent className="p-6 text-center">
+                <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-red-50 transition-colors">
+                  <Wine className="h-8 w-8 text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Vinhos e Vinícolas</h3>
+                <p className="text-gray-600 text-sm mb-4">Descubra as melhores rotas do vinho chileno.</p>
+                <Button variant="outline" size="sm" className="mt-2 group-hover:bg-red-50 group-hover:text-red-600 transition-colors">
+                  Explorar
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </section>
 

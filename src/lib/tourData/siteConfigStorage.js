@@ -109,15 +109,26 @@ let lastFetchTime = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos en milisegundos
 
 export const getSiteConfig = async (forceRefresh = false) => {
+  console.log('🔄 Iniciando getSiteConfig, forceRefresh:', forceRefresh);
+  
   // Usar caché si está disponible y no se fuerza la actualización
   const now = Date.now();
   if (!forceRefresh && cachedConfig && (now - lastFetchTime) < CACHE_DURATION) {
     console.log('📦 Usando configuración en caché');
+    console.log('📝 Configuración en caché:', cachedConfig);
     return { ...defaultConfig, ...cachedConfig };
   }
 
   try {
     console.log('🌐 Obteniendo configuración desde Supabase...');
+    
+    console.log('🔍 Consultando Supabase...');
+    
+    // Verificar si supabase está inicializado
+    if (!supabase) {
+      console.error('❌ Error: Supabase no está inicializado');
+      throw new Error('Supabase no está inicializado');
+    }
     
     // Intentar obtener de Supabase
     const { data, error } = await supabase
@@ -126,7 +137,13 @@ export const getSiteConfig = async (forceRefresh = false) => {
       .eq('id', DEFAULT_CONFIG_ID)
       .single();
 
-    if (error) throw error;
+    console.log('📊 Respuesta de Supabase - data:', data);
+    console.log('📊 Respuesta de Supabase - error:', error);
+
+    if (error) {
+      console.error('❌ Error en la consulta a Supabase:', error);
+      throw error;
+    }
     
     if (data) {
       console.log('✅ Configuración obtenida de Supabase');
@@ -166,6 +183,7 @@ export const getSiteConfig = async (forceRefresh = false) => {
     }
     
     console.log('⚠️ Usando configuración por defecto debido a errores');
+    console.log('📝 Configuración por defecto:', defaultConfig);
     return { ...defaultConfig };
   }
 };

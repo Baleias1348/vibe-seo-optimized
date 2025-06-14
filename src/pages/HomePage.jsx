@@ -500,36 +500,29 @@ const HomePage = () => {
             </section>
             
             <section className="container py-8 md:py-12">
-                <Card className="bg-card shadow-xl border">
-                    <CardHeader>
-                        <CardTitle className="text-2xl md:text-3xl text-center text-primary">Passeios em Destaque</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                         {isLoadingTours ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                                {Array.from({ length: 4 }).map((_, index) => (
-                                    <TourCardSkeleton key={index} />
-                                ))}
-                            </div>
-                         ) : toursToShow.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                                {toursToShow.map((tour, index) => (
-                                     <motion.div
-                                        key={tour.id || `sim-${index}`}
-                                        initial={{ opacity: 0, y: 50 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true, amount: 0.2 }}
-                                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                                    >
-                                        <TourCard tour={tour} />
-                                    </motion.div>
-                                ))}
-                            </div>
-                         ) : (
-                            <p className="text-center text-muted-foreground py-8">Nenhum passeio em destaque disponível no momento.</p>
-                         )}
-                    </CardContent>
-                </Card>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <Link to="/passeios">
+                        <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-300 border-2 border-primary/20 hover:border-primary/40">
+                            <CardHeader className="items-center text-center">
+                                <div className="p-3 bg-primary/10 rounded-full mb-2">
+                                    <MountainSnow className="h-8 w-8 text-primary" />
+                                </div>
+                                <CardTitle className="text-xl">Passeios e Experiências</CardTitle>
+                            </CardHeader>
+                            <CardContent className="text-center flex-grow">
+                                <p className="text-sm text-muted-foreground mb-4">Descubra as melhores experiências e passeios pelo Chile</p>
+                                <Button variant="outline" className="mt-2">
+                                    Ver todos os passeios
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </Link>
+                </motion.div>
             </section>
 
             <section className="container py-8 md:py-12">

@@ -4,7 +4,7 @@ import React from 'react';
     import Footer from '@/components/layout/Footer';
     import HomePage from '@/pages/HomePage'; // Changed to HomePage
     import LandingPageChile from '@/pages/LandingPageChile'; // The old HomePage
-    import ToursPage from '@/pages/ToursPage';
+    
     import TourDetailPage from '@/pages/TourDetailPage';
     import RestaurantsPage from '@/pages/RestaurantsPage';
     import SkiCentersPage from '@/pages/SkiCentersPage';
@@ -15,6 +15,7 @@ import React from 'react';
     import AdminUpdatePasswordPage from '@/pages/AdminUpdatePasswordPage';
     import WeatherPage from '@/pages/weather/WeatherPage';
     import CurrencyPage from '@/pages/currency/CurrencyPage';
+    import ToursPage from '@/pages/tours/ToursPage';
     import ProtectedRoute from '@/components/auth/ProtectedRoute';
     import WhatsAppButton from '@/components/shared/WhatsAppButton';
     import { Toaster } from '@/components/ui/toaster';
@@ -75,7 +76,8 @@ import 'react-toastify/dist/ReactToastify.css';
                         <Route path="/voos" element={<div>Página de Voos (em construção)</div>} />
                         <Route path="/emergencias" element={<div>Página de Emergências (em construção)</div>} />
                         <Route path="/conversor-moeda" element={<CurrencyPage />} />
-                        <Route path="/investir-chile" element={<div>Página Investir no Chile (em construcción)</div>} />
+                        <Route path="/passeios" element={<ToursPage />} />
+                        <Route path="/investir-chile" element={<div>Página Investir no Chile (em construção)</div>} />
                         <Route path="/blog/mariscos-chilenos" element={<div>Página Blog Mariscos (em construção)</div>} />
                     </Routes>
                 </main>

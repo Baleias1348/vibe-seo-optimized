@@ -16,7 +16,8 @@ import WeatherPage from '@/pages/weather/WeatherPage';
 import CurrencyPage from '@/pages/currency/CurrencyPage';
 import ToursPage from '@/pages/tours/ToursPage';
 import CasasCambioPage from '@/pages/casas-cambio/CasasCambioPage';
-import VinosVinicolasPage from '@/pages/vinos-vinicolas/VinosVinicolasPage';
+import VinhosEVinhedosPage from '@/pages/vinhos-e-vinhedos/VinhosEVinhedosPage';
+import VinicolaListPage from '@/pages/vinicolas/VinicolaListPage';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import WhatsAppButton from '@/components/shared/WhatsAppButton';
 import { Toaster } from '@/components/ui/toaster';
@@ -212,13 +213,26 @@ const MainLayout = () => {
           />
           
           <Route 
-            path={urls.vinosVinicolas} 
+            path={urls.vinhosEVinhedos} 
             element={renderWithSeo(
-              <VinosVinicolasPage />,
+              <VinhosEVinhedosPage />,
               {
-                title: 'Vinos y Viñedos en Chile | Las mejores rutas del vino',
-                description: 'Descubre las mejores viñas de Chile y sus vinos premiados. Recorre las rutas del vino, conoce el proceso de elaboración y disfruta de catas inolvidables.',
-                keywords: 'vinos chilenos, viñas de chile, rutas del vino, catas de vino, turismo enológico, vino chileno, valle de colchagua, valle del maipo, valle de casablanca'
+                title: 'Vinhos e Vinhedos no Chile | As melhores rotas do vinho',
+                description: 'Descubra as melhores vinícolas do Chile e seus vinhos premiados. Percorra as rotas do vinho, conheça o processo de produção e desfrute de degustações inesquecíveis.',
+                keywords: 'vinhos chilenos, vinícolas do chile, rotas do vinho, degustação de vinhos, enoturismo, vinho chileno, vale de colchagua, vale do maipo, vale de casablanca'
+              }
+            )} 
+          />
+          
+          <Route 
+            path={urls.vinicolas} 
+            element={renderWithSeo(
+              <VinicolaListPage />,
+              {
+                title: 'Vinícolas do Chile | Descubra as melhores experiências enoturísticas',
+                description: 'Explore as vinícolas mais destacadas do Chile, conheça seus processos de produção e desfrute de degustações exclusivas nas paisagens mais impressionantes do país.',
+                keywords: 'vinícolas chilenas, enoturismo, degustação de vinhos, turismo enológico, vinhedos, vinho chileno, vale de colchagua, vale do maipo, vale de casablanca, rota do vinho',
+                type: 'website'
               }
             )} 
           />

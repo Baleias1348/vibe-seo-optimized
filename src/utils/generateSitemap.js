@@ -3,7 +3,16 @@
  * Este archivo se puede ejecutar durante el build o como una ruta de API
  */
 
-const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://tudominio.com';
+// Usamos process.env.VITE_BASE_URL para compatibilidad con Node.js durante el build
+const BASE_URL = (typeof import.meta !== 'undefined' ? import.meta.env.VITE_BASE_URL : process.env.VITE_BASE_URL) || 'https://tudominio.com';
+
+// Si estamos en el servidor de Netlify, forzamos https
+const getBaseUrl = () => {
+  if (process.env.NETLIFY) {
+    return `https://${process.env.URL || 'tudominio.com'}`;
+  }
+  return BASE_URL;
+};
 
 // Datos de ejemplo - reemplazar con datos reales de tu aplicación
 const staticRoutes = [
@@ -24,7 +33,7 @@ const staticRoutes = [
 // Función para generar el XML del sitemap
 export const generateSitemap = (routes = staticRoutes) => {
   const urlElements = routes.map(route => {
-    const url = new URL(route.url, BASE_URL).toString();
+    const url = new URL(route.url, getBaseUrl()).toString();
     return `
     <url>
       <loc>${url}</loc>

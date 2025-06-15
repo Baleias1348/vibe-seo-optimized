@@ -1,13 +1,18 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+const { defineConfig } = require('vite');
+const react = require('@vitejs/plugin-react').default;
+const path = require('path');
 
 const isDev = process.env.NODE_ENV !== 'production';
 let inlineEditPlugin, editModeDevPlugin;
 
 if (isDev) {
-	inlineEditPlugin = (await import('./plugins/visual-editor/vite-plugin-react-inline-editor.js')).default;
-	editModeDevPlugin = (await import('./plugins/visual-editor/vite-plugin-edit-mode.js')).default;
+  try {
+    // Usando require en lugar de import() dinámico
+    inlineEditPlugin = require('./plugins/visual-editor/vite-plugin-react-inline-editor.js').default;
+    editModeDevPlugin = require('./plugins/visual-editor/vite-plugin-edit-mode.js').default;
+  } catch (err) {
+    console.error('Error al cargar los plugins de desarrollo:', err);
+  }
 }
 
 // Configuración simplificada para manejo de errores
@@ -177,20 +182,20 @@ const addTransformIndexHtml = {
 	},
 };
 
+// Deshabilitar advertencias de consola
 console.warn = () => {};
 
-const logger = createLogger()
-const loggerError = logger.error
-
-logger.error = (msg, options) => {
-	if (options?.error?.toString().includes('CssSyntaxError: [postcss]')) {
-		return;
-	}
-
-	loggerError(msg, options);
+// Función para manejar errores personalizados
+const handleError = (msg, options) => {
+  // Ignorar errores específicos de CSS
+  if (options?.error?.toString().includes('CssSyntaxError: [postcss]')) {
+    return;
+  }
+  // Mostrar el error en la consola
+  console.error(msg, options);
 }
 
-export default defineConfig({
+module.exports = defineConfig({
 	server: {
 		port: 8081,
 		https: false,

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, MountainSnow, X, LogOut, UserCircle, Settings, ShoppingBag, Star, Compass, Sun, BookOpen } from 'lucide-react';
+import { Menu, MountainSnow, X, LogOut, UserCircle, Settings, ShoppingBag, Star, Compass, Sun, BookOpen, Wine } from 'lucide-react';
 import { getSiteConfig, subscribeToConfigChanges } from '@/lib/tourData';
 import { cn } from '@/lib/utils';
 import urls from '@/config/urls';

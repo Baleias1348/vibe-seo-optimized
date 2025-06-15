@@ -5,16 +5,59 @@
  * y facilitar el mantenimiento.
  */
 
+// Función segura para construir URLs
+const buildUrl = (path, base) => {
+  try {
+    // Si no hay base, usar la predeterminada
+    const baseUrl = base || 'https://chileaovivo.com';
+    
+    // Limpiar la URL base
+    let cleanBase = baseUrl.toString().trim();
+    
+    // Asegurar que la base tenga protocolo
+    if (!cleanBase.startsWith('http://') && !cleanBase.startsWith('https://')) {
+      cleanBase = 'https://' + cleanBase;
+    }
+    
+    // Eliminar barras finales
+    cleanBase = cleanBase.replace(/\/+$/, '');
+    
+    // Limpiar el path
+    const cleanPath = path ? path.toString().trim() : '/';
+    
+    // Construir la URL de manera segura
+    const url = new URL(cleanPath, cleanBase);
+    return url.toString();
+    
+  } catch (error) {
+    console.error('Error al construir URL:', { path, base, error });
+    // Devolver una URL por defecto segura en caso de error
+    return `https://chileaovivo.com${path ? `/${path.toString().replace(/^\/+/, '')}` : ''}`;
+  }
+};
+
 // Configuración de la URL base
 let BASE_URL = 'https://chileaovivo.com';
 
-// Intentar obtener la URL base del entorno
-if (typeof process !== 'undefined' && process.env) {
-  if (process.env.VITE_BASE_URL) {
-    BASE_URL = process.env.VITE_BASE_URL;
-  } else if (process.env.REACT_APP_BASE_URL) {
-    BASE_URL = process.env.REACT_APP_BASE_URL;
+// Intentar obtener la URL base del entorno de manera segura
+try {
+  if (typeof process !== 'undefined' && process.env) {
+    if (process.env.VITE_BASE_URL) {
+      BASE_URL = process.env.VITE_BASE_URL;
+    } else if (process.env.REACT_APP_BASE_URL) {
+      BASE_URL = process.env.REACT_APP_BASE_URL;
+    }
   }
+} catch (error) {
+  console.warn('No se pudo cargar la URL base del entorno:', error);
+}
+
+// Asegurar que la URL base sea válida
+try {
+  new URL(BASE_URL);
+} catch (e) {
+  console.warn(`URL base inválida: ${BASE_URL}, usando valor por defecto`);
+  BASE_URL = 'https://chileaovivo.com';
 }
 
 // Para compatibilidad con el código existente
@@ -85,17 +128,17 @@ const urls = {
     instagramVinhos: 'https://www.instagram.com/chilewine/',
   },
   
-  // URLs completas para SEO
+  // URLs completas para SEO - Usando la función segura buildUrl
   canonical: {
-    home: `${BASE_URL}/`,
-    tours: `${BASE_URL}/tours`,
-    casasCambio: `${BASE_URL}/casas-de-cambio`,
-    vinhosEVinhedos: `${BASE_URL}/vinhos-e-vinhedos`,
-    tourDetail: (tourId) => `${BASE_URL}/tours/${tourId}`,
-    restaurantes: `${BASE_URL}/restaurantes`,
-    centrosEsqui: `${BASE_URL}/centros-esqui`,
-    centroEsquiDetail: (slug) => `${BASE_URL}/centros-esqui/${slug}`,
-    blogPost: (slug) => `${BASE_URL}/blog/${slug}`,
+    home: buildUrl('/', BASE_URL),
+    tours: buildUrl('/tours', BASE_URL),
+    casasCambio: buildUrl('/casas-de-cambio', BASE_URL),
+    vinhosEVinhedos: buildUrl('/vinhos-e-vinhedos', BASE_URL),
+    tourDetail: (tourId) => buildUrl(`/tours/${tourId}`, BASE_URL),
+    restaurantes: buildUrl('/restaurantes', BASE_URL),
+    centrosEsqui: buildUrl('/centros-esqui', BASE_URL),
+    centroEsquiDetail: (slug) => buildUrl(`/centros-esqui/${slug}`, BASE_URL),
+    blogPost: (slug) => buildUrl(`/blog/${slug}`, BASE_URL),
   },
 };
 

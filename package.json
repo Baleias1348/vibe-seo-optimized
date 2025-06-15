@@ -7,7 +7,7 @@
     "dev": "vite --config vite.temp.config.js",
     "preview": "vite preview --port 3000",
     "prebuild": "node -e \"const fs = require('fs'); const path = require('path'); try { require('dotenv').config(); } catch (e) { console.log('dotenv no está instalado, continuando sin cargar .env'); } const publicDir = path.join(process.cwd(), 'public'); if (!fs.existsSync(publicDir)) { fs.mkdirSync(publicDir, { recursive: true }); }\"",
-    "build": "vite build",
+    "build": "npm install --legacy-peer-deps && vite build",
     "postbuild": "node scripts/postbuild.js"
   },
   "dependencies": {

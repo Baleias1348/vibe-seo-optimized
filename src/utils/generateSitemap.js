@@ -73,17 +73,49 @@ const staticRoutes = [
 
 // Función para validar y limpiar la URL base
 const cleanBaseUrl = (url) => {
-  if (!url) return 'https://chileaovivo.com';
-  
-  // Asegurarse de que la URL tenga protocolo
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    url = 'https://' + url.replace(/^\/+/, '');
+  try {
+    if (!url || typeof url !== 'string') {
+      console.warn('URL base no proporcionada o inválida, usando valor por defecto');
+      return 'https://chileaovivo.com';
+    }
+    
+    // Eliminar espacios en blanco
+    let cleanUrl = url.trim();
+    
+    // Si está vacío, devolver el valor por defecto
+    if (!cleanUrl) {
+      console.warn('URL base vacía, usando valor por defecto');
+      return 'https://chileaovivo.com';
+    }
+    
+    // Asegurarse de que la URL tenga protocolo
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      cleanUrl = 'https://' + cleanUrl;
+    }
+    
+    // Validar la URL
+    try {
+      // Usar el constructor URL para validar
+      const parsedUrl = new URL(cleanUrl);
+      
+      // Asegurarse de que el hostname sea válido
+      if (!parsedUrl.hostname || parsedUrl.hostname === '') {
+        throw new Error('Hostname inválido');
+      }
+      
+      // Reconstruir la URL sin path, query o hash
+      const baseUrl = `${parsedUrl.protocol}//${parsedUrl.hostname}`;
+      
+      // Eliminar barras al final
+      return baseUrl.replace(/\/+$/, '');
+    } catch (error) {
+      console.warn(`URL base inválida: ${cleanUrl}, usando valor por defecto. Error:`, error.message);
+      return 'https://chileaovivo.com';
+    }
+  } catch (error) {
+    console.error('Error inesperado en cleanBaseUrl:', error);
+    return 'https://chileaovivo.com';
   }
-  
-  // Eliminar barras al final
-  url = url.replace(/\/+$/, '');
-  
-  return url;
 };
 
 // Función para generar una URL válida de manera segura
@@ -105,13 +137,46 @@ const createValidUrl = (path, baseUrl) => {
         : `/${path}`
       : '/';
     
-    // Crear la URL de manera segura
-    try {
-      const url = new URL(cleanPath, cleanBase);
-      return url.toString();
-    } catch (error) {
-      console.error(`Error al crear URL para ${cleanPath} con base ${cleanBase}:`, error);
+    // Validar que cleanBase sea una URL válida
+    if (!cleanBase || typeof cleanBase !== 'string' || !cleanBase.trim()) {
+      console.error('URL base inválida:', cleanBase);
       return 'https://chileaovivo.com/';
+    }
+    
+    // Asegurar que cleanPath sea una cadena
+    const pathStr = String(cleanPath || '').trim();
+    
+    // Crear una ruta segura
+    let safePath = pathStr.replace(/[^\w\-\/]/g, '');
+    
+    // Asegurar que la ruta empiece con /
+    if (!safePath.startsWith('/')) {
+      safePath = '/' + safePath;
+    }
+    
+    // Validar que la ruta sea válida
+    if (!/^\/[\w\-\/]*$/.test(safePath)) {
+      console.error('Ruta inválida:', safePath);
+      return cleanBase.endsWith('/') ? cleanBase : cleanBase + '/';
+    }
+    
+    try {
+      // Validar que la URL base sea válida
+      const baseUrl = new URL(cleanBase);
+      
+      // Construir la URL
+      const fullUrl = new URL(safePath, baseUrl);
+      
+      // Validar que la URL resultante sea segura
+      if (!fullUrl.href.startsWith(baseUrl.href)) {
+        throw new Error('URL resultante no es segura');
+      }
+      
+      return fullUrl.toString();
+    } catch (error) {
+      console.error(`Error al crear URL para ${safePath} con base ${cleanBase}:`, error.message);
+      // Devolver una URL por defecto segura
+      return cleanBase.endsWith('/') ? cleanBase : cleanBase + '/';
     }
   } catch (error) {
     console.error('Error inesperado en createValidUrl:', error);

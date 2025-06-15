@@ -15,7 +15,7 @@ const getBaseUrl = () => {
     }
     
     // Luego intentamos con import.meta.env (Vite en el navegador)
-    if (typeof import !== 'undefined' && import.meta && import.meta.env) {
+    if (typeof import !== 'undefined' && typeof import.meta !== 'undefined' && import.meta && import.meta.env) {
       if (import.meta.env.VITE_BASE_URL) return import.meta.env.VITE_BASE_URL;
     }
   } catch (error) {

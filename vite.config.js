@@ -217,17 +217,6 @@ module.exports = defineConfig({
 	server: {
 		port: 8081,
 		https: false,
-		headers: {
-			'Content-Security-Policy': `
-				default-src 'self';
-				connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.supabase.com;
-				img-src 'self' data: https:;
-				script-src 'self' 'unsafe-inline' 'unsafe-eval';
-				style-src 'self' 'unsafe-inline';
-				font-src 'self' data:;
-				frame-src 'self';
-			`.replace(/\s+/g, ' ').trim()
-		},
 		host: true,
 		open: true,
 		cors: {
@@ -243,18 +232,18 @@ module.exports = defineConfig({
 			'Cross-Origin-Embedder-Policy': 'credentialless',
 			'Content-Security-Policy': [
 				"default-src 'self';",
-				"connect-src 'self' https://yfgqpaxajeatchcqrehe.supabase.co https://*.supabase.co https://*.supabase.in https://*.supabase.co https://api.openweathermap.org http://localhost:8081 https://www.google-analytics.com https://analytics.google.com https://play.google.com https://www.recaptcha.net https://www.gstatic.com https://*.ingest.sentry.io https://api.segment.io https://csp.withgoogle.com;",
+				"connect-src 'self' https://yfgqpaxajeatchcqrehe.supabase.co https://*.supabase.co https://*.supabase.in https://*.supabase.com https://api.openweathermap.org http://localhost:8081 https://www.google-analytics.com https://analytics.google.com https://play.google.com https://www.recaptcha.net https://www.gstatic.com https://*.ingest.sentry.io https://api.segment.io https://csp.withgoogle.com;",
+				"img-src 'self' data: https: http:;",
 				"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://www.google-analytics.com https://analytics.google.com;",
 				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://js.stripe.com;",
 				"style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://js.stripe.com;",
 				"font-src 'self' data: https: https://fonts.gstatic.com https://js.stripe.com;",
-				"img-src 'self' data: https: http:;",
 				"frame-src 'self' https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/ https://js.stripe.com;",
 				"frame-ancestors 'self';",
 				"form-action 'self';",
 				"base-uri 'self';",
-				"object-src 'none';",
-			].join(' ').replace(/\s+/g, ' ').replace(/\n\s*/g, ' ').trim(),
+				"object-src 'none';"
+			].join(' ').replace(/\s+/g, ' ').trim(),
 		},
 		proxy: {
 			'/api': {

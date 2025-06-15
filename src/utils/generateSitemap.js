@@ -81,19 +81,45 @@ const staticRoutes = [
   { url: '/contacto', changefreq: 'monthly', priority: 0.4 },
 ];
 
+// Función para generar una URL válida de manera segura
+const createValidUrl = (path, baseUrl) => {
+  try {
+    // Asegurarse de que el path comience con /
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    // Crear la URL de manera segura
+    return new URL(cleanPath, baseUrl).toString();
+  } catch (error) {
+    console.error(`Error al crear URL para ${path}:`, error);
+    // Devolver una URL por defecto en caso de error
+    return new URL('/', baseUrl).toString();
+  }
+};
+
 // Función para generar el XML del sitemap
 export const generateSitemap = (routes = staticRoutes, baseUrl) => {
   // Obtener la URL base, usando el parámetro si se proporciona
   const siteUrl = baseUrl || getBaseUrl();
   
+  // Asegurarse de que siteUrl es una URL válida
+  if (!siteUrl || typeof siteUrl !== 'string') {
+    console.error('URL base inválida para el sitemap:', siteUrl);
+    return '';
+  }
+  
   const urlElements = routes.map(route => {
-    const url = new URL(route.url, siteUrl).toString();
+    // Validar que route.url sea una cadena
+    if (typeof route.url !== 'string') {
+      console.warn('Ruta inválida en sitemap:', route);
+      return '';
+    }
+    
+    const url = createValidUrl(route.url, siteUrl);
     return `
     <url>
       <loc>${url}</loc>
       ${route.lastmod ? `<lastmod>${route.lastmod}</lastmod>` : ''}
-      <changefreq>${route.changefreq}</changefreq>
-      <priority>${route.priority}</priority>
+      <changefreq>${route.changefreq || 'weekly'}</changefreq>
+      <priority>${route.priority || '0.5'}</priority>
     </url>`;
   }).join('');
 

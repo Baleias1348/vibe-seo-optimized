@@ -195,7 +195,25 @@ const handleError = (msg, options) => {
   console.error(msg, options);
 }
 
+// Cargar variables de entorno
+const env = {
+  VITE_BASE_URL: process.env.VITE_BASE_URL || 'https://chileaovivo.com',
+  VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL || '',
+  VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || '',
+  VITE_OPENWEATHER_API_KEY: process.env.VITE_OPENWEATHER_API_KEY || '',
+  VITE_OPENWEATHER_BASE_URL: process.env.VITE_OPENWEATHER_BASE_URL || 'https://api.openweathermap.org/data/2.5',
+};
+
+// Mostrar variables de entorno en consola (solo en desarrollo)
+if (process.env.NODE_ENV === 'development') {
+  console.log('Variables de entorno cargadas:', env);
+}
+
 module.exports = defineConfig({
+  // Inyectar variables de entorno en el cliente
+  define: {
+    'import.meta.env': JSON.stringify(env)
+  },
 	server: {
 		port: 8081,
 		https: false,

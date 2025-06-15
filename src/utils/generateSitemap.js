@@ -1,6 +1,8 @@
 /**
  * Utilidad para generar sitemap.xml dinámico
  * Este archivo se puede ejecutar durante el build o como una ruta de API
+ * 
+ * Convertido a CommonJS para compatibilidad con el proceso de construcción
  */
 
 // Función segura para obtener la URL base
@@ -33,19 +35,7 @@ function getBaseUrl(customBaseUrl) {
       }
     }
     
-    // 4. Luego intentamos con Vite (en el navegador o SSR)
-    if (typeof import.meta !== 'undefined' && import.meta.env) {
-      if (import.meta.env.VITE_BASE_URL) {
-        const url = import.meta.env.VITE_BASE_URL;
-        return url.endsWith('/') ? url.slice(0, -1) : url;
-      }
-      if (import.meta.env.BASE_URL) {
-        const url = import.meta.env.BASE_URL;
-        return url.endsWith('/') ? url.slice(0, -1) : url;
-      }
-    }
-    
-    // 5. Valor por defecto seguro
+    // 4. Valor por defecto seguro
     return 'https://chileaovivo.com';
   } catch (error) {
     console.warn('No se pudo determinar la URL base, usando valor por defecto');
@@ -96,7 +86,7 @@ const createValidUrl = (path, baseUrl) => {
 };
 
 // Función para generar el XML del sitemap
-export const generateSitemap = (routes = staticRoutes, baseUrl) => {
+const generateSitemap = (routes = staticRoutes, baseUrl) => {
   // Obtener la URL base, usando el parámetro si se proporciona
   const siteUrl = baseUrl || getBaseUrl();
   
@@ -124,38 +114,59 @@ export const generateSitemap = (routes = staticRoutes, baseUrl) => {
   }).join('');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">${urlElements}
-</urlset>`;
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    ${urlElements}
+  </urlset>`;
 };
 
-// Para uso en Node.js (ejecución durante el build)
-if (typeof module !== 'undefined' && module.exports) {
+// Exportar para uso en otros módulos
+module.exports = {
+  generateSitemap,
+  staticRoutes
+};
+
+// Si se ejecuta directamente (desde la línea de comandos)
+if (require.main === module) {
   const fs = require('fs');
   const path = require('path');
-  
-  // Obtener la URL base de las variables de entorno o usar un valor por defecto
-  const baseUrl = process.env.VITE_BASE_URL || 'https://chileaovivo.com';
-  
+
+  // Obtener la ruta base
+  const baseUrl = getBaseUrl();
+  console.log('Sitemap - Generando sitemap para URL base:', baseUrl);
+
+  // Generar el sitemap
+  const sitemap = generateSitemap(staticRoutes, baseUrl);
+
+  // Crear directorio dist si no existe
+  const distDir = path.join(process.cwd(), 'dist');
+  if (!fs.existsSync(distDir)) {
+    fs.mkdirSync(distDir, { recursive: true });
+  }
+
+  // Escribir el archivo sitemap.xml
+  fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap);
+  console.log('Sitemap - sitemap.xml generado correctamente');
+}
+
+// Si hay un error al ejecutar directamente
+if (require.main === module) {
   try {
-    // Generar sitemap durante el build con la URL base
+    // Obtener la ruta base
+    const baseUrl = getBaseUrl();
+    console.log('Sitemap - Generando sitemap para URL base:', baseUrl);
+
+    // Generar el sitemap
     const sitemap = generateSitemap(staticRoutes, baseUrl);
-    const publicDir = path.join(process.cwd(), 'public');
+
+    // Crear directorio dist si no existe
     const distDir = path.join(process.cwd(), 'dist');
-    
-    // Asegurarse de que exista el directorio de salida
-    [publicDir, distDir].forEach(dir => {
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      
-      // Escribir el sitemap en ambos directorios para mayor compatibilidad
-      fs.writeFileSync(path.join(dir, 'sitemap.xml'), sitemap);
-      console.log(`Sitemap generado en: ${path.join(dir, 'sitemap.xml')}`);
-    });
-    
+    if (!fs.existsSync(distDir)) {
+      fs.mkdirSync(distDir, { recursive: true });
+    }
+
+    // Escribir el archivo sitemap.xml
+    fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap);
+    console.log('Sitemap - sitemap.xml generado correctamente');
   } catch (error) {
     console.error('Error al generar el sitemap:', error);
     process.exit(1);

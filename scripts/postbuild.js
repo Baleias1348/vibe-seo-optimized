@@ -8,7 +8,7 @@ console.log('Iniciando tareas post-construcción...');
 const generateSitemap = () => {
   try {
     console.log('Generando sitemap...');
-    const { generateSitemap } = require('../src/utils/generateSitemap');
+    const { generateSitemap, staticRoutes } = require('../src/utils/generateSitemap');
     const publicDir = path.join(process.cwd(), 'dist');
     
     // Asegurarse de que el directorio dist existe
@@ -18,14 +18,14 @@ const generateSitemap = () => {
     
     // Generar sitemap con valores por defecto si no hay .env
     const baseUrl = process.env.VITE_BASE_URL || 'https://chileaovivo.com';
-    const sitemapContent = generateSitemap(baseUrl);
+    const sitemapContent = generateSitemap(staticRoutes, baseUrl);
     
     fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), sitemapContent);
     console.log('Sitemap generado correctamente');
     return true;
   } catch (error) {
     console.warn('Advertencia: No se pudo generar el sitemap. Continuando sin él.');
-    console.error('Detalles del error:', error.message);
+    console.error('Detalles del error:', error);
     return false;
   }
 };

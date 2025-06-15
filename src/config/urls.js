@@ -5,13 +5,33 @@
  * y facilitar el mantenimiento.
  */
 
-// Importar la variable de entorno de Vite
-const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://tudominio.com';
+// Obtener la URL base de las variables de entorno o usar un valor por defecto
+const getBaseUrl = () => {
+  try {
+    // Primero intentamos con process.env (Node.js/Netlify)
+    if (typeof process !== 'undefined' && process.env) {
+      if (process.env.VITE_BASE_URL) return process.env.VITE_BASE_URL;
+      if (process.env.REACT_APP_BASE_URL) return process.env.REACT_APP_BASE_URL;
+    }
+    
+    // Luego intentamos con import.meta.env (Vite en el navegador)
+    if (typeof import !== 'undefined' && import.meta && import.meta.env) {
+      if (import.meta.env.VITE_BASE_URL) return import.meta.env.VITE_BASE_URL;
+    }
+  } catch (error) {
+    console.warn('No se pudo determinar la URL base:', error);
+  }
+  
+  // Valor por defecto
+  return 'https://chileaovivo.com';
+};
+
+const BASE_URL = getBaseUrl();
 
 // Para compatibilidad con el código existente
 const process = {
   env: {
-    REACT_APP_BASE_URL: import.meta.env.VITE_BASE_URL || 'https://tudominio.com'
+    REACT_APP_BASE_URL: BASE_URL
   }
 };
 

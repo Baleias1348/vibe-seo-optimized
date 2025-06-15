@@ -5,28 +5,17 @@
  * y facilitar el mantenimiento.
  */
 
-// Obtener la URL base de las variables de entorno o usar un valor por defecto
-const getBaseUrl = () => {
-  try {
-    // Primero intentamos con process.env (Node.js/Netlify)
-    if (typeof process !== 'undefined' && process.env) {
-      if (process.env.VITE_BASE_URL) return process.env.VITE_BASE_URL;
-      if (process.env.REACT_APP_BASE_URL) return process.env.REACT_APP_BASE_URL;
-    }
-    
-    // Luego intentamos con import.meta.env (Vite en el navegador)
-    if (typeof import !== 'undefined' && typeof import.meta !== 'undefined' && import.meta && import.meta.env) {
-      if (import.meta.env.VITE_BASE_URL) return import.meta.env.VITE_BASE_URL;
-    }
-  } catch (error) {
-    console.warn('No se pudo determinar la URL base:', error);
-  }
-  
-  // Valor por defecto
-  return 'https://chileaovivo.com';
-};
+// Configuración de la URL base
+let BASE_URL = 'https://chileaovivo.com';
 
-const BASE_URL = getBaseUrl();
+// Intentar obtener la URL base del entorno
+if (typeof process !== 'undefined' && process.env) {
+  if (process.env.VITE_BASE_URL) {
+    BASE_URL = process.env.VITE_BASE_URL;
+  } else if (process.env.REACT_APP_BASE_URL) {
+    BASE_URL = process.env.REACT_APP_BASE_URL;
+  }
+}
 
 // Para compatibilidad con el código existente
 const process = {

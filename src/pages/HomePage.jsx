@@ -453,7 +453,7 @@ const HomePage = () => {
           </Link>
 
           {/* Wineries Card */}
-          <Link to="/vinos-y-vinicolas" className="group">
+          <Link to="/vinhos-e-vinhedos" className="group">
             <Card className="h-full transition-all duration-300 hover:shadow-lg hover:border-red-500">
               <CardContent className="p-6 text-center">
                 <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-red-50 transition-colors">

@@ -5,58 +5,27 @@
  * y facilitar el mantenimiento.
  */
 
+import { createSafeUrl, getAppBaseUrl } from '../utils/urlUtils';
+
 // Función segura para construir URLs
 const buildUrl = (path, base) => {
-  try {
-    // Si no hay base, usar la predeterminada
-    const baseUrl = base || 'https://chileaovivo.com';
-    
-    // Limpiar la URL base
-    let cleanBase = baseUrl.toString().trim();
-    
-    // Asegurar que la base tenga protocolo
-    if (!cleanBase.startsWith('http://') && !cleanBase.startsWith('https://')) {
-      cleanBase = 'https://' + cleanBase;
-    }
-    
-    // Eliminar barras finales
-    cleanBase = cleanBase.replace(/\/+$/, '');
-    
-    // Limpiar el path
-    const cleanPath = path ? path.toString().trim() : '/';
-    
-    // Construir la URL de manera segura
-    const url = new URL(cleanPath, cleanBase);
-    return url.toString();
-    
-  } catch (error) {
-    console.error('Error al construir URL:', { path, base, error });
-    // Devolver una URL por defecto segura en caso de error
-    return `https://chileaovivo.com${path ? `/${path.toString().replace(/^\/+/, '')}` : ''}`;
-  }
+  return createSafeUrl(path, base);
 };
 
 // Configuración de la URL base
-let BASE_URL = 'https://chileaovivo.com';
+let BASE_URL;
 
-// Intentar obtener la URL base del entorno de manera segura
 try {
-  if (typeof process !== 'undefined' && process.env) {
-    if (process.env.VITE_BASE_URL) {
-      BASE_URL = process.env.VITE_BASE_URL;
-    } else if (process.env.REACT_APP_BASE_URL) {
-      BASE_URL = process.env.REACT_APP_BASE_URL;
-    }
-  }
-} catch (error) {
-  console.warn('No se pudo cargar la URL base del entorno:', error);
-}
-
-// Asegurar que la URL base sea válida
-try {
+  // Obtener la URL base
+  BASE_URL = getAppBaseUrl();
+  
+  // Validar la URL base
   new URL(BASE_URL);
-} catch (e) {
-  console.warn(`URL base inválida: ${BASE_URL}, usando valor por defecto`);
+  
+  // Mostrar la URL base que se está utilizando
+  console.log('URL base de la aplicación:', BASE_URL);
+} catch (error) {
+  console.warn('Error al configurar la URL base, usando valor por defecto:', error);
   BASE_URL = 'https://chileaovivo.com';
 }
 

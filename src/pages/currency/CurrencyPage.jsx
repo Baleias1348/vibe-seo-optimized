@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, ArrowRight, RefreshCw, Info, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getExchangeRateUrl, API_CONFIG } from '../../config/apiEndpoints';
 import './currency.css';
 
 // Moedas suportadas com bandeiras e formato
@@ -31,45 +32,93 @@ const CurrencyPage = () => {
   const [isError, setIsError] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
 
-  // Obter taxas de câmbio
-  const fetchRates = async () => {
+  // Función para obtener tasas de cambio con reintentos
+  const fetchRates = useCallback(async () => {
     setIsLoading(true);
     setIsError(false);
     
-    try {
-      const response = await fetch('https://open.er-api.com/v6/latest/BRL');
-      
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
+    let lastError;
+    
+    // Intentar hasta el número máximo de reintentos
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
+        
+        const response = await fetch(getExchangeRateUrl('BRL'), {
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.result !== 'success' || !data.rates) {
+          throw new Error('No se pudieron obtener las tasas actualizadas');
+        }
+        
+        // Si llegamos aquí, la solicitud fue exitosa
+        setRates(data.rates);
+        setLastUpdated(new Date().toLocaleTimeString());
+        setIsError(false);
+        
+        // Mostrar notificación de éxito
+        toast.success('Tasas de cambio actualizadas', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        
+        return; // Salir de la función con éxito
+        
+      } catch (error) {
+        lastError = error;
+        console.error(`Intento ${attempt} fallido:`, error);
+        
+        // Si no es el último intento, esperar antes de reintentar
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
       }
-      
-      const data = await response.json();
-      
-      if (data.result !== 'success' || !data.rates) {
-        throw new Error('No se pudieron obtener las tasas actualizadas');
-      }
-      
-      setRates(data.rates);
-      setLastUpdated(new Date().toLocaleTimeString());
-      
-      toast.success('Taxas de câmbio atualizadas', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: true,
-      });
-      
-    } catch (error) {
-      console.error('Erro ao obter taxas de câmbio:', error);
-      setIsError(true);
-      toast.error('Error al cargar tasas. Intenta recargar la página.', {
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: true,
-      });
-    } finally {
-      setIsLoading(false);
     }
-  };
+    
+    // Si llegamos aquí, todos los intentos fallaron
+    setIsError(true);
+    
+    // Mostrar notificación de error
+    toast.error(`Error al obtener tasas: ${lastError?.message || 'Error desconocido'}`, {
+      position: 'top-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+    
+    console.error('Todos los intentos fallaron:', lastError);
+  }, []);
+
+  // Efecto para cargar las tasas al montar el componente
+  useEffect(() => {
+    fetchRates();
+  }, [fetchRates]);
+  
+  // Asegurarse de que siempre se quite el estado de carga
+  useEffect(() => {
+    return () => {
+      setIsLoading(false);
+    };
+  }, []);
 
   // Converter moeda
   const convertCurrency = () => {

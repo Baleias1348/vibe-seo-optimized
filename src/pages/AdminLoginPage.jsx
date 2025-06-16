@@ -92,7 +92,7 @@ import React, { useState, useEffect } from 'react';
                 <div className="w-full max-w-md">
                     <div className="text-center mb-8">
                         <Link to="/">
-                            <img  src="/placeholder-logo.png" alt="VibeChile! Logo" className="mx-auto h-16 mb-4" src="https://images.unsplash.com/photo-1600328808706-b63a063d219d" />
+                            <img src="https://images.unsplash.com/photo-1600328808706-b63a063d219d" alt="VibeChile! Logo" className="mx-auto h-16 mb-4" />
                         </Link>
                         <h1 className="text-3xl font-bold text-primary">Acesso Restrito</h1>
                         <p className="text-muted-foreground">Painel de Administração</p>

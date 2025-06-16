@@ -30,7 +30,7 @@ class URLError extends Error {
  * Envoltura segura alrededor del constructor URL que nunca falla
  * @param {string} url - URL a analizar
  * @param {string} [base] - URL base opcional
- * @returns {URL} Objeto URL válido o un objeto con valores por defecto
+ * @returns {URL|Object} Objeto URL válido o un objeto con valores por defecto
  */
 const safeURL = (url, base) => {
   // Objeto URL por defecto seguro
@@ -73,11 +73,11 @@ const safeURL = (url, base) => {
 
 /**
  * Crea una URL segura a partir de un path y una base
- * @param {string} path - Ruta o URL relativa/absoluta
- * @param {string} [base] - URL base (opcional)
+ * @param {string} path - Ruta relativa o absoluta
+ * @param {string} [base] - URL base opcional
  * @returns {string} URL válida o cadena vacía si hay error
  */
-export const createSafeUrl = (path, base) => {
+const createSafeUrl = (path, base) => {
   // 1. Validación básica del path
   if (path === null || path === undefined || path === '') {
     console.warn('URL Validation: No se proporcionó un path');
@@ -135,12 +135,13 @@ const isValidAbsoluteUrl = (url) => {
  * @param {boolean} [options.checkDomain=true] - Si se debe verificar el dominio contra la lista de permitidos
  * @returns {boolean} true si es una URL válida
  */
-export const isValidUrl = (url, options = {}) => {
+const isValidUrl = (url, options = {}) => {
   // Validación básica de entrada
   if (typeof url !== 'string' || !url.trim()) {
     return false;
   }
 
+  // Opciones con valores por defecto
   const {
     requireProtocol = true,
     allowedProtocols = ['http:', 'https:'],
@@ -152,7 +153,7 @@ export const isValidUrl = (url, options = {}) => {
   // Verificar si es una ruta relativa
   if (!requireProtocol && !/^[a-z]+:\/\//i.test(cleanUrl)) {
     // Validar que no contenga caracteres inválidos para una ruta relativa
-    const invalidChars = [' ', '<', '>', '{', '}', '|', '^', '`', '\\', '"', '\\'];
+    const invalidChars = [' ', '<', '>', '{', '}', '|', '^', '`', '\\', '"'];
     if (invalidChars.some(char => cleanUrl.includes(char))) {
       return false;
     }
@@ -179,16 +180,15 @@ export const isValidUrl = (url, options = {}) => {
     }
     
     // Verificar dominio contra la lista de permitidos si es necesario
-    if (checkDomain && ALLOWED_DOMAINS.length > 0 && parsedUrl.hostname) {
+    if (checkDomain && ALLOWED_DOMAINS.size > 0 && parsedUrl.hostname) {
       const domain = parsedUrl.hostname.replace(/^www\./i, '').toLowerCase();
-      if (!ALLOWED_DOMAINS.some(allowed => domain === allowed.toLowerCase())) {
+      if (!ALLOWED_DOMAINS.has(domain)) {
         return false;
       }
     }
     
     return true;
-  } catch (e) {
-    // Si llegamos aquí, la URL no es válida
+  } catch (error) {
     return false;
   }
 };
@@ -197,37 +197,18 @@ export const isValidUrl = (url, options = {}) => {
  * Obtiene la URL base de la aplicación
  * @returns {string} URL base
  */
-export const getAppBaseUrl = () => {
+const getAppBaseUrl = () => {
   try {
     // 1. En el navegador, usar la URL actual
     if (typeof window !== 'undefined' && window.location) {
-      return window.location.origin;
+      return `${window.location.protocol}//${window.location.host}`;
     }
 
-      // 2. Intentar obtener de variables de entorno (Vite, React, Next.js, etc.)
-    const envVars = [
-      // Variables de Vite (import.meta.env)
-      typeof import.meta !== 'undefined' && import.meta.env?.VITE_BASE_URL,
-      
-      // Variables de entorno de Node.js (process.env)
-      typeof process !== 'undefined' && process.env?.REACT_APP_BASE_URL,
-      typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_BASE_URL,
-      typeof process !== 'undefined' && process.env?.BASE_URL,
-      typeof process !== 'undefined' && process.env?.URL,
-      typeof process !== 'undefined' && process.env?.VERCEL_URL
-    ].filter(Boolean);  // Filtrar valores nulos o undefined
-
-    // 3. Buscar la primera variable de entorno válida
-    for (const envVar of envVars) {
-      if (envVar) {
-        const cleanUrl = String(envVar).trim();
-        if (cleanUrl) {
-          // Usar safeURL para validar la URL
-          const url = safeURL(cleanUrl);
-          if (url.href !== DEFAULT_SAFE_URL) {
-            return url.href.replace(/\/+$/, '');
-          }
-        }
+    // 2. En Node.js, usar la variable de entorno VITE_BASE_URL
+    if (process.env.VITE_BASE_URL) {
+      const baseUrl = String(process.env.VITE_BASE_URL).trim();
+      if (baseUrl) {
+        return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
       }
     }
 
@@ -238,4 +219,52 @@ export const getAppBaseUrl = () => {
     console.error('Error al obtener la URL base:', error);
     return DEFAULT_SAFE_URL;
   }
+};
+
+const safeURL = (url, base) => {
+  // Objeto URL por defecto seguro
+  const defaultURL = {
+    href: DEFAULT_SAFE_URL,
+    protocol: 'https:',
+    hostname: 'chileaovivo.com',
+    pathname: '/',
+    search: '',
+    hash: '',
+    toString: () => DEFAULT_SAFE_URL
+  };
+
+  try {
+    // Si no hay URL, devolver el valor por defecto
+    if (!url) return defaultURL;
+    
+    // Si es una URL absoluta, intentar analizarla directamente
+    if (/^https?:\/\//i.test(url)) {
+      return new URL(url);
+    }
+    
+    // Si tenemos una base, intentar construir la URL relativa
+    if (base) {
+      return new URL(url, base);
+    }
+    
+    // Si no hay base, intentar con la URL actual
+    if (typeof window !== 'undefined' && window.location) {
+      return new URL(url, window.location.origin);
+    }
+    
+    // Si todo falla, usar la URL por defecto
+    return defaultURL;
+  } catch (error) {
+    console.warn('Error al analizar URL:', { url, base, error: error.message });
+    return defaultURL;
+  }
+};
+
+// Exportar todas las funciones
+export {
+  createSafeUrl,
+  isValidUrl,
+  getAppBaseUrl,
+  safeURL,
+  isValidAbsoluteUrl
 };

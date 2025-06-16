@@ -27,8 +27,29 @@ const TickerItem = ({ icon: Icon, text, highlight = false }) => (
 );
 
 // NewsTicker Component
-const NewsTicker = ({ tickerData = [] }) => {
+const NewsTicker = ({ tickerData: externalTickerData = [] }) => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const [safeTickerData, setSafeTickerData] = useState([]);
+
+  // Filtrar y limpiar los datos del ticker
+  useEffect(() => {
+    if (!Array.isArray(externalTickerData)) {
+      console.warn('Datos del ticker no son un array:', externalTickerData);
+      setSafeTickerData([]);
+      return;
+    }
+
+    // Filtrar entradas inválidas
+    const cleanedData = externalTickerData
+      .filter(item => item && typeof item === 'object' && 'id' in item)
+      .map(item => ({
+        ...item,
+        content: String(item.content || '').trim(),
+        id: String(item.id || '').trim()
+      }));
+
+    setSafeTickerData(cleanedData);
+  }, [externalTickerData]);
 
   // Update time every minute
   useEffect(() => {
@@ -38,59 +59,75 @@ const NewsTicker = ({ tickerData = [] }) => {
 
   // Generate ticker content
   const getTickerContent = () => {
-    const formattedDate = format(currentDateTime, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-    const formattedTime = format(currentDateTime, "HH:mm");
-    const dateAndTimeText = `Informações do dia: ${formattedDate}, Hora de Chile: ${formattedTime} horas`;
+    try {
+      const formattedDate = format(currentDateTime, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+      const formattedTime = format(currentDateTime, "HH:mm");
+      const dateAndTimeText = `Informações do dia: ${formattedDate}, Hora de Chile: ${formattedTime} horas`;
+      
+      if (!safeTickerData || safeTickerData.length === 0) {
+        return [
+          { icon: SunDim, text: dateAndTimeText, id: 'datetime' },
+          { icon: Cloud, text: 'Santiago: --º', id: 'weather_santiago' },
+          { icon: Flag, text: 'Dólar (USD) em Reais: R$--', id: 'currency_usd_brl' },
+          { icon: Flag, text: 'Dólar (USD) em Pesos: $--', id: 'currency_usd_clp' },
+          { icon: Flag, text: 'Real (BRL): $--', id: 'currency_brl_clp' }
+        ];
+      }
     
-    if (!tickerData || tickerData.length === 0) {
+      // Map of ticker items with their configurations
+      const tickerItems = [
+        { id: 'datetime', icon: SunDim, text: dateAndTimeText },
+        { id: 'weather_santiago', icon: Cloud, prefix: 'Santiago: ', suffix: 'º' },
+        { id: 'weather_vina', icon: Cloud, prefix: 'Viña del Mar: ', suffix: 'º' },
+        { id: 'weather_valparaiso', icon: Cloud, prefix: 'Valparaíso: ', suffix: 'º' },
+        { id: 'weather_concepcion', icon: CloudRain, prefix: 'Concepción: ', suffix: 'º' },
+        { id: 'weather_chillan_city', icon: Cloud, prefix: 'Chillán (cidade): ', suffix: 'º' },
+        { id: 'weather_antofagasta', icon: Sun, prefix: 'Antofagasta: ', suffix: 'º' },
+        { id: 'ski_valle_nevado', icon: MountainSnow, prefix: 'Valle Nevado: ' },
+        { id: 'ski_farellones', icon: MountainSnow, prefix: 'Farellones: ' },
+        { id: 'ski_el_colorado', icon: MountainSnow, prefix: 'El Colorado: ' },
+        { id: 'ski_portillo', icon: MountainSnow, prefix: 'Portillo: ' },
+        { id: 'ski_la_parva', icon: MountainSnow, prefix: 'La Parva: ' },
+        { id: 'ski_nevados_chillan', icon: MountainSnow, prefix: 'Nevados de Chillán: ' },
+        { id: 'currency_brl_clp', icon: Flag, prefix: 'Real (BRL): ', default: '$--' },
+        { id: 'currency_usd_brl', icon: Flag, prefix: 'Dólar (USD) em Reais: ', default: 'R$--' },
+        { id: 'currency_usd_clp', icon: Flag, prefix: 'Dólar (USD) em Pesos: ', default: '$--' },
+      ];
+
+      return tickerItems
+        .map(item => {
+          try {
+            const data = safeTickerData.find(d => d.id === item.id);
+            const content = data?.content || item.default;
+            
+            if (!content && item.id !== 'datetime') return null;
+            
+            const text = item.id === 'datetime' 
+              ? item.text 
+              : `${item.prefix || ''}${content || '--'}${item.suffix || ''}`;
+            
+            return {
+              ...item,
+              text: String(text || '').substring(0, 200), // Limitar longitud y asegurar string
+              id: String(item.id || '').substring(0, 50) // Limitar longitud de ID
+            };
+          } catch (error) {
+            console.error('Error procesando ítem del ticker:', { item, error });
+            return null;
+          }
+        })
+        .filter(Boolean)
+        .filter(item => item && item.text && item.text.trim() !== '');
+    } catch (error) {
+      console.error('Error en getTickerContent:', error);
       return [
-        { icon: SunDim, text: dateAndTimeText, id: 'datetime' },
-        { icon: Cloud, text: 'Santiago: --º', id: 'weather_santiago' },
-        { icon: Flag, text: 'Dólar (USD) em Reais: R$--', id: 'currency_usd_brl' },
-        { icon: Flag, text: 'Dólar (USD) em Pesos: $--', id: 'currency_usd_clp' },
-        { icon: Flag, text: 'Real (BRL): $--', id: 'currency_brl_clp' }
+        { 
+          id: 'error', 
+          icon: AlertTriangle, 
+          text: 'Error al cargar la información del ticker. Por favor, intente recargar la página.' 
+        }
       ];
     }
-    
-    // Map of ticker items with their configurations
-    const tickerItems = [
-      { id: 'datetime', icon: SunDim, text: dateAndTimeText },
-      { id: 'weather_santiago', icon: Cloud, prefix: 'Santiago: ', suffix: 'º' },
-      { id: 'weather_vina', icon: Cloud, prefix: 'Viña del Mar: ', suffix: 'º' },
-      { id: 'weather_valparaiso', icon: Cloud, prefix: 'Valparaíso: ', suffix: 'º' },
-      { id: 'weather_concepcion', icon: CloudRain, prefix: 'Concepción: ', suffix: 'º' },
-      { id: 'weather_chillan_city', icon: Cloud, prefix: 'Chillán (cidade): ', suffix: 'º' },
-      { id: 'weather_antofagasta', icon: Sun, prefix: 'Antofagasta: ', suffix: 'º' },
-      { id: 'ski_valle_nevado', icon: MountainSnow, prefix: 'Valle Nevado: ' },
-      { id: 'ski_farellones', icon: MountainSnow, prefix: 'Farellones: ' },
-      { id: 'ski_el_colorado', icon: MountainSnow, prefix: 'El Colorado: ' },
-      { id: 'ski_portillo', icon: MountainSnow, prefix: 'Portillo: ' },
-      { id: 'ski_la_parva', icon: MountainSnow, prefix: 'La Parva: ' },
-      { id: 'ski_nevados_chillan', icon: MountainSnow, prefix: 'Nevados de Chillán: ' },
-      { id: 'currency_brl_clp', icon: Flag, prefix: 'Real (BRL): ', default: '$--' },
-      { id: 'currency_usd_brl', icon: Flag, prefix: 'Dólar (USD) em Reais: ', default: 'R$--' },
-      { id: 'currency_usd_clp', icon: Flag, prefix: 'Dólar (USD) em Pesos: ', default: '$--' },
-    ];
-
-    return tickerItems
-      .map(item => {
-        const data = tickerData.find(d => d.id === item.id);
-        const content = data?.content || item.default;
-        
-        if (!content && item.id !== 'datetime') return null;
-        
-        const text = item.id === 'datetime' 
-          ? item.text 
-          : `${item.prefix || ''}${content || '--'}${item.suffix || ''}`;
-        
-        return {
-          ...item,
-          text,
-          id: item.id
-        };
-      })
-      .filter(Boolean)
-      .filter(item => item && item.text);
   };
 
   const tickerContent = getTickerContent();
@@ -215,33 +252,74 @@ const HomePage = () => {
     }
   }, []);
 
-  // Fetch ticker data
+  // Fetch ticker data with improved error handling
   const fetchTickerData = useCallback(async () => {
     try {
-      console.log('🔍 Loading ticker data...');
-      const { data, error } = await supabase
+      console.log('🔍 Cargando datos del ticker...');
+      
+      // Verificar si supabase está disponible
+      if (!supabase) {
+        console.error('❌ Supabase no está disponible');
+        setTickerData([]);
+        return;
+      }
+      
+      // Realizar la consulta con límite de tiempo
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Tiempo de espera agotado al cargar los datos del ticker')), 5000)
+      );
+      
+      const fetchPromise = supabase
         .from('ticker_data')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(20);
-        
-      if (error) throw error;
       
-      console.log('✅ Ticker data loaded:', data?.length || 0, 'items');
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
       
+      if (error) {
+        throw new Error(`Error de Supabase: ${error.message}`);
+      }
+      
+      // Validar y limpiar los datos
+      const validatedData = (Array.isArray(data) ? data : [])
+        .filter(item => item && typeof item === 'object')
+        .map(item => ({
+          id: String(item.id || '').trim().substring(0, 50),
+          content: String(item.content || '').trim(),
+          created_at: item.created_at || new Date().toISOString()
+        }))
+        .filter(item => item.id); // Filtrar ítems sin ID
+      
+      console.log('✅ Datos del ticker cargados:', validatedData.length, 'elementos');
+      
+      // Actualizar el estado solo si hay cambios
       setTickerData(prevData => {
-        if (JSON.stringify(prevData) !== JSON.stringify(data)) {
-          return data || [];
+        if (JSON.stringify(prevData) !== JSON.stringify(validatedData)) {
+          return validatedData;
         }
         return prevData;
       });
+      
     } catch (error) {
-      console.error('❌ Error loading ticker data:', error);
-      if (tickerData.length === 0) {
-        setTickerData([{ id: 'error', content: 'Error loading data' }]);
-      }
+      console.error('❌ Error al cargar los datos del ticker:', error.message || error);
+      
+      // Solo actualizar si no hay datos o si hay un error específico que requiera actualización
+      setTickerData(prevData => {
+        if (prevData.length === 0) {
+          return [{
+            id: 'error',
+            content: 'Error al cargar datos. Intentando nuevamente...',
+            isError: true
+          }];
+        }
+        return prevData;
+      });
+      
+      // Reintentar después de un tiempo si falla
+      setTimeout(fetchTickerData, 30000); // Reintentar después de 30 segundos
     }
-  }, [tickerData.length]);
+  }, []); // Eliminamos la dependencia de tickerData.length para evitar bucles
 
   // Handle storage changes
   const handleStorageChange = useCallback((event) => {
@@ -253,48 +331,97 @@ const HomePage = () => {
   // Initialize component
   useEffect(() => {
     let isMounted = true;
-    
-    // Load initial data
-    const loadInitialData = async () => {
+    let tickerInterval = null;
+    let subscription = null;
+
+    // Configurar suscripción a cambios en tiempo real
+    const setupRealtimeSubscription = () => {
       try {
-        await Promise.all([
-          fetchTickerData(),
-          fetchFeaturedTours(),
-          fetchSiteConfig()
-        ]);
+        // Si ya hay una suscripción, no hacer nada
+        if (subscription) return;
+        
+        // Configurar la suscripción a cambios en la configuración
+        // Nota: Asegúrate de que subscribeToConfigChanges esté definido
+        if (typeof subscribeToConfigChanges === 'function') {
+          subscription = subscribeToConfigChanges((newConfig) => {
+            if (isMounted && newConfig) {
+              setSiteConfigData(prev => ({
+                ...prev,
+                ...newConfig,
+                hero_images: Array.isArray(newConfig.hero_images) ? newConfig.hero_images : []
+              }));
+            }
+          });
+        }
       } catch (error) {
-        console.error('Error loading initial data:', error);
+        console.error('Error al configurar la suscripción en tiempo real:', error);
+      }
+    };
+
+    const loadInitialData = async () => {
+      if (!isMounted) return;
+      
+      try {
+        console.log('🔄 Cargando datos iniciales...');
+        
+        // Configurar la suscripción en tiempo real
+        setupRealtimeSubscription();
+        
+        // Cargar en paralelo pero con manejo de errores individual
+        await Promise.allSettled([
+          fetchFeaturedTours().catch(err => 
+            console.error('Error al cargar tours destacados:', err)
+          ),
+          fetchSiteConfig().catch(err => 
+            console.error('Error al cargar configuración del sitio:', err)
+          ),
+          fetchTickerData().catch(err => 
+            console.error('Error al cargar datos del ticker:', err)
+          )
+        ]);
+        
+        console.log('✅ Datos iniciales cargados correctamente');
+        
+      } catch (error) {
+        console.error('❌ Error crítico al cargar datos iniciales:', error);
       }
     };
     
-    // Set up real-time subscription
-    const subscription = subscribeToConfigChanges((newConfig) => {
-      if (isMounted && newConfig) {
-        setSiteConfigData(prev => ({
-          ...prev,
-          ...newConfig,
-          hero_images: Array.isArray(newConfig.hero_images) ? newConfig.hero_images : []
-        }));
-      }
-    });
-    
-    // Set up event listeners
+    // Configurar event listeners
     window.addEventListener('storage', handleStorageChange);
     
-    // Initial load
+    // Cargar datos iniciales
     loadInitialData();
     
-    // Set up periodic refresh
-    const tickerInterval = setInterval(fetchTickerData, 5 * 60 * 1000);
+    // Configurar actualización periódica del ticker (cada 5 minutos)
+    if (typeof setInterval === 'function') {
+      tickerInterval = setInterval(() => {
+        if (isMounted) {
+          fetchTickerData().catch(err => 
+            console.error('Error en actualización periódica del ticker:', err)
+          );
+        }
+      }, 5 * 60 * 1000);
+    }
     
-    // Cleanup
+    // Limpieza al desmontar
     return () => {
       isMounted = false;
+      
+      // Cancelar la suscripción si existe
       if (subscription?.unsubscribe) {
-        subscription.unsubscribe();
+        try {
+          subscription.unsubscribe();
+        } catch (error) {
+          console.error('Error al cancelar la suscripción:', error);
+        }
       }
+      
+      // Limpiar intervalos y event listeners
       window.removeEventListener('storage', handleStorageChange);
-      clearInterval(tickerInterval);
+      if (tickerInterval) {
+        clearInterval(tickerInterval);
+      }
     };
   }, [fetchFeaturedTours, fetchSiteConfig, fetchTickerData, handleStorageChange]);
 

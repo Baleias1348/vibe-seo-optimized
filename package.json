@@ -1,6 +1,6 @@
 {
   "name": "alliance-vacation-web",
-  "type": "commonjs",
+  "type": "module",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -33,6 +33,7 @@
     "axios": "^1.6.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "country-flag-emoji": "^1.0.3",
     "date-fns": "^2.30.0",
     "dotenv": "^16.5.0",
     "esbuild": "^0.25.5",

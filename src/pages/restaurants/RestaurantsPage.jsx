@@ -312,15 +312,24 @@ const RestaurantsPage = () => {
             <div className="loading">Cargando restaurantes...</div>
           ) : filteredRestaurants.length > 0 ? (
             <div className="restaurants-grid">
-              {filteredRestaurants.map((restaurant) => (
-                <div 
-                  key={restaurant.id} 
-                  onClick={() => handleRestaurantClick(restaurant)}
-                  className="cursor-pointer"
-                >
-                  <RestaurantCard restaurant={restaurant} />
-                </div>
-              ))}
+              {filteredRestaurants.map((restaurant) => {
+                // Asegurarse de que las propiedades de las imágenes estén correctamente formateadas
+                const restaurantWithImages = {
+                  ...restaurant,
+                  photoUrl: restaurant.photo || (restaurant.photos && restaurant.photos[0]) || '',
+                  photos: restaurant.photos || []
+                };
+                
+                return (
+                  <div 
+                    key={restaurant.id} 
+                    onClick={() => handleRestaurantClick(restaurantWithImages)}
+                    className="cursor-pointer"
+                  >
+                    <RestaurantCard restaurant={restaurantWithImages} />
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="no-results">

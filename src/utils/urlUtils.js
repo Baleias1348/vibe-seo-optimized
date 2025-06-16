@@ -1,18 +1,75 @@
 /**
  * Utilidad para manejo seguro de URLs
  * Proporciona funciones para crear y validar URLs de manera segura
+ * 
+ * Este módulo implementa un enfoque defensivo para el manejo de URLs,
+ * asegurando que nunca se produzcan errores de construcción de URL.
  */
 
-// URL segura por defecto
+// URL segura por defecto que se usará como respaldo
 const DEFAULT_SAFE_URL = 'https://chileaovivo.com';
 
-// Lista de dominios permitidos (opcional, para validación adicional)
-const ALLOWED_DOMAINS = [
+// Lista de dominios permitidos (seguridad adicional)
+const ALLOWED_DOMAINS = new Set([
   'chileaovivo.com',
   'chileaovivo.net',
   'localhost',
   '127.0.0.1'
-];
+]);
+
+// Clase de error personalizada para errores de URL
+class URLError extends Error {
+  constructor(message, cause) {
+    super(message);
+    this.name = 'URLError';
+    this.cause = cause;
+  }
+}
+
+/**
+ * Envoltura segura alrededor del constructor URL que nunca falla
+ * @param {string} url - URL a analizar
+ * @param {string} [base] - URL base opcional
+ * @returns {URL} Objeto URL válido o un objeto con valores por defecto
+ */
+const safeURL = (url, base) => {
+  // Objeto URL por defecto seguro
+  const defaultURL = {
+    href: DEFAULT_SAFE_URL,
+    protocol: 'https:',
+    hostname: 'chileaovivo.com',
+    pathname: '/',
+    search: '',
+    hash: '',
+    toString: () => DEFAULT_SAFE_URL
+  };
+
+  try {
+    // Si no hay URL, devolver el valor por defecto
+    if (!url) return defaultURL;
+    
+    // Si es una URL absoluta, intentar analizarla directamente
+    if (/^https?:\/\//i.test(url)) {
+      return new URL(url);
+    }
+    
+    // Si tenemos una base, intentar construir la URL relativa
+    if (base) {
+      return new URL(url, base);
+    }
+    
+    // Si no hay base, intentar con la URL actual
+    if (typeof window !== 'undefined' && window.location) {
+      return new URL(url, window.location.origin);
+    }
+    
+    // Si todo falla, usar la URL por defecto
+    return defaultURL;
+  } catch (error) {
+    console.warn('Error al analizar URL:', { url, base, error: error.message });
+    return defaultURL;
+  }
+};
 
 /**
  * Crea una URL segura a partir de un path y una base
@@ -21,86 +78,32 @@ const ALLOWED_DOMAINS = [
  * @returns {string} URL válida o cadena vacía si hay error
  */
 export const createSafeUrl = (path, base) => {
-  try {
-    // 1. Validar y limpiar el path
-    if (path === null || path === undefined || path === '') {
-      console.warn('URL Validation: No se proporcionó un path');
-      return '';
-    }
-
-    const cleanPath = String(path).trim();
-    if (!cleanPath) {
-      console.warn('URL Validation: El path está vacío');
-      return '';
-    }
-
-    // 2. Si ya es una URL absoluta válida, devolverla
-    if (isValidAbsoluteUrl(cleanPath)) {
-      return cleanPath;
-    }
-
-    // 3. Obtener la URL base
-    let baseUrl = '';
-    
-    // Usar la base proporcionada o obtenerla del entorno
-    if (base) {
-      baseUrl = String(base).trim();
-    } else if (typeof window !== 'undefined' && window.location) {
-      baseUrl = window.location.origin;
-    } else {
-      baseUrl = getAppBaseUrl();
-    }
-
-    // Asegurar que la base sea válida
-    baseUrl = baseUrl.trim();
-    if (!baseUrl) {
-      console.warn('URL Base: Usando URL base por defecto');
-      baseUrl = DEFAULT_SAFE_URL;
-    }
-
-    // Asegurar que la base tenga protocolo
-    if (!/^https?:\/\//i.test(baseUrl)) {
-      baseUrl = 'https://' + baseUrl.replace(/^\/\//, '');
-    }
-
-    // Limpiar la URL base
-    baseUrl = baseUrl.replace(/\/+$/, '');
-
-    // Manejar el caso especial de path raíz
-    if (cleanPath === '/') {
-      return baseUrl + '/';
-    }
-
-    // Limpiar el path
-    const cleanRelativePath = cleanPath.replace(/^\/+/, '');
-
-    // Construir la URL final
-    try {
-      // Usar el constructor URL con base
-      const url = new URL(cleanRelativePath, baseUrl);
-      
-      // Validar el dominio si es necesario
-      if (ALLOWED_DOMAINS.length > 0) {
-        const domain = url.hostname.replace(/^www\./, '');
-        if (!ALLOWED_DOMAINS.includes(domain)) {
-          console.warn(`URL Validation: Dominio no permitido: ${domain}`);
-          return '';
-        }
-      }
-      
-      return url.toString();
-    } catch (error) {
-      console.warn('URL Construction: Error al construir URL:', {
-        base: baseUrl,
-        path: cleanPath,
-        error: error.message
-      });
-      return '';
-    }
-  } catch (error) {
-    console.error('URL Error: Error inesperado:', error);
+  // 1. Validación básica del path
+  if (path === null || path === undefined || path === '') {
+    console.warn('URL Validation: No se proporcionó un path');
     return '';
   }
+
+  const cleanPath = String(path).trim();
+  if (!cleanPath) {
+    console.warn('URL Validation: El path está vacío');
+    return '';
+  }
+
+  // 2. Usar safeURL para construir la URL de manera segura
+  const url = safeURL(cleanPath, base);
+  
+  // 3. Validar el dominio si es necesario
+  if (ALLOWED_DOMAINS.size > 0 && url.hostname) {
+    const domain = url.hostname.replace(/^www\./i, '').toLowerCase();
+    if (!ALLOWED_DOMAINS.has(domain)) {
+      console.warn(`URL Validation: Dominio no permitido: ${domain}`);
+      return '';
+    }
+  }
+
+  // 4. Devolver la URL como string
+  return url.toString();
 };
 
 /**
@@ -109,16 +112,18 @@ export const createSafeUrl = (path, base) => {
  * @returns {boolean} true si es una URL absoluta válida
  */
 const isValidAbsoluteUrl = (url) => {
-  try {
-    // Verificar si comienza con http:// o https://
-    if (!/^https?:\/\//i.test(url)) return false;
-    
-    // Validar la URL
-    new URL(url);
-    return true;
-  } catch (e) {
+  if (typeof url !== 'string' || !url.trim()) {
     return false;
   }
+  
+  // Verificar si comienza con http:// o https://
+  if (!/^https?:\/\//i.test(url)) {
+    return false;
+  }
+  
+  // Usar safeURL para validar sin lanzar excepciones
+  const urlObj = safeURL(url);
+  return urlObj.href !== DEFAULT_SAFE_URL;
 };
 
 /**
@@ -199,37 +204,38 @@ export const getAppBaseUrl = () => {
       return window.location.origin;
     }
 
-    // 2. Verificar variables de entorno de Vite (import.meta.env)
-    if (typeof import.meta !== 'undefined' && import.meta.env) {
-      const env = import.meta.env;
-      if (env.VITE_BASE_URL) return env.VITE_BASE_URL;
-      if (env.REACT_APP_BASE_URL) return env.REACT_APP_BASE_URL;
-      if (env.NEXT_PUBLIC_BASE_URL) return env.NEXT_PUBLIC_BASE_URL;
-    }
-
-    // 3. Verificar variables de entorno de Node.js (process.env)
-    if (typeof process !== 'undefined' && process.env) {
-      // Verificar variables de Netlify
-      if (process.env.NETLIFY === 'true' && process.env.URL) {
-        return process.env.URL;
-      }
+      // 2. Intentar obtener de variables de entorno (Vite, React, Next.js, etc.)
+    const envVars = [
+      // Variables de Vite (import.meta.env)
+      typeof import.meta !== 'undefined' && import.meta.env?.VITE_BASE_URL,
       
-      // Verificar otras variables de entorno comunes
-      if (process.env.VITE_BASE_URL) return process.env.VITE_BASE_URL;
-      if (process.env.REACT_APP_BASE_URL) return process.env.REACT_APP_BASE_URL;
-      if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
-      if (process.env.BASE_URL) return process.env.BASE_URL;
-      if (process.env.URL) {
-        const url = process.env.URL.toString().trim();
-        return url.startsWith('http') ? url : `https://${url}`;
+      // Variables de entorno de Node.js (process.env)
+      typeof process !== 'undefined' && process.env?.REACT_APP_BASE_URL,
+      typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_BASE_URL,
+      typeof process !== 'undefined' && process.env?.BASE_URL,
+      typeof process !== 'undefined' && process.env?.URL,
+      typeof process !== 'undefined' && process.env?.VERCEL_URL
+    ].filter(Boolean);  // Filtrar valores nulos o undefined
+
+    // 3. Buscar la primera variable de entorno válida
+    for (const envVar of envVars) {
+      if (envVar) {
+        const cleanUrl = String(envVar).trim();
+        if (cleanUrl) {
+          // Usar safeURL para validar la URL
+          const url = safeURL(cleanUrl);
+          if (url.href !== DEFAULT_SAFE_URL) {
+            return url.href.replace(/\/+$/, '');
+          }
+        }
       }
     }
 
     // 4. Valor por defecto seguro
-    console.warn('getAppBaseUrl: Usando URL base por defecto: https://chileaovivo.com');
-    return 'https://chileaovivo.com';
+    console.warn('getAppBaseUrl: Usando URL base por defecto');
+    return DEFAULT_SAFE_URL;
   } catch (error) {
     console.error('Error al obtener la URL base:', error);
-    return 'https://chileaovivo.com';
+    return DEFAULT_SAFE_URL;
   }
 };

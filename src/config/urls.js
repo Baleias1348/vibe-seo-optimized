@@ -13,20 +13,28 @@ const buildUrl = (path, base) => {
 };
 
 // Configuración de la URL base
-let BASE_URL;
+let BASE_URL = 'https://chileaovivo.com';
 
 try {
   // Obtener la URL base
-  BASE_URL = getAppBaseUrl();
+  const baseUrl = getAppBaseUrl();
   
   // Validar la URL base
-  new URL(BASE_URL);
-  
-  // Mostrar la URL base que se está utilizando
-  console.log('URL base de la aplicación:', BASE_URL);
+  if (baseUrl && typeof baseUrl === 'string' && baseUrl.trim() !== '') {
+    // Asegurarse de que la URL tenga protocolo
+    const urlWithProtocol = baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`;
+    // Validar la URL
+    new URL(urlWithProtocol);
+    BASE_URL = urlWithProtocol.endsWith('/') ? urlWithProtocol.slice(0, -1) : urlWithProtocol;
+    console.log('URL base de la aplicación configurada a:', BASE_URL);
+  } else {
+    throw new Error('La URL base está vacía o no es válida');
+  }
 } catch (error) {
-  console.warn('Error al configurar la URL base, usando valor por defecto:', error);
+  console.warn('Error al configurar la URL base, usando valor por defecto. Razón:', error.message);
+  // Asegurarse de que la URL base por defecto tenga el formato correcto
   BASE_URL = 'https://chileaovivo.com';
+  console.log('Usando URL base por defecto:', BASE_URL);
 }
 
 // Para compatibilidad con el código existente

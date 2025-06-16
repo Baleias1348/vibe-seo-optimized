@@ -28,15 +28,21 @@ export const createSafeUrl = (path, base) => {
     // Obtener la URL base
     let baseUrl = base || '';
     
-    // Si no se proporciona base, usar la URL actual
-    if (!baseUrl && typeof window !== 'undefined') {
-      baseUrl = window.location.origin;
+    // Si no se proporciona base, intentar obtenerla de diferentes fuentes
+    if (!baseUrl) {
+      if (typeof window !== 'undefined' && window.location) {
+        // En el navegador, usar la URL actual
+        baseUrl = window.location.origin;
+      } else {
+        // En el servidor, usar la URL base de la aplicación
+        baseUrl = getAppBaseUrl();
+      }
     }
     
     // Si aún no hay base, usar un valor por defecto
     if (!baseUrl) {
       baseUrl = 'https://chileaovivo.com';
-      console.warn('Usando URL base por defecto:', baseUrl);
+      console.warn('No se pudo determinar la URL base, usando valor por defecto:', baseUrl);
     }
     
     // Limpiar la URL base
@@ -88,23 +94,31 @@ export const isValidUrl = (url) => {
  * @returns {string} URL base
  */
 export const getAppBaseUrl = () => {
-  // 1. Verificar si estamos en el navegador
-  if (typeof window !== 'undefined') {
-    return window.location.origin;
-  }
-  
-  // 2. Verificar variables de entorno
+  // 1. Verificar variables de entorno primero (tanto en cliente como servidor)
   if (typeof process !== 'undefined' && process.env) {
-    if (process.env.VITE_BASE_URL) return process.env.VITE_BASE_URL;
-    if (process.env.REACT_APP_BASE_URL) return process.env.REACT_APP_BASE_URL;
-    if (process.env.BASE_URL) return process.env.BASE_URL;
-    if (process.env.URL) {
-      return process.env.URL.startsWith('http') 
-        ? process.env.URL 
-        : `https://${process.env.URL}`;
+    // Usar import.meta.env para Vite en lugar de process.env
+    const env = typeof import.meta !== 'undefined' ? import.meta.env : process.env;
+    
+    if (env.VITE_BASE_URL) return env.VITE_BASE_URL;
+    if (env.REACT_APP_BASE_URL) return env.REACT_APP_BASE_URL;
+    if (env.BASE_URL) return env.BASE_URL;
+    if (env.URL) {
+      const url = env.URL.toString().trim();
+      return url.startsWith('http') ? url : `https://${url}`;
     }
   }
   
-  // 3. Valor por defecto
+  // 2. Verificar si estamos en el navegador
+  if (typeof window !== 'undefined' && window.location) {
+    return window.location.origin;
+  }
+  
+  // 3. Verificar variables de entorno de Netlify
+  if (process?.env?.NETLIFY === 'true' && process?.env?.URL) {
+    return process.env.URL;
+  }
+  
+  // 4. Valor por defecto seguro
+  console.warn('Usando URL base por defecto: https://chileaovivo.com');
   return 'https://chileaovivo.com';
 };

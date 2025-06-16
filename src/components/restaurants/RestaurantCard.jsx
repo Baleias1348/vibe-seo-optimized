@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Star, MapPin, Globe, Clock, Utensils, MapPin as MapPinIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Star, MapPin, Globe, Clock, Utensils, MapPin as MapPinIcon, Image as ImageIcon } from 'lucide-react';
+import { getSafeImageUrl, handleImageError, preloadImage } from '@/utils/imageUtils';
 import { getTodaysSchedule } from '@/utils/dateUtils';
 import { restaurantCities } from '@/utils/restaurantCities';
 import { Button } from '@/components/ui/button';
@@ -24,7 +26,7 @@ const RestaurantCard = ({ restaurant, className = '' }) => {
   // Obtener la ciudad del mapeo
   const city = restaurantCities[name] || 'Ubicación no disponible';
 
-  const mainPhotoUrl = photoUrl || (photos && photos.length > 0 ? photos[0] : null);
+  const mainPhotoUrl = photoUrl || (Array.isArray(photos) && photos.length > 0 ? photos[0] : '');
   const todaySchedule = getTodaysSchedule(schedule);
   
   // Función para renderizar las estrellas
@@ -55,18 +57,14 @@ const RestaurantCard = ({ restaurant, className = '' }) => {
     >
       <Card className="h-full flex flex-col overflow-hidden border-2 border-orange-100 rounded-xl hover:shadow-lg transition-shadow duration-300 max-w-full">
         {/* Imagen */}
-        <div className="relative h-40 sm:h-48 w-full">
-          {mainPhotoUrl ? (
-            <img 
-              src={mainPhotoUrl} 
-              alt={name || 'Restaurante'}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-400">Sin imagen</span>
-            </div>
-          )}
+        <div className="relative h-40 sm:h-48 w-full bg-gray-100 overflow-hidden">
+          <img 
+            src={getSafeImageUrl(mainPhotoUrl)}
+            alt={name || 'Restaurante'}
+            className="w-full h-full object-cover transition-opacity duration-300"
+            onError={handleImageError}
+            loading="lazy"
+          />
         </div>
 
         {/* Contenido */}

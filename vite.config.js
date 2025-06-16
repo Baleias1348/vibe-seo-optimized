@@ -1,5 +1,6 @@
 const { defineConfig } = require('vite');
 const react = require('@vitejs/plugin-react').default;
+const { VitePWA } = require('vite-plugin-pwa');
 const path = require('path');
 
 const isDev = process.env.NODE_ENV !== 'production';
@@ -214,48 +215,108 @@ module.exports = defineConfig({
   define: {
     'import.meta.env': JSON.stringify(env)
   },
-	server: {
-		port: 8081,
-		https: false,
-		host: true,
-		open: true,
-		cors: {
-			origin: '*',
-			methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-			allowedHeaders: ['Content-Type', 'Authorization', 'apikey', 'x-client-info'],
-			credentials: true
-		},
-		headers: {
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-			'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, Authorization, apikey, x-client-info',
-			'Cross-Origin-Embedder-Policy': 'credentialless',
-			'Content-Security-Policy': [
-				"default-src 'self';",
-				"connect-src 'self' https://yfgqpaxajeatchcqrehe.supabase.co https://*.supabase.co https://*.supabase.in https://*.supabase.com https://api.openweathermap.org http://localhost:8081 https://www.google-analytics.com https://analytics.google.com https://play.google.com https://www.recaptcha.net https://www.gstatic.com https://*.ingest.sentry.io https://api.segment.io https://csp.withgoogle.com;",
-				"img-src 'self' data: https: http:;",
-				"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://www.google-analytics.com https://analytics.google.com;",
-				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://js.stripe.com;",
-				"style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://js.stripe.com;",
-				"font-src 'self' data: https: https://fonts.gstatic.com https://js.stripe.com;",
-				"frame-src 'self' https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/ https://js.stripe.com;",
-				"frame-ancestors 'self';",
-				"form-action 'self';",
-				"base-uri 'self';",
-				"object-src 'none';"
-			].join(' ').replace(/\s+/g, ' ').trim(),
-		},
-		proxy: {
-			'/api': {
-				target: 'https://yfgqpaxajeatchcqrehe.supabase.co',
-				changeOrigin: true,
-				secure: false,
-				rewrite: (path) => path.replace(/^\/api/, '')
-			}
-		}
-	},
-	plugins: [
-		react(),
+  server: {
+    port: 3003,
+    open: true,
+    cors: {
+      origin: '*',
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      credentials: true,
+    },
+    headers: {
+      'Content-Security-Policy': [
+        "default-src 'self';",
+        "img-src 'self' data: https: http: blob:;",
+        "font-src 'self' https://fonts.gstatic.com;",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval';",
+        "connect-src 'self' https://*.googleapis.com https://*.google.com https://*.gstatic.com https://yfgqpaxajeatchcqrehe.supabase.co;",
+      ].join(' '),
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+      'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block',
+    },
+    proxy: {
+      '/api': {
+        target: 'https://yfgqpaxajeatchcqrehe.supabase.co',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
+  },
+  plugins: [
+    react(),
+    VitePWA({
+      strategies: 'generateSW',
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      filename: 'sw.js',
+      srcDir: 'src',
+      manifest: {
+        name: 'Vibe Chile',
+        short_name: 'VibeChile',
+        description: 'Descubre los mejores restaurantes y experiencias en Chile',
+        theme_color: '#1268f5',
+        background_color: '#ffffff',
+        display: 'standalone',
+        start_url: '/',
+        icons: [
+          {
+            src: '/vite.svg',
+            sizes: '192x192',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          },
+          {
+            src: '/vite.svg',
+            sizes: '512x512',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          }
+        ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,gif,woff,woff2,ttf,eot}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 año
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 año
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
+      },
+      devOptions: {
+        enabled: false
+      }
+    }),
 		...(isDev ? [inlineEditPlugin?.(), editModeDevPlugin?.()] : []),
 		addTransformIndexHtml
 	],

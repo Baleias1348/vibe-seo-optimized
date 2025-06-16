@@ -9,5 +9,8 @@
 /investir-chile /inversion 301
 /contact /contacto 301
 
+# Manejo de rutas SPA (Single Page Application)
+/* /index.html 200
+
 # Redirección por defecto para SPA
 /* /index.html 200

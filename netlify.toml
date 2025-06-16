@@ -1,5 +1,5 @@
 [build]
-  command = "npm install --production=false && npm run build"
+  command = "npm install --legacy-peer-deps && npm run build"
   publish = "dist"
   functions = "netlify/functions"
 
@@ -25,6 +25,10 @@
   
   # Configuración de OpenWeatherMap (configurar en el panel de Netlify)
   VITE_OPENWEATHER_API_KEY = "${VITE_OPENWEATHER_API_KEY}"
+  
+  # Configuración de caché
+  NETLIFY_USE_YARN = "false"
+  NETLIFY_BUILD_CACHE = "true"
 
 # Redirecciones SPA (Single Page Application)
 [[redirects]]

@@ -3,111 +3,121 @@
  * Proporciona funciones para crear y validar URLs de manera segura
  */
 
+// URL segura por defecto
+const DEFAULT_SAFE_URL = 'https://chileaovivo.com';
+
+// Lista de dominios permitidos (opcional, para validación adicional)
+const ALLOWED_DOMAINS = [
+  'chileaovivo.com',
+  'chileaovivo.net',
+  'localhost',
+  '127.0.0.1'
+];
+
 /**
  * Crea una URL segura a partir de un path y una base
  * @param {string} path - Ruta o URL relativa/absoluta
- * @param {string} [base] - URL base (opcional, por defecto usa la URL actual)
+ * @param {string} [base] - URL base (opcional)
  * @returns {string} URL válida o cadena vacía si hay error
  */
 export const createSafeUrl = (path, base) => {
-  // Si no hay path, devolver cadena vacía
-  if (path === null || path === undefined) {
-    console.warn('createSafeUrl: No se proporcionó un path');
-    return '';
-  }
-  
-  // Convertir a string
-  const pathStr = String(path);
-  
-  // Si es una cadena vacía después de convertir
-  if (!pathStr.trim()) {
-    console.warn('createSafeUrl: El path está vacío');
-    return '';
-  }
-  
-  // Limpiar espacios y caracteres de control
-  const cleanPath = pathStr.trim().replace(/[\x00-\x1F\x7F]/g, '');
-  
   try {
-    // Si es una URL absoluta válida, devolverla directamente
-    if (isValidUrl(cleanPath, { requireProtocol: true })) {
-      try {
-        const url = new URL(cleanPath);
-        return url.toString();
-      } catch (e) {
-        console.warn('createSafeUrl: Error al analizar URL absoluta:', cleanPath, e);
-        return '';
-      }
+    // 1. Validar y limpiar el path
+    if (path === null || path === undefined || path === '') {
+      console.warn('URL Validation: No se proporcionó un path');
+      return '';
     }
-    
-    // Obtener la URL base
+
+    const cleanPath = String(path).trim();
+    if (!cleanPath) {
+      console.warn('URL Validation: El path está vacío');
+      return '';
+    }
+
+    // 2. Si ya es una URL absoluta válida, devolverla
+    if (isValidAbsoluteUrl(cleanPath)) {
+      return cleanPath;
+    }
+
+    // 3. Obtener la URL base
     let baseUrl = '';
     
-    // Si se proporciona una base, usarla
+    // Usar la base proporcionada o obtenerla del entorno
     if (base) {
       baseUrl = String(base).trim();
-    } 
-    // Si no hay base, intentar obtenerla de diferentes fuentes
-    else {
-      // En el navegador, usar la URL actual
-      if (typeof window !== 'undefined' && window.location) {
-        baseUrl = window.location.origin;
-      } 
-      // En el servidor, usar la URL base de la aplicación
-      else {
-        baseUrl = getAppBaseUrl();
-      }
+    } else if (typeof window !== 'undefined' && window.location) {
+      baseUrl = window.location.origin;
+    } else {
+      baseUrl = getAppBaseUrl();
     }
-    
-    // Limpiar y validar la URL base
-    baseUrl = String(baseUrl).trim();
-    
-    // Si no hay base después de limpiar, usar un valor por defecto
+
+    // Asegurar que la base sea válida
+    baseUrl = baseUrl.trim();
     if (!baseUrl) {
-      baseUrl = 'https://chileaovivo.com';
-      console.warn('createSafeUrl: Usando URL base por defecto:', baseUrl);
+      console.warn('URL Base: Usando URL base por defecto');
+      baseUrl = DEFAULT_SAFE_URL;
     }
-    
+
     // Asegurar que la base tenga protocolo
-    if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
-      baseUrl = 'https://' + baseUrl;
-      console.warn('createSafeUrl: Se agregó protocolo a la URL base:', baseUrl);
+    if (!/^https?:\/\//i.test(baseUrl)) {
+      baseUrl = 'https://' + baseUrl.replace(/^\/\//, '');
     }
-    
-    // Eliminar barras finales de la base
+
+    // Limpiar la URL base
     baseUrl = baseUrl.replace(/\/+$/, '');
-    
-    // Si el path es solo un slash, devolver la base
+
+    // Manejar el caso especial de path raíz
     if (cleanPath === '/') {
       return baseUrl + '/';
     }
-    
-    // Eliminar barras iniciales del path
+
+    // Limpiar el path
     const cleanRelativePath = cleanPath.replace(/^\/+/, '');
-    
+
+    // Construir la URL final
     try {
-      // Intentar construir la URL
+      // Usar el constructor URL con base
       const url = new URL(cleanRelativePath, baseUrl);
+      
+      // Validar el dominio si es necesario
+      if (ALLOWED_DOMAINS.length > 0) {
+        const domain = url.hostname.replace(/^www\./, '');
+        if (!ALLOWED_DOMAINS.includes(domain)) {
+          console.warn(`URL Validation: Dominio no permitido: ${domain}`);
+          return '';
+        }
+      }
+      
       return url.toString();
     } catch (error) {
-      console.warn('createSafeUrl: Error al construir URL con base:', {
-        baseUrl,
+      console.warn('URL Construction: Error al construir URL:', {
+        base: baseUrl,
         path: cleanPath,
         error: error.message
       });
       return '';
     }
-    
   } catch (error) {
-    console.error('createSafeUrl: Error inesperado:', {
-      path,
-      base,
-      error: error.message,
-      stack: error.stack
-    });
-    
-    // Devolver una cadena vacía en caso de error inesperado
+    console.error('URL Error: Error inesperado:', error);
     return '';
+  }
+};
+
+/**
+ * Verifica si una URL es absoluta y válida
+ * @param {string} url - URL a verificar
+ * @returns {boolean} true si es una URL absoluta válida
+ */
+const isValidAbsoluteUrl = (url) => {
+  try {
+    // Verificar si comienza con http:// o https://
+    if (!/^https?:\/\//i.test(url)) return false;
+    
+    // Validar la URL
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
   }
 };
 
@@ -117,45 +127,63 @@ export const createSafeUrl = (path, base) => {
  * @param {Object} [options] - Opciones de validación
  * @param {boolean} [options.requireProtocol=true] - Si se requiere el protocolo (http:// o https://)
  * @param {string[]} [options.allowedProtocols=['http:', 'https:']] - Protocolos permitidos
+ * @param {boolean} [options.checkDomain=true] - Si se debe verificar el dominio contra la lista de permitidos
  * @returns {boolean} true si es una URL válida
  */
 export const isValidUrl = (url, options = {}) => {
+  // Validación básica de entrada
   if (typeof url !== 'string' || !url.trim()) {
     return false;
   }
 
   const {
     requireProtocol = true,
-    allowedProtocols = ['http:', 'https:']
+    allowedProtocols = ['http:', 'https:'],
+    checkDomain = true
   } = options;
 
+  const cleanUrl = url.trim();
+  
+  // Verificar si es una ruta relativa
+  if (!requireProtocol && !/^[a-z]+:\/\//i.test(cleanUrl)) {
+    // Validar que no contenga caracteres inválidos para una ruta relativa
+    const invalidChars = [' ', '<', '>', '{', '}', '|', '^', '`', '\\', '"', '\\'];
+    if (invalidChars.some(char => cleanUrl.includes(char))) {
+      return false;
+    }
+    return true;
+  }
+
   try {
-    // Verificar si es una URL válida
-    const parsedUrl = new URL(url);
+    // Verificar si es una URL absoluta válida
+    const parsedUrl = new URL(cleanUrl);
     
-    // Si se requiere protocolo, verificar que esté presente
+    // Verificar protocolo requerido
     if (requireProtocol && !parsedUrl.protocol) {
       return false;
     }
     
-    // Verificar si el protocolo está permitido
-    if (parsedUrl.protocol && !allowedProtocols.includes(parsedUrl.protocol)) {
+    // Verificar protocolos permitidos
+    if (parsedUrl.protocol && !allowedProtocols.includes(parsedUrl.protocol.toLowerCase())) {
       return false;
     }
     
-    // Verificar que el hostname no esté vacío para URLs absolutas
+    // Verificar hostname para URLs absolutas
     if (requireProtocol && !parsedUrl.hostname) {
       return false;
     }
     
+    // Verificar dominio contra la lista de permitidos si es necesario
+    if (checkDomain && ALLOWED_DOMAINS.length > 0 && parsedUrl.hostname) {
+      const domain = parsedUrl.hostname.replace(/^www\./i, '').toLowerCase();
+      if (!ALLOWED_DOMAINS.some(allowed => domain === allowed.toLowerCase())) {
+        return false;
+      }
+    }
+    
     return true;
   } catch (e) {
-    // Si falla la validación de URL, podría ser una ruta relativa
-    if (!requireProtocol) {
-      // Verificar que no contenga caracteres inválidos
-      const invalidChars = [' ', '<', '>', '{', '}', '|', '^', '`'];
-      return !invalidChars.some(char => url.includes(char));
-    }
+    // Si llegamos aquí, la URL no es válida
     return false;
   }
 };

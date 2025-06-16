@@ -10,81 +10,152 @@
  * @returns {string} URL válida o cadena vacía si hay error
  */
 export const createSafeUrl = (path, base) => {
+  // Si no hay path, devolver cadena vacía
+  if (path === null || path === undefined) {
+    console.warn('createSafeUrl: No se proporcionó un path');
+    return '';
+  }
+  
+  // Convertir a string
+  const pathStr = String(path);
+  
+  // Si es una cadena vacía después de convertir
+  if (!pathStr.trim()) {
+    console.warn('createSafeUrl: El path está vacío');
+    return '';
+  }
+  
+  // Limpiar espacios y caracteres de control
+  const cleanPath = pathStr.trim().replace(/[\x00-\x1F\x7F]/g, '');
+  
   try {
-    // Si no hay path, devolver cadena vacía
-    if (!path) return '';
-    
-    // Si ya es una URL absoluta, validarla
-    if (path.startsWith('http://') || path.startsWith('https://')) {
+    // Si es una URL absoluta válida, devolverla directamente
+    if (isValidUrl(cleanPath, { requireProtocol: true })) {
       try {
-        new URL(path);
-        return path; // Es una URL válida
+        const url = new URL(cleanPath);
+        return url.toString();
       } catch (e) {
-        console.error('URL absoluta inválida:', path, e);
+        console.warn('createSafeUrl: Error al analizar URL absoluta:', cleanPath, e);
         return '';
       }
     }
     
     // Obtener la URL base
-    let baseUrl = base || '';
+    let baseUrl = '';
     
-    // Si no se proporciona base, intentar obtenerla de diferentes fuentes
-    if (!baseUrl) {
+    // Si se proporciona una base, usarla
+    if (base) {
+      baseUrl = String(base).trim();
+    } 
+    // Si no hay base, intentar obtenerla de diferentes fuentes
+    else {
+      // En el navegador, usar la URL actual
       if (typeof window !== 'undefined' && window.location) {
-        // En el navegador, usar la URL actual
         baseUrl = window.location.origin;
-      } else {
-        // En el servidor, usar la URL base de la aplicación
+      } 
+      // En el servidor, usar la URL base de la aplicación
+      else {
         baseUrl = getAppBaseUrl();
       }
     }
     
-    // Si aún no hay base, usar un valor por defecto
+    // Limpiar y validar la URL base
+    baseUrl = String(baseUrl).trim();
+    
+    // Si no hay base después de limpiar, usar un valor por defecto
     if (!baseUrl) {
       baseUrl = 'https://chileaovivo.com';
-      console.warn('No se pudo determinar la URL base, usando valor por defecto:', baseUrl);
+      console.warn('createSafeUrl: Usando URL base por defecto:', baseUrl);
     }
-    
-    // Limpiar la URL base
-    baseUrl = baseUrl.toString().trim();
     
     // Asegurar que la base tenga protocolo
     if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
       baseUrl = 'https://' + baseUrl;
+      console.warn('createSafeUrl: Se agregó protocolo a la URL base:', baseUrl);
     }
     
-    // Eliminar barras finales
+    // Eliminar barras finales de la base
     baseUrl = baseUrl.replace(/\/+$/, '');
     
-    // Limpiar el path
-    const cleanPath = path.toString().trim().replace(/^\/+/, '');
+    // Si el path es solo un slash, devolver la base
+    if (cleanPath === '/') {
+      return baseUrl + '/';
+    }
     
-    // Construir la URL de manera segura
-    const url = new URL(cleanPath, baseUrl);
-    return url.toString();
+    // Eliminar barras iniciales del path
+    const cleanRelativePath = cleanPath.replace(/^\/+/, '');
+    
+    try {
+      // Intentar construir la URL
+      const url = new URL(cleanRelativePath, baseUrl);
+      return url.toString();
+    } catch (error) {
+      console.warn('createSafeUrl: Error al construir URL con base:', {
+        baseUrl,
+        path: cleanPath,
+        error: error.message
+      });
+      return '';
+    }
     
   } catch (error) {
-    console.error('Error al crear URL segura:', { 
-      path, 
+    console.error('createSafeUrl: Error inesperado:', {
+      path,
       base,
-      error: error.message 
+      error: error.message,
+      stack: error.stack
     });
     
-    // Devolver una URL por defecto segura en caso de error
-    return 'https://chileaovivo.com';
+    // Devolver una cadena vacía en caso de error inesperado
+    return '';
   }
 };
 
 /**
  * Valida si una cadena es una URL válida
  * @param {string} url - URL a validar
+ * @param {Object} [options] - Opciones de validación
+ * @param {boolean} [options.requireProtocol=true] - Si se requiere el protocolo (http:// o https://)
+ * @param {string[]} [options.allowedProtocols=['http:', 'https:']] - Protocolos permitidos
  * @returns {boolean} true si es una URL válida
  */
-export const isValidUrl = (url) => {
+export const isValidUrl = (url, options = {}) => {
+  if (typeof url !== 'string' || !url.trim()) {
+    return false;
+  }
+
+  const {
+    requireProtocol = true,
+    allowedProtocols = ['http:', 'https:']
+  } = options;
+
   try {
-    new URL(url);
+    // Verificar si es una URL válida
+    const parsedUrl = new URL(url);
+    
+    // Si se requiere protocolo, verificar que esté presente
+    if (requireProtocol && !parsedUrl.protocol) {
+      return false;
+    }
+    
+    // Verificar si el protocolo está permitido
+    if (parsedUrl.protocol && !allowedProtocols.includes(parsedUrl.protocol)) {
+      return false;
+    }
+    
+    // Verificar que el hostname no esté vacío para URLs absolutas
+    if (requireProtocol && !parsedUrl.hostname) {
+      return false;
+    }
+    
     return true;
   } catch (e) {
+    // Si falla la validación de URL, podría ser una ruta relativa
+    if (!requireProtocol) {
+      // Verificar que no contenga caracteres inválidos
+      const invalidChars = [' ', '<', '>', '{', '}', '|', '^', '`'];
+      return !invalidChars.some(char => url.includes(char));
+    }
     return false;
   }
 };
@@ -127,7 +198,7 @@ export const getAppBaseUrl = () => {
     }
 
     // 4. Valor por defecto seguro
-    console.warn('Usando URL base por defecto: https://chileaovivo.com');
+    console.warn('getAppBaseUrl: Usando URL base por defecto: https://chileaovivo.com');
     return 'https://chileaovivo.com';
   } catch (error) {
     console.error('Error al obtener la URL base:', error);

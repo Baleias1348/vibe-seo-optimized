@@ -257,13 +257,22 @@ module.exports = defineConfig({
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       filename: 'sw.js',
       srcDir: 'src',
+      // Desactivar la instalación automática
+      injectRegister: null,
+      // Configuración para evitar el mensaje de instalación
+      devOptions: {
+        enabled: false
+      },
+      // Deshabilitar la instalación automática
+      selfDestroying: true,
+      // Configuración del manifest
       manifest: {
         name: 'Vibe Chile',
         short_name: 'VibeChile',
         description: 'Descubre los mejores restaurantes y experiencias en Chile',
         theme_color: '#1268f5',
         background_color: '#ffffff',
-        display: 'standalone',
+        display: 'browser', // Cambiado de 'standalone' a 'browser' para evitar instalación
         start_url: '/',
         icons: [
           {
@@ -312,9 +321,6 @@ module.exports = defineConfig({
             }
           }
         ]
-      },
-      devOptions: {
-        enabled: false
       }
     }),
 		...(isDev ? [inlineEditPlugin?.(), editModeDevPlugin?.()] : []),

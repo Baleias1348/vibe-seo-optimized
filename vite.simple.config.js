@@ -1,9 +1,13 @@
 // @ts-check
-const react = require('@vitejs/plugin-react').default;
-const { resolve } = require('path');
+import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = resolve(__filename, '..');
 
 // Configuración de Vite
-module.exports = {
+export default {
   plugins: [react()],
   
   // Configuración de build

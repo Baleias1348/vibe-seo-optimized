@@ -10,33 +10,42 @@
  * @returns {string} URL válida o cadena vacía si hay error
  */
 export const createSafeUrl = (path, base) => {
-  try {
-    // Si no hay path, devolver cadena vacía
-    if (!path) return '';
-    
-    // Si ya es una URL absoluta, validarla
-    if (path.startsWith('http://') || path.startsWith('https://')) {
-      try {
-        new URL(path);
-        return path; // Es una URL válida
-      } catch (e) {
-        console.error('URL absoluta inválida:', path, e);
-        return '';
-      }
+  // Si no hay path, devolver cadena vacía
+  if (!path && path !== '') {
+    console.warn('createSafeUrl: No se proporcionó un path');
+    return '';
+  }
+  
+  // Convertir a string y limpiar
+  const cleanPath = String(path || '').trim();
+  
+  // Si ya es una URL absoluta, validarla y devolverla
+  if (cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
+    try {
+      new URL(cleanPath);
+      return cleanPath; // Es una URL válida
+    } catch (e) {
+      console.error('URL absoluta inválida:', cleanPath, e);
+      return '';
     }
-    
-    // Obtener la URL base
-    let baseUrl = base || '';
-    
-    // Si no se proporciona base, intentar obtenerla de diferentes fuentes
-    if (!baseUrl) {
-      if (typeof window !== 'undefined' && window.location) {
-        // En el navegador, usar la URL actual
-        baseUrl = window.location.origin;
-      } else {
-        // En el servidor, usar la URL base de la aplicación
-        baseUrl = getAppBaseUrl();
-      }
+  }
+  
+  // Obtener la URL base
+  let baseUrl = '';
+  
+  try {
+    // Si se proporciona una base, usarla
+    if (base) {
+      baseUrl = String(base).trim();
+    } 
+    // Si no hay base, intentar obtenerla del entorno
+    else if (typeof window !== 'undefined' && window.location) {
+      // En el navegador, usar la URL actual
+      baseUrl = window.location.origin || '';
+    } 
+    // Si estamos en el servidor, usar la URL base de la aplicación
+    else {
+      baseUrl = typeof getAppBaseUrl === 'function' ? getAppBaseUrl() : '';
     }
     
     // Si aún no hay base, usar un valor por defecto
@@ -45,8 +54,8 @@ export const createSafeUrl = (path, base) => {
       console.warn('No se pudo determinar la URL base, usando valor por defecto:', baseUrl);
     }
     
-    // Limpiar la URL base
-    baseUrl = baseUrl.toString().trim();
+    // Asegurar que la base sea un string
+    baseUrl = String(baseUrl).trim();
     
     // Asegurar que la base tenga protocolo
     if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
@@ -56,22 +65,32 @@ export const createSafeUrl = (path, base) => {
     // Eliminar barras finales
     baseUrl = baseUrl.replace(/\/+$/, '');
     
-    // Limpiar el path
-    const cleanPath = path.toString().trim().replace(/^\/+/, '');
+    // Si no hay path, devolver la base
+    if (!cleanPath) {
+      return baseUrl;
+    }
+    
+    // Limpiar el path (eliminar barras iniciales)
+    const cleanRelativePath = cleanPath.replace(/^\/+/, '');
     
     // Construir la URL de manera segura
-    const url = new URL(cleanPath, baseUrl);
+    const url = new URL(cleanRelativePath, baseUrl);
     return url.toString();
     
   } catch (error) {
     console.error('Error al crear URL segura:', { 
-      path, 
-      base,
+      path: cleanPath, 
+      base: base || 'no proporcionada',
       error: error.message 
     });
     
-    // Devolver una URL por defecto segura en caso de error
-    return 'https://chileaovivo.com';
+    // En producción, devolver una URL por defecto segura
+    if (process.env.NODE_ENV === 'production') {
+      return cleanPath ? `https://chileaovivo.com/${cleanPath.replace(/^\/+/, '')}` : 'https://chileaovivo.com';
+    }
+    
+    // En desarrollo, devolver una cadena vacía para detectar problemas
+    return '';
   }
 };
 

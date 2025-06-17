@@ -9,7 +9,8 @@ export const EXCHANGE_RATE_API = 'https://open.er-api.com/v6/latest';
  * @returns {string} URL segura para la API de tasas de cambio
  */
 export const getExchangeRateUrl = (baseCurrency = 'BRL') => {
-  return createSafeUrl(`/${baseCurrency}`, EXCHANGE_RATE_API);
+  // Construir la URL directamente para evitar problemas con createSafeUrl
+  return `${EXCHANGE_RATE_API}/${baseCurrency}`;
 };
 
 // Configuración de reintentos y timeouts

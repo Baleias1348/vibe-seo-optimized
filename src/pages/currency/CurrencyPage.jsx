@@ -39,73 +39,73 @@ const CurrencyPage = () => {
     
     let lastError;
     
-    // Intentar hasta el número máximo de reintentos
-    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
-        
-        const response = await fetch(getExchangeRateUrl('BRL'), {
-          signal: controller.signal,
-          headers: {
-            'Accept': 'application/json',
-          },
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-          throw new Error(`Error HTTP: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.result !== 'success' || !data.rates) {
-          throw new Error('No se pudieron obtener las tasas actualizadas');
-        }
-        
-        // Si llegamos aquí, la solicitud fue exitosa
-        setRates(data.rates);
-        setLastUpdated(new Date().toLocaleTimeString());
-        setIsError(false);
-        
-        // Mostrar notificación de éxito
-        toast.success('Tasas de cambio actualizadas', {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-        
-        return; // Salir de la función con éxito
-        
-      } catch (error) {
-        lastError = error;
-        console.error(`Intento ${attempt} fallido:`, error);
-        
-        // Si no es el último intento, esperar antes de reintentar
-        if (attempt < API_CONFIG.maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, API_CONFIG.retryDelay));
-        }
-      }
-    }
-    
-    // Si llegamos aquí, todos los intentos fallaron
-    setIsError(true);
-    
-    // Mostrar notificación de error
-    toast.error(`Error al obtener tasas: ${lastError?.message || 'Error desconocido'}`, {
+    // Mostrar un mensaje de carga
+    const loadingToast = toast.loading('Actualizando tasas de cambio...', {
       position: 'top-right',
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
+      autoClose: false,
+      closeOnClick: false,
       pauseOnHover: true,
-      draggable: true,
+      draggable: false,
     });
     
-    console.error('Todos los intentos fallaron:', lastError);
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
+      
+      const apiUrl = getExchangeRateUrl('BRL');
+      console.log('Solicitando tasas de cambio a:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Respuesta de la API:', data);
+      
+      if (data.result !== 'success' || !data.rates) {
+        throw new Error('La API no devolvió datos válidos');
+      }
+      
+      // Si llegamos aquí, la solicitud fue exitosa
+      setRates(data.rates);
+      setLastUpdated(new Date().toLocaleTimeString());
+      setIsError(false);
+      
+      // Actualizar el toast a éxito
+      toast.update(loadingToast, {
+        render: 'Tasas de cambio actualizadas correctamente',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+        closeOnClick: true,
+        draggable: true,
+      });
+      
+    } catch (error) {
+      console.error('Error al obtener tasas de cambio:', error);
+      setIsError(true);
+      
+      // Actualizar el toast a error
+      toast.update(loadingToast, {
+        render: `Error al obtener tasas: ${error.message || 'Error desconocido'}. Por favor, intente nuevamente.`,
+        type: 'error',
+        isLoading: false,
+        autoClose: 5000,
+        closeOnClick: true,
+        draggable: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   // Efecto para cargar las tasas al montar el componente

@@ -221,45 +221,6 @@ const getAppBaseUrl = () => {
   }
 };
 
-const safeURL = (url, base) => {
-  // Objeto URL por defecto seguro
-  const defaultURL = {
-    href: DEFAULT_SAFE_URL,
-    protocol: 'https:',
-    hostname: 'chileaovivo.com',
-    pathname: '/',
-    search: '',
-    hash: '',
-    toString: () => DEFAULT_SAFE_URL
-  };
-
-  try {
-    // Si no hay URL, devolver el valor por defecto
-    if (!url) return defaultURL;
-    
-    // Si es una URL absoluta, intentar analizarla directamente
-    if (/^https?:\/\//i.test(url)) {
-      return new URL(url);
-    }
-    
-    // Si tenemos una base, intentar construir la URL relativa
-    if (base) {
-      return new URL(url, base);
-    }
-    
-    // Si no hay base, intentar con la URL actual
-    if (typeof window !== 'undefined' && window.location) {
-      return new URL(url, window.location.origin);
-    }
-    
-    // Si todo falla, usar la URL por defecto
-    return defaultURL;
-  } catch (error) {
-    console.warn('Error al analizar URL:', { url, base, error: error.message });
-    return defaultURL;
-  }
-};
-
 // Exportar todas las funciones
 export {
   createSafeUrl,

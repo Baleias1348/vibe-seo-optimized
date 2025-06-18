@@ -154,7 +154,7 @@ const SkiCenterDetailPage = () => {
         
         const nextCenter = allSkiCenters[newIndex];
         if (nextCenter) {
-            navigate(`/centros-de-esqui/${nextCenter.slug}`);
+            navigate(`/centros-esqui/${nextCenter.slug}`);
         }
     };
 

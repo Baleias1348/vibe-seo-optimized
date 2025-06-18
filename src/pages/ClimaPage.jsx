@@ -45,7 +45,7 @@ const ClimaPage = () => {
           </div>
         )}
         <iframe
-          src="http://localhost:5173/clima"
+          src="http://localhost:8081/clima"
           title="Clima en Chile"
           className="w-full h-full border-0"
           onLoad={() => setIsLoading(false)}

@@ -33,7 +33,7 @@ const MainLayout = () => {
   const landingPageTourId = "c106e798-ee8b-4cb2-aa8a-aa7ff42997ce";
 
   const isTourLandingPage = location.pathname.includes(`/tours/`) && new URLSearchParams(location.search).get('landing') === 'true';
-  const isSkiCenterDetailPage = location.pathname.startsWith('/centros-de-esqui/') && location.pathname.split('/').length > 2;
+  const isSkiCenterDetailPage = location.pathname.startsWith('/centros-esqui/') && location.pathname.split('/').length > 2;
   
   const tourNameForWhatsApp = location.state?.tourNameForWhatsApp || null;
 
@@ -144,13 +144,12 @@ const MainLayout = () => {
                 description: 'Las mejores pistas de esquí y snowboard en Chile',
                 keywords: 'esquí, snowboard, nieve, montaña, deportes de invierno, Chile'
               }
-            )}
-          >
-            <Route 
-              path=":skiCenterSlug" 
-              element={<SkiCenterDetailPageWrapper />} 
-            />
-          </Route>
+            )} 
+          />
+          <Route 
+            path={urls.centroEsquiDetail(':skiCenterSlug')} 
+            element={<SkiCenterDetailPageWrapper />} 
+          />
           
           <Route 
             path={urls.contacto} 

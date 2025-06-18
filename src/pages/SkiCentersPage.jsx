@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
+import urls from '@/config/urls';
 import { getAllSkiCenters } from '@/lib/tourData';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,7 +67,7 @@ const SkiCenterCard = ({ skiCenter }) => {
                 </CardContent>
                 <CardFooter className="pt-3 border-t border-border/50">
                     <Button asChild className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground transition-all duration-300 hover:scale-105">
-                        <Link to={`/centros-de-esqui/${skiCenter.slug || skiCenter.id}`}>
+                        <Link to={urls.centroEsquiDetail(skiCenter.slug || skiCenter.id)}>
                             Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
                     </Button>
@@ -164,9 +165,10 @@ const SkiCentersPage = () => {
                     </motion.div>
                 )}
             </div>
+            {/* Renderizar rutas anidadas */}
+            <Outlet />
         </>
     );
 };
 
 export default SkiCentersPage;
-  

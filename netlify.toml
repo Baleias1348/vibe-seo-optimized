@@ -5,11 +5,14 @@
 
 [build.environment]
   # Versiones de Node.js y npm
-  NODE_VERSION = "18.19.1"
-  NPM_VERSION = "9.8.1"
+  NODE_VERSION = "20.11.1"
+  NPM_VERSION = "10.2.4"
   
   # Configuración de NPM
   NPM_FLAGS = "--legacy-peer-deps"
+  
+  # Configuración de Vite
+  VITE_ENV = "production"
   
   # Variables de entorno de la aplicación
   NODE_ENV = "production"

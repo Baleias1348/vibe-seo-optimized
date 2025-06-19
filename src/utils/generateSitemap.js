@@ -3,7 +3,10 @@
  * Este archivo se puede ejecutar durante el build o como una ruta de API
  */
 
-const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://tudominio.com';
+// Usar process.env para Node.js o import.meta.env para Vite
+const BASE_URL = (typeof process !== 'undefined' && process.env.VITE_BASE_URL) || 
+                (typeof import.meta !== 'undefined' && import.meta.env.VITE_BASE_URL) || 
+                'https://tudominio.com';
 
 // Datos de ejemplo - reemplazar con datos reales de tu aplicación
 const staticRoutes = [

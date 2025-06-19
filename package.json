@@ -5,8 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "vite --config vite.simple.config.js",
-    "presitebuild": "node -e \"import('fs').then(fs => import('path').then(path => { const { generateSitemap } = require('./src/utils/generateSitemap'); fs.writeFileSync(path.join(process.cwd(), 'public', 'sitemap.xml'), generateSitemap()); }))\"",
-    "build": "npm run presitebuild && vite build --config vite.simple.config.js",
+    "presitebuild": "node -e \"try { const fs = require('fs'); const path = require('path'); const { generateSitemap } = require('./src/utils/generateSitemap'); const sitemap = generateSitemap(); const outputPath = path.join(process.cwd(), 'public'); if (!fs.existsSync(outputPath)) { fs.mkdirSync(outputPath, { recursive: true }); } fs.writeFileSync(path.join(outputPath, 'sitemap.xml'), sitemap); console.log('Sitemap generado exitosamente'); } catch (error) { console.error('Error generando sitemap:', error); process.exit(1); }\"",
+    "build": "set -e && npm run presitebuild && vite build --config vite.simple.config.js",
+    "build:ci": "cross-env NODE_ENV=production npm run build",
     "preview": "vite preview --port 8081"
   },
   "dependencies": {
@@ -50,6 +51,7 @@
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.16",
+    "cross-env": "^7.0.3",
     "esbuild": "^0.25.5",
     "eslint": "^8.57.1",
     "eslint-config-react-app": "^7.0.1",

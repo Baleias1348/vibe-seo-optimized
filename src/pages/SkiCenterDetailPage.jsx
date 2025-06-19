@@ -1,4 +1,15 @@
 import React, { useState, useEffect } from 'react';
+
+// Función para generar un slug a partir de un texto
+const generateSlug = (text) => {
+    return text
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+};
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getSkiCenterBySlug, getSiteConfig, getAllSkiCenters } from '@/lib/tourData';
 import { Helmet } from 'react-helmet-async';
@@ -112,19 +123,33 @@ const SkiCenterDetailPage = () => {
     useEffect(() => {
         const fetchSkiCenter = async () => {
             if (!skiCenterSlug) {
-                setError("Identificador do centro de ski não fornecido.");
+                setError("Identificador del centro de ski no proporcionado.");
                 setIsLoading(false);
                 return;
             }
             setIsLoading(true);
             setError(null);
             try {
-                const data = await getSkiCenterBySlug(skiCenterSlug);
+                // Primero intentamos buscar por el slug exacto
+                let data = await getSkiCenterBySlug(skiCenterSlug);
+                
+                // Si no encontramos por slug exacto, buscamos en todos los centros
+                if (!data && allSkiCenters.length > 0) {
+                    const matchingCenter = allSkiCenters.find(center => 
+                        generateSlug(center.name) === skiCenterSlug
+                    );
+                    if (matchingCenter) {
+                        data = matchingCenter;
+                    }
+                }
+                
                 if (data) {
                     setSkiCenter(data);
                     // Encontrar el índice actual en la lista de centros
                     if (allSkiCenters.length > 0) {
-                        const index = allSkiCenters.findIndex(center => center.slug === skiCenterSlug);
+                        const index = allSkiCenters.findIndex(center => 
+                            center.id === data.id
+                        );
                         if (index !== -1) {
                             setCurrentIndex(index);
                         }
@@ -154,7 +179,9 @@ const SkiCenterDetailPage = () => {
         
         const nextCenter = allSkiCenters[newIndex];
         if (nextCenter) {
-            navigate(`/centros-de-esqui/${nextCenter.slug}`);
+            // Usar el slug existente si está disponible, de lo contrario generarlo
+            const nextSlug = nextCenter.slug || generateSlug(nextCenter.name);
+            navigate(`/centros-de-esqui/${nextSlug}`);
         }
     };
 

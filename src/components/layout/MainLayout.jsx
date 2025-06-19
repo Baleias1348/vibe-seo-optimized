@@ -134,6 +134,7 @@ const MainLayout = () => {
             )} 
           />
           
+          {/* Ruta para la lista de centros de esquí */}
           <Route 
             path={urls.centrosEsqui} 
             element={renderWithSeo(
@@ -143,13 +144,14 @@ const MainLayout = () => {
                 description: 'Las mejores pistas de esquí y snowboard en Chile',
                 keywords: 'esquí, snowboard, nieve, montaña, deportes de invierno, Chile'
               }
-            )}
-          >
-            <Route 
-              path=":skiCenterSlug" 
-              element={<SkiCenterDetailPageWrapper />} 
-            />
-          </Route>
+            )} 
+          />
+          
+          {/* Ruta para el detalle de un centro de esquí */}
+          <Route 
+            path={urls.centroEsquiDetail(':skiCenterSlug')} 
+            element={<SkiCenterDetailPageWrapper />} 
+          />
           
           <Route 
             path={urls.contacto} 

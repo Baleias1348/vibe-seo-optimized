@@ -2,6 +2,18 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllSkiCenters } from '@/lib/tourData';
+import urls from '@/config/urls';
+
+// Función para generar un slug a partir de un texto
+const generateSlug = (text) => {
+    return text
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+};
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -66,7 +78,7 @@ const SkiCenterCard = ({ skiCenter }) => {
                 </CardContent>
                 <CardFooter className="pt-3 border-t border-border/50">
                     <Button asChild className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground transition-all duration-300 hover:scale-105">
-                        <Link to={`/centros-de-esqui/${skiCenter.slug || skiCenter.id}`}>
+                        <Link to={urls.centroEsquiDetail(skiCenter.slug || generateSlug(skiCenter.name))}>
                             Ver Detalhes <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
                     </Button>

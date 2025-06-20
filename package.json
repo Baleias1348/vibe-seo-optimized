@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite --config vite.simple.config.js",
     "build": "vite build --config vite.simple.config.js",
-    "preview": "vite preview --port 8081",
-    "postinstall": "vite build"
+    "preview": "vite preview --port 8081"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.2.1",

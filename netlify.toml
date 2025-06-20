@@ -3,13 +3,16 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "18"  # Usando una versión LTS más estable
-  NPM_VERSION = "9"
+  NODE_VERSION = "20"  # Usando Node.js 20 para mejor soporte de ES modules
+  NPM_VERSION = "10"
   NODE_ENV = "production"
   CI = "false"
-  # Forzar la instalación de dependencias opcionales
+  NODE_OPTIONS = "--experimental-vm-modules"
+  
+  # Configuración de npm
   NPM_CONFIG_STRICT_SSL = "false"
   NPM_CONFIG_REGISTRY = "https://registry.npmjs.org/"
+  
   # Variables específicas de Vite
   VITE_BASE_URL = "/"
   VITE_NODE_ENV = "production"

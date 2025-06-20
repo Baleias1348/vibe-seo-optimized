@@ -1,8 +1,7 @@
-// @ts-check
-const react = require('@vitejs/plugin-react');
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-/** @type {import('vite').UserConfig} */
-module.exports = {
+export default defineConfig({
   plugins: [react()],
   build: {
     outDir: 'dist',
@@ -22,4 +21,4 @@ module.exports = {
     port: 8081,
     open: true
   }
-};
+});

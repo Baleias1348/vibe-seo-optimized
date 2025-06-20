@@ -8,8 +8,7 @@
   "private": true,
   "scripts": {
     "dev": "vite --config vite.simple.config.js",
-    "prebuild": "npm install vite@4.4.5",
-    "build": "npx vite@4.4.5 build --config vite.simple.config.js",
+    "build": "vite build --config vite.simple.config.js",
     "preview": "vite preview --port 8081"
   },
   "dependencies": {

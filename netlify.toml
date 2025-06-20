@@ -6,7 +6,7 @@
 [build.environment]
   # Usando Node.js 20 para mejor soporte de ES modules
   NODE_VERSION = "20"
-  NPM_VERSION = "10"
+  NPM_VERSION = "10.9.2"
   NODE_ENV = "production"
   CI = "false"
   NODE_OPTIONS = "--experimental-vm-modules"

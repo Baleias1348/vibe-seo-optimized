@@ -3,10 +3,16 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"
-  NPM_VERSION = "10"
+  NODE_VERSION = "18"  # Usando una versión LTS más estable
+  NPM_VERSION = "9"
   NODE_ENV = "production"
   CI = "false"
+  # Forzar la instalación de dependencias opcionales
+  NPM_CONFIG_STRICT_SSL = "false"
+  NPM_CONFIG_REGISTRY = "https://registry.npmjs.org/"
+  # Variables específicas de Vite
+  VITE_BASE_URL = "/"
+  VITE_NODE_ENV = "production"
 
 # Redirecciones SPA (Single Page Application)
 [[redirects]]

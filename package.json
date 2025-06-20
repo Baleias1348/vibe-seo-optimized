@@ -10,8 +10,7 @@
     "dev": "vite",
     "build:netlify": "npm install --legacy-peer-deps && npm install vite@latest && npm run build",
     "presitebuild": "node -e \"import('fs').then(fs => import('path').then(path => import('./src/utils/generateSitemap.js').then(({ generateSitemap }) => { const sitemap = generateSitemap(); const outputPath = path.join(process.cwd(), 'public'); if (!fs.existsSync(outputPath)) { fs.mkdirSync(outputPath, { recursive: true }); } fs.writeFileSync(path.join(outputPath, 'sitemap.xml'), sitemap); console.log('Sitemap generado exitosamente'); }))).catch(error => { console.error('Error generando sitemap:', error); process.exit(1); })\"",
-    "ensure-dist": "mkdir -p dist && echo 'Ensuring dist directory exists'",
-    "build": "set -e && npm run presitebuild && npm run ensure-dist && NODE_OPTIONS='--experimental-vm-modules' NODE_ENV=production node --no-warnings=ExperimentalWarnings ./node_modules/vite/bin/vite.js build --config vite.netlify.config.js",
+    "build": "set -e && npm run presitebuild && NODE_OPTIONS='--experimental-vm-modules' NODE_ENV=production npx vite build --config vite.netlify.config.js --emptyOutDir",
     "preview": "vite preview --port 5173"
   },
   "dependencies": {

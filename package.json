@@ -5,11 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "preinstall": "npx npm-force-resolutions",
-    "postinstall": "npm rebuild esbuild --update-binary",
-    "build:netlify": "npm ci --legacy-peer-deps && npm run build",
+    "build:netlify": "npm install --legacy-peer-deps && npm run build",
     "presitebuild": "node -e \"try { const fs = require('fs'); const path = require('path'); const { generateSitemap } = require('./src/utils/generateSitemap'); const sitemap = generateSitemap(); const outputPath = path.join(process.cwd(), 'public'); if (!fs.existsSync(outputPath)) { fs.mkdirSync(outputPath, { recursive: true }); } fs.writeFileSync(path.join(outputPath, 'sitemap.xml'), sitemap); console.log('Sitemap generado exitosamente'); } catch (error) { console.error('Error generando sitemap:', error); process.exit(1); }\"",
-    "build": "set -e && npm run presitebuild && vite build",
+    "build": "set -e && npm run presitebuild && vite build --config vite.netlify.config.js",
     "preview": "vite preview --port 8081"
   },
   "dependencies": {
@@ -49,9 +47,7 @@
     "uuid": "^9.0.1",
     "vite": "^4.5.14"
   },
-  "resolutions": {
-    "esbuild": "^0.17.19"
-  },
+
   "devDependencies": {
     "@babel/core": "^7.23.5",
     "@babel/parser": "^7.23.5",
@@ -62,7 +58,7 @@
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.16",
-    "esbuild": "^0.17.19",
+    "esbuild": "0.17.19",
     "eslint": "^8.57.1",
     "eslint-config-react-app": "^7.0.1",
     "npm-force-resolutions": "^0.0.10",

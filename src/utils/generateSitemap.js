@@ -4,9 +4,18 @@
  */
 
 // Usar process.env para Node.js o import.meta.env para Vite
-const BASE_URL = (typeof process !== 'undefined' && process.env.VITE_BASE_URL) || 
-                (typeof import.meta !== 'undefined' && import.meta.env.VITE_BASE_URL) || 
-                'https://tudominio.com';
+const getBaseUrl = () => {
+  // En producción, usa la URL del sitio
+  if (process.env.NETLIFY === 'true') {
+    return process.env.URL || 'https://tudominio.com';
+  }
+  // En desarrollo, usa la URL de desarrollo
+  return (typeof process !== 'undefined' && process.env.VITE_BASE_URL) || 
+         (typeof import.meta !== 'undefined' && import.meta.env.VITE_BASE_URL) || 
+         'http://localhost:8081';
+};
+
+const BASE_URL = getBaseUrl();
 
 // Datos de ejemplo - reemplazar con datos reales de tu aplicación
 const staticRoutes = [
@@ -27,15 +36,36 @@ const staticRoutes = [
 // Función para generar el XML del sitemap
 export const generateSitemap = (routes = staticRoutes) => {
   const urlElements = routes.map(route => {
-    const url = new URL(route.url, BASE_URL).toString();
-    return `
+    try {
+      let fullUrl;
+      const cleanBase = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
+      const cleanPath = route.url.startsWith('/') ? route.url : `/${route.url}`;
+      
+      // Solo intentar crear URL completa si el base es una URL válida
+      try {
+        // Verificar si el base parece una URL
+        if (cleanBase.match(/^https?:\/\//)) {
+          fullUrl = `${cleanBase}${cleanPath}`;
+        } else {
+          fullUrl = cleanPath;
+        }
+      } catch (e) {
+        console.warn(`No se pudo crear URL completa para ${route.url}:`, e);
+        fullUrl = cleanPath;
+      }
+      
+      return `
     <url>
-      <loc>${url}</loc>
+      <loc>${fullUrl}</loc>
       ${route.lastmod ? `<lastmod>${route.lastmod}</lastmod>` : ''}
       <changefreq>${route.changefreq}</changefreq>
       <priority>${route.priority}</priority>
     </url>`;
-  }).join('');
+    } catch (error) {
+      console.error(`Error procesando ruta: ${route.url}`, error);
+      return ''; // Omitir esta URL si hay un error
+    }
+  }).filter(Boolean).join('');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"

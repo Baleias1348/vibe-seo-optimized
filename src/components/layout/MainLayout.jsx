@@ -1,26 +1,28 @@
-import React from 'react';
-    import { useLocation, Routes, Route, Navigate } from 'react-router-dom';
-    import Header from '@/components/layout/Header';
-    import Footer from '@/components/layout/Footer';
-    import HomePage from '@/pages/HomePage'; // Changed to HomePage
-    import LandingPageChile from '@/pages/LandingPageChile'; // The old HomePage
-    
-    import TourDetailPage from '@/pages/TourDetailPage';
-    import RestaurantsPage from '@/pages/RestaurantsPage';
-    import SkiCentersPage from '@/pages/SkiCentersPage';
-    import SkiCenterDetailPage from '@/pages/SkiCenterDetailPage';
-    import ContactPage from '@/pages/ContactPage';
-    import AdminPage from '@/pages/AdminPage';
-    import AdminLoginPage from '@/pages/AdminLoginPage';
-    import AdminUpdatePasswordPage from '@/pages/AdminUpdatePasswordPage';
-    import WeatherPage from '@/pages/weather/WeatherPage';
-    import CurrencyPage from '@/pages/currency/CurrencyPage';
-    import ToursPage from '@/pages/tours/ToursPage';
-    import ProtectedRoute from '@/components/auth/ProtectedRoute';
-    import WhatsAppButton from '@/components/shared/WhatsAppButton';
-    import { Toaster } from '@/components/ui/toaster';
+import React, { Suspense, lazy } from 'react';
+import { useLocation, Routes, Route, Navigate } from 'react-router-dom';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import Loading from '@/components/shared/Loading';
+import { Toaster } from '@/components/ui/toaster';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+// Lazy load pages
+const HomePage = lazy(() => import('@/pages/HomePage'));
+const LandingPageChile = lazy(() => import('@/pages/LandingPageChile'));
+const TourDetailPage = lazy(() => import('@/pages/TourDetailPage'));
+const RestaurantsPage = lazy(() => import('@/pages/RestaurantsPage'));
+const SkiCentersPage = lazy(() => import('@/pages/SkiCentersPage'));
+const SkiCenterDetailPage = lazy(() => import('@/pages/SkiCenterDetailPage'));
+const ContactPage = lazy(() => import('@/pages/ContactPage'));
+const AdminPage = lazy(() => import('@/pages/AdminPage'));
+const AdminLoginPage = lazy(() => import('@/pages/AdminLoginPage'));
+const AdminUpdatePasswordPage = lazy(() => import('@/pages/AdminUpdatePasswordPage'));
+const WeatherPage = lazy(() => import('@/pages/weather/WeatherPage'));
+const CurrencyPage = lazy(() => import('@/pages/currency/CurrencyPage'));
+const ToursPage = lazy(() => import('@/pages/tours/ToursPage'));
+const ProtectedRoute = lazy(() => import('@/components/auth/ProtectedRoute'));
+const WhatsAppButton = lazy(() => import('@/components/shared/WhatsAppButton'));
 
     const MainLayout = () => {
         const location = useLocation();
@@ -49,44 +51,58 @@ import 'react-toastify/dist/ReactToastify.css';
             <div className="flex flex-col min-h-screen">
                 {!hideHeader && <Header />}
                 <main className="flex-grow">
-                    <Routes>
-                        <Route path="/" element={<HomePage />} /> {/* New Home Page as index */}
-                        <Route path="/home-original" element={<LandingPageChile />} /> {/* Old home page */}
-                        <Route path="/tours" element={<ToursPage />} />
-                        <Route path="/tours/:tourId" element={<TourDetailPage />} />
-                        <Route path="/restaurantes-santiago" element={<RestaurantsPage />} />
-                        <Route path="/centros-de-esqui" element={<SkiCentersPage />} />
-                        <Route path="/centros-de-esqui/:skiCenterSlug" element={<SkiCenterDetailPage />} />
-                        <Route path="/contact" element={<ContactPage />} />
-                        
-                        <Route path="/admin/login" element={<AdminLoginPage />} />
-                        <Route path="/admin/update-password" element={<AdminUpdatePasswordPage />} />
-                        
-                        <Route
-                            path="/admin/*"
-                            element={
-                                <ProtectedRoute>
-                                    <AdminPage />
-                                </ProtectedRoute>
-                            }
-                        />
-                        {/* Routes for quick access icons */}
-                        <Route path="/clima" element={<WeatherPage />} />
-                        <Route path="/clima-detalhado" element={<WeatherPage />} />
-                        <Route path="/voos" element={<div>Página de Voos (em construção)</div>} />
-                        <Route path="/emergencias" element={<div>Página de Emergências (em construção)</div>} />
-                        <Route path="/conversor-moeda" element={<CurrencyPage />} />
-                        <Route path="/passeios" element={<ToursPage />} />
-                        <Route path="/investir-chile" element={<div>Página Investir no Chile (em construção)</div>} />
-                        <Route path="/blog/mariscos-chilenos" element={<div>Página Blog Mariscos (em construção)</div>} />
-                    </Routes>
+                    <Suspense fallback={<Loading />}>
+                        <Routes>
+                            <Route path="/" element={<HomePage />} />
+                            <Route path="/home-original" element={<LandingPageChile />} />
+                            <Route path="/tours" element={<ToursPage />} />
+                            <Route path="/tours/:tourId" element={
+                                <Suspense fallback={<Loading />}>
+                                    <TourDetailPage />
+                                </Suspense>
+                            } />
+                            <Route path="/restaurantes-santiago" element={<RestaurantsPage />} />
+                            <Route path="/centros-de-esqui" element={<SkiCentersPage />} />
+                            <Route path="/centros-de-esqui/:skiCenterSlug" element={
+                                <Suspense fallback={<Loading />}>
+                                    <SkiCenterDetailPage />
+                                </Suspense>
+                            } />
+                            <Route path="/contact" element={<ContactPage />} />
+                            
+                            <Route path="/admin/login" element={<AdminLoginPage />} />
+                            <Route path="/admin/update-password" element={<AdminUpdatePasswordPage />} />
+                            
+                            <Route
+                                path="/admin/*"
+                                element={
+                                    <Suspense fallback={<Loading />}>
+                                        <ProtectedRoute>
+                                            <AdminPage />
+                                        </ProtectedRoute>
+                                    </Suspense>
+                                }
+                            />
+                            
+                            <Route path="/clima" element={<WeatherPage />} />
+                            <Route path="/clima-detalhado" element={<WeatherPage />} />
+                            <Route path="/voos" element={<div>Página de Voos (em construção)</div>} />
+                            <Route path="/emergencias" element={<div>Página de Emergências (em construção)</div>} />
+                            <Route path="/conversor-moeda" element={<CurrencyPage />} />
+                            <Route path="/passeios" element={<ToursPage />} />
+                            <Route path="/investir-chile" element={<div>Página Investir no Chile (em construção)</div>} />
+                            <Route path="/blog/mariscos-chilenos" element={<div>Página Blog Mariscos (em construção)</div>} />
+                        </Routes>
+                    </Suspense>
                 </main>
                 <Footer />
                 {location.pathname.startsWith('/tours/') && (
-                    <WhatsAppButton 
-                        phoneNumber={whatsappContactNumber} 
-                        tourName={tourNameForWhatsApp} 
-                    />
+                    <Suspense fallback={null}>
+                        <WhatsAppButton 
+                            phoneNumber={whatsappContactNumber} 
+                            tourName={tourNameForWhatsApp} 
+                        />
+                    </Suspense>
                 )}
                 <Toaster />
                 <ToastContainer position="top-right" autoClose={5000} />

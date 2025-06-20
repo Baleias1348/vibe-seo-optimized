@@ -1,5 +1,5 @@
 [build]
-  command = "npm install --legacy-peer-deps && npx vite build --config vite.simple.config.js"
+  command = "npm install -g vite && npm install --legacy-peer-deps && npm run build"
   publish = "dist"
 
 [build.environment]

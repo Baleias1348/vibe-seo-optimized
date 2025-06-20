@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "build:netlify": "npm install --legacy-peer-deps && npm run build",
     "presitebuild": "node -e \"try { const fs = require('fs'); const path = require('path'); const { generateSitemap } = require('./src/utils/generateSitemap'); const sitemap = generateSitemap(); const outputPath = path.join(process.cwd(), 'public'); if (!fs.existsSync(outputPath)) { fs.mkdirSync(outputPath, { recursive: true }); } fs.writeFileSync(path.join(outputPath, 'sitemap.xml'), sitemap); console.log('Sitemap generado exitosamente'); } catch (error) { console.error('Error generando sitemap:', error); process.exit(1); }\"",
     "build": "set -e && npm run presitebuild && vite build",
     "preview": "vite preview --port 8081"
@@ -47,6 +48,10 @@
     "vite": "^4.5.14"
   },
   "devDependencies": {
+    "@babel/core": "^7.27.4",
+    "@babel/parser": "^7.27.5",
+    "@babel/preset-env": "^7.27.2",
+    "@babel/preset-react": "^7.27.1",
     "@types/node": "^20.8.3",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",

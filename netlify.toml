@@ -1,5 +1,5 @@
 [build]
-  command = "npm ci --legacy-peer-deps && npm run build"
+  command = "npm ci --legacy-peer-deps --include=dev && npx vite build --config vite.simple.config.js"
   publish = "dist"
 
 [build.environment]

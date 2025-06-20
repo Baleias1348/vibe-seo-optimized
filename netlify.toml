@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build"
+  command = "npm install && npm run build"
   publish = "./dist"
   functions = "netlify/functions"
 
@@ -7,7 +7,9 @@
   NODE_VERSION = "20"
   NPM_VERSION = "9"
   NODE_ENV = "production"
-  ESLINT_NO_DEV_ERRORS = "true"
+  CI = "false"
+  NPM_CONFIG_STRICT_SSL = "false"
+  NPM_CONFIG_REGISTRY = "https://registry.npmjs.org/"
 
 # Redirecciones SPA (Single Page Application)
 [[redirects]]

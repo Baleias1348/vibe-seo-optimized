@@ -3,7 +3,8 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"  # Usando Node.js 20 para mejor soporte de ES modules
+  # Usando Node.js 20 para mejor soporte de ES modules
+  NODE_VERSION = "20"
   NPM_VERSION = "10"
   NODE_ENV = "production"
   CI = "false"
@@ -16,6 +17,15 @@
   # Variables específicas de Vite
   VITE_BASE_URL = "/"
   VITE_NODE_ENV = "production"
+  
+  # Configuración de PostCSS
+  POSTCSS = "./postcss.config.cjs"
+  
+  # Configuración de TypeScript
+  TSC_COMPILE_ON_ERROR = "true"
+  
+  # Configuración de ESLint
+  ESLINT_NO_DEV_ERRORS = "true"
 
 # Redirecciones SPA (Single Page Application)
 [[redirects]]

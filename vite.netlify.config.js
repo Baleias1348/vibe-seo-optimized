@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 // This is the same configuration as in vite.config.js but simplified for Netlify
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode }) => ({  
   plugins: [react()],
   resolve: {
     extensions: ['.jsx', '.js', '.tsx', '.ts', '.json'],
@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => ({
       '@services': path.resolve(__dirname, './src/services'),
       '@styles': path.resolve(__dirname, './src/styles'),
     },
+  },
+  css: {
+    postcss: './postcss.config.mjs'
   },
   build: {
     outDir: 'dist',

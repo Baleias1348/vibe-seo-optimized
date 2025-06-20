@@ -94,14 +94,18 @@ export const generateSitemap = (routes = staticRoutes) => {
 </urlset>`;
 };
 
-// Para uso en Node.js (ejecución durante el build)
-if (typeof module !== 'undefined' && module.exports) {
-  const fs = require('fs');
-  const path = require('path');
+// Si este archivo se ejecuta directamente, generar el sitemap
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const fs = await import('fs');
+  const path = await import('path');
+  const { fileURLToPath } = await import('url');
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
   
   const sitemap = generateSitemap();
-  const outputPath = path.join(process.cwd(), 'public', 'sitemap.xml');
-  
-  fs.writeFileSync(outputPath, sitemap);
-  console.log('Sitemap generado en:', outputPath);
+  const outputPath = path.join(process.cwd(), 'public');
+  if (!fs.existsSync(outputPath)) {
+    fs.mkdirSync(outputPath, { recursive: true });
+  }
+  fs.writeFileSync(path.join(outputPath, 'sitemap.xml'), sitemap);
+  console.log('Sitemap generado exitosamente en', path.join(outputPath, 'sitemap.xml'));
 }

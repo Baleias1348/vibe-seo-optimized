@@ -132,7 +132,7 @@ const addTransformIndexHtml = {
   },
 };
 
-export default defineConfig({
+export default defineConfig({  
   server: {
     port: 8081,
     https: false,
@@ -167,6 +167,9 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
+  },
+  css: {
+    postcss: './postcss.config.cjs'
   },
   plugins: [
     react(),

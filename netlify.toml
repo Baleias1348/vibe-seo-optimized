@@ -37,7 +37,7 @@
 
 # Configuración específica para producción
 [context.production]
-  command = "npm install && npm run build:ci"
+  command = "npm install && npm run build"
   [context.production.environment]
     NODE_ENV = "production"
     VITE_BASE_URL = "https://tudominio.com"

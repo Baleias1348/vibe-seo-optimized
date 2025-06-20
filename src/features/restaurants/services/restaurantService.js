@@ -2,37 +2,29 @@ import { supabase } from '@/utils/supabase';
 
 // Obtener todos los restaurantes con opciones de filtrado
 export const getRestaurants = async (filters = {}) => {
-  // Especificar explícitamente los campos que necesitamos
   let query = supabase
     .from('restaurants')
-    .select('*');
+    .select('*')
+    .order('ranking', { ascending: false });
 
-  // Aplicar filtros si están presentes
+  // Aplicar filtros si existen
   if (filters.cuisine) {
     query = query.eq('cuisine', filters.cuisine);
   }
 
-  if (filters.neighborhood) {
-    query = query.ilike('address', `%${filters.neighborhood}%`);
-  }
-
-  // Ordenar por ranking por defecto
-  query = query.order('ranking', { ascending: false });
-
   const { data, error } = await query;
-  
+
   if (error) {
     console.error('Error fetching restaurants:', error);
-    throw error;
+    return [];
   }
 
-  // Asegurarse de que place_link esté presente en cada restaurante
-  const restaurants = (data || []).map(restaurant => ({
-    ...restaurant,
-    place_link: restaurant.place_link || `https://www.google.com/maps/place/?q=place_id:${restaurant.place_id}`
-  }));
+  // Mostrar los datos de los primeros 2 restaurantes para depuración
+  if (data && data.length > 0) {
+    console.log('Datos de restaurantes (primeros 2):', JSON.stringify(data.slice(0, 2), null, 2));
+  }
 
-  return restaurants;
+  return data || [];
 };
 
 // Obtener un restaurante por ID
@@ -45,14 +37,10 @@ export const getRestaurantById = async (id) => {
 
   if (error) {
     console.error('Error fetching restaurant:', error);
-    throw error;
+    return null;
   }
 
-  // Asegurarse de que place_link esté presente
-  return {
-    ...data,
-    place_link: data.place_link || `https://www.google.com/maps/place/?q=place_id:${data.place_id}`
-  };
+  return data;
 };
 
 // Obtener todas las cocinas únicas para los filtros
@@ -68,33 +56,9 @@ export const getCuisines = async () => {
     return [];
   }
 
-  // Eliminar duplicados y ordenar
+  // Devolver los valores únicos de cocina
   const uniqueCuisines = [...new Set(data.map(item => item.cuisine))];
-  return uniqueCuisines.sort();
-};
-
-// Obtener todos los vecindarios únicos para los filtros
-export const getNeighborhoods = async () => {
-  const { data, error } = await supabase
-    .from('restaurants')
-    .select('address');
-
-  if (error) {
-    console.error('Error fetching neighborhoods:', error);
-    return [];
-  }
-
-  // Extraer vecindarios de las direcciones y eliminar duplicados
-  const neighborhoods = data
-    .map(item => {
-      const address = item.address || '';
-      // Extraer el vecindario de la dirección (última parte después de la última coma)
-      const parts = address.split(',');
-      return parts.length > 1 ? parts[parts.length - 1].trim() : null;
-    })
-    .filter(Boolean);
-
-  return [...new Set(neighborhoods)].sort();
+  return uniqueCuisines;
 };
 
 // Actualizar un restaurante
@@ -110,7 +74,7 @@ export const updateRestaurant = async (id, updates) => {
     throw error;
   }
 
-  return data[0];
+  return data?.[0] || null;
 };
 
 // Marcar/desmarcar como favorito

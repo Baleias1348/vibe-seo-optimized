@@ -1,16 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Star, MapPin, Globe, Clock, Utensils, MapPin as MapPinIcon, CheckCircle2, XCircle } from 'lucide-react';
+import { Star, MapPin, Globe, Clock, Utensils, MapPin as MapPinIcon, CheckCircle2, XCircle, BookOpen } from 'lucide-react';
 import { getTodaysSchedule, isRestaurantOpen } from '@/utils/dateUtils';
 import { restaurantCities } from '../utils/restaurantCities';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 const RestaurantCard = ({ restaurant, className = '' }) => {
-  console.log('Datos completos del restaurante:', JSON.stringify(restaurant, null, 2));
-  console.log('place_link:', restaurant.place_link);
-  console.log('place_id:', restaurant.place_id);
-  console.log('hasValidPlaceLink:', restaurant.place_link && isValidUrl(restaurant.place_link));
   const {
     name,
     address = 'Dirección no disponible',
@@ -22,35 +18,23 @@ const RestaurantCard = ({ restaurant, className = '' }) => {
     place_id,
     price_level = '$$',
     cuisine: type = 'Sin tipo',
-    description = 'Sin descripción',
-    schedule = {}
+    schedule = {},
+    description = '' // Asegurarse de que description esté definido
   } = restaurant;
 
   // Usar photo_url o la primera foto del array photos
   const mainPhotoUrl = photo_url || (Array.isArray(photos) && photos.length > 0 ? photos[0] : null);
   
   // Obtener el horario de hoy
-  console.log('Schedule recibido:', JSON.stringify(schedule, null, 2));
   const todaySchedule = getTodaysSchedule(schedule);
   const isOpen = isRestaurantOpen(todaySchedule);
-  
-  // Depuración
-  console.log('Restaurante:', { 
-    name, 
-    schedule, 
-    scheduleType: typeof schedule,
-    scheduleKeys: schedule ? Object.keys(schedule) : 'N/A',
-    todaySchedule, 
-    isOpen 
-  });
   
   // Obtener la ciudad del mapeo
   const city = restaurantCities[name] || 'Ubicación no disponible';
   
-  // Función para generar un enlace de Google Maps a partir de una dirección
+  // Función para generar un enlace de Google Maps
   const generateMapsUrl = (address) => {
     if (!address) return null;
-    // Eliminar el nombre del restaurante si está al principio de la dirección
     const cleanAddress = address.replace(/^[^-]+-\s*/, '');
     const encodedAddress = encodeURIComponent(cleanAddress.trim());
     return `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
@@ -146,7 +130,7 @@ const RestaurantCard = ({ restaurant, className = '' }) => {
           </div>
           <div className="h-px bg-gray-200 w-full my-2"></div>
 
-          {/* Línea 3: Dirección */}
+          {/* Línea 3: Dirección y Ciudad */}
           <div className="space-y-2 mb-3">
             {address && (
               <div className="text-sm text-gray-600">
@@ -163,37 +147,47 @@ const RestaurantCard = ({ restaurant, className = '' }) => {
               </div>
             )}
           </div>
-          <div className="h-px bg-gray-200 w-full my-2"></div>
-
-          {/* Línea 4: Horario */}
-          <div className="space-y-2 mb-3">
-            {todaySchedule && todaySchedule !== 'Horario no disponible' ? (
-              <div className="text-sm text-gray-600">
-                <div className="flex items-start">
-                  <Clock className="w-4 h-4 mr-2 mt-0.5 text-orange-400 flex-shrink-0" />
-                  <div>
-                    <div className="font-medium">Horario de hoy:</div>
-                    <div className="flex items-center">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                        isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {isOpen ? 'Abierto' : 'Cerrado'}
-                      </span>
-                      <span className="ml-2">{todaySchedule}</span>
-                    </div>
-                  </div>
+          
+          {/* Línea 4: Descripción */}
+          {description && (
+            <div className="space-y-2 mb-3">
+              <div className="flex items-start text-sm text-gray-700">
+                <BookOpen className="h-4 w-4 mr-2 mt-0.5 text-orange-400 flex-shrink-0" />
+                <div>
+                  <div className="font-medium mb-1">Descrição:</div>
+                  <p className="text-gray-600 whitespace-pre-line">{description}</p>
                 </div>
               </div>
-            ) : (
-              <div className="flex items-center text-sm text-gray-600">
-                <Clock className="w-4 h-4 mr-2 text-orange-400 flex-shrink-0" />
-                <span>Horario no disponible</span>
+              <div className="h-px bg-gray-200 w-full my-2"></div>
+            </div>
+          )}
+
+          {/* Línea 5: Horario */}
+          <div className="space-y-2 mb-3">
+            <div className="text-sm text-gray-600">
+              <div className="flex items-start">
+                <Clock className="w-4 h-4 mr-2 mt-0.5 text-orange-400 flex-shrink-0" />
+                <div className="w-full">
+                  <div className="font-medium">Horario de hoy:</div>
+                  {todaySchedule && todaySchedule !== 'Horario no disponible' ? (
+                    <div className="flex flex-col sm:flex-row sm:items-center mt-1 gap-2">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${
+                        isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {isOpen ? 'Abierto ahora' : 'Cerrado ahora'}
+                      </span>
+                      <span className="text-gray-800 font-medium">{todaySchedule}</span>
+                    </div>
+                  ) : (
+                    <span className="text-gray-600">Horario no disponible</span>
+                  )}
+                </div>
               </div>
-            )}
+            </div>
           </div>
           <div className="h-px bg-gray-200 w-full my-2"></div>
 
-          {/* Línea 5: Tipo de cocina */}
+          {/* Línea 6: Tipo de cocina */}
           <div className="space-y-2 mb-3">
             {type && (
               <div className="flex items-center text-sm text-gray-600">
@@ -202,39 +196,42 @@ const RestaurantCard = ({ restaurant, className = '' }) => {
               </div>
             )}
           </div>
-          <div className="h-px bg-gray-200 w-full my-2"></div>
-
-          {/* Línea 6: Descripción */}
-          <div className="flex-grow flex flex-col">
-            <h4 className="text-sm font-medium text-gray-700 mb-1">Descripción:</h4>
-            <p className="text-sm text-gray-600 flex-grow line-clamp-3 sm:line-clamp-4">
-              {description}
-            </p>
-          </div>
-
+          
           {/* Botones de acción */}
-          <div className="mt-4 pt-4 border-t border-gray-100 flex space-x-3">
-            {website && (
-              <a
-                href={website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
-              >
-                <Globe className="w-4 h-4 mr-2" />
-                Web
-              </a>
-            )}
+          <div className="mt-auto pt-3 flex flex-col sm:flex-row gap-2">
             {mapUrl && (
-              <a
-                href={mapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
+              <Button 
+                asChild 
+                variant="outline" 
+                className="flex-1 bg-white text-orange-500 border-orange-300 hover:bg-orange-50 hover:text-orange-600"
               >
-                <MapPinIcon className="w-4 h-4 mr-2" />
-                Mapa
-              </a>
+                <a 
+                  href={mapUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center"
+                >
+                  <MapPinIcon className="w-4 h-4 mr-2" />
+                  Mapa
+                </a>
+              </Button>
+            )}
+            {website && (
+              <Button 
+                asChild 
+                variant="outline" 
+                className="flex-1 bg-white text-orange-500 border-orange-300 hover:bg-orange-50 hover:text-orange-600"
+              >
+                <a 
+                  href={website.startsWith('http') ? website : `https://${website}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center"
+                >
+                  <Globe className="w-4 h-4 mr-2" />
+                  Sitio Web
+                </a>
+              </Button>
             )}
           </div>
         </div>

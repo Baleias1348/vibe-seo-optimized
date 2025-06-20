@@ -1,6 +1,7 @@
 [build]
   command = "npm run build:netlify"
-  publish = "dist"
+  publish = "./dist"
+  base = "."
 
 [build.environment]
   # Usando Node.js 20 para mejor soporte de ES modules

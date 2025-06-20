@@ -3,19 +3,38 @@
  * Este archivo se puede ejecutar durante el build o como una ruta de API
  */
 
-// Usar process.env para Node.js o import.meta.env para Vite
+// Función para obtener la URL base de manera segura
 const getBaseUrl = () => {
-  // En producción, usa la URL del sitio
-  if (process.env.NETLIFY === 'true') {
-    return process.env.URL || 'https://tudominio.com';
+  try {
+    // Si estamos en Netlify, usar la URL de Netlify
+    if (process?.env?.NETLIFY === 'true' || process?.env?.CONTEXT === 'production') {
+      return process.env.URL || 'https://tudominio.com';
+    }
+    
+    // Si estamos en desarrollo local, usar la URL de desarrollo
+    if (process?.env?.NODE_ENV === 'development') {
+      return 'http://localhost:8081';
+    }
+    
+    // Intentar obtener la URL base de las variables de entorno de Vite
+    if (process?.env?.VITE_BASE_URL) {
+      return process.env.VITE_BASE_URL;
+    }
+    
+    // Si estamos en el navegador, intentar obtener la URL base de la ubicación actual
+    if (typeof window !== 'undefined' && window.location) {
+      return `${window.location.protocol}//${window.location.host}`;
+    }
+  } catch (error) {
+    console.error('Error obteniendo la URL base:', error);
   }
-  // En desarrollo, usa la URL de desarrollo
-  return (typeof process !== 'undefined' && process.env.VITE_BASE_URL) || 
-         (typeof import.meta !== 'undefined' && import.meta.env.VITE_BASE_URL) || 
-         'http://localhost:8081';
+  
+  // Valor por defecto si todo lo demás falla
+  return 'https://tudominio.com';
 };
 
-const BASE_URL = getBaseUrl();
+// Obtener la URL base
+const BASE_URL = getBaseUrl().replace(/\/$/, ''); // Asegurarse de que no haya una barra al final
 
 // Datos de ejemplo - reemplazar con datos reales de tu aplicación
 const staticRoutes = [

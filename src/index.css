@@ -1,32 +1,32 @@
 @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
+@tailwind components;
+@tailwind utilities;
 
-    @layer base {
-      :root {
-        --background: 0 0% 100%; /* White */
-        --foreground: 224 71.4% 4.1%; /* Dark Blue/Black */
+@layer base {
+  :root {
+    --background: 0 0% 100%; /* White */
+    --foreground: 224 71.4% 4.1%; /* Dark Blue/Black */
 
-        --card: 0 0% 100%; /* White */
-        --card-foreground: 224 71.4% 4.1%; /* Dark Blue/Black */
-     
-        --popover: 0 0% 100%; /* White */
-        --popover-foreground: 224 71.4% 4.1%; /* Dark Blue/Black */
-     
-        --primary: 210 80% 50%; /* Vibrant Blue */
-        --primary-foreground: 0 0% 98%; /* Light Gray/Almost White */
-     
-        --secondary: 260 70% 55%; /* Vibrant Purple */
-        --secondary-foreground: 0 0% 98%; /* Light Gray/Almost White */
-     
-        --muted: 220 14.3% 95.9%; /* Light Gray */
-        --muted-foreground: 220 8.9% 46.1%; /* Medium Gray */
-     
-        --accent: 30 90% 55%; /* Vibrant Orange */
-        --accent-foreground: 0 0% 98%; /* Light Gray/Almost White */
-     
-        --destructive: 0 72.2% 50.6%; /* Vibrant Red */
-        --destructive-foreground: 0 0% 98%; /* Light Gray/Almost White */
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 224 71.4% 4.1%; /* Dark Blue/Black */
+ 
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 224 71.4% 4.1%; /* Dark Blue/Black */
+ 
+    --primary: 210 80% 50%; /* Vibrant Blue */
+    --primary-foreground: 0 0% 98%; /* Light Gray/Almost White */
+ 
+    --secondary: 260 70% 55%; /* Vibrant Purple */
+    --secondary-foreground: 0 0% 98%; /* Light Gray/Almost White */
+ 
+    --muted: 220 14.3% 95.9%; /* Light Gray */
+    --muted-foreground: 220 8.9% 46.1%; /* Medium Gray */
+ 
+    --accent: 30 90% 55%; /* Vibrant Orange */
+    --accent-foreground: 0 0% 98%; /* Light Gray/Almost White */
+ 
+    --destructive: 0 72.2% 50.6%; /* Vibrant Red */
+    --destructive-foreground: 0 0% 98%; /* Light Gray/Almost White */
 
         --border: 220 13% 91%; /* Light Gray Border */
         --input: 220 13% 91%; /* Light Gray Input Border */

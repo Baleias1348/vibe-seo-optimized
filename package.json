@@ -11,6 +11,8 @@
     "preview": "vite preview --port 8081"
   },
   "dependencies": {
+    "@babel/parser": "^7.27.5",
+    "@babel/traverse": "^7.27.4",
     "@emotion/is-prop-valid": "^1.2.1",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-avatar": "^1.0.4",
@@ -45,8 +47,7 @@
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^9.0.1",
-    "vite": "^4.4.5",
-    "@babel/parser": "^7.27.5"
+    "vite": "^4.4.5"
   },
   "devDependencies": {
     "@types/node": "^20.8.3",

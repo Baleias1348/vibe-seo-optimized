@@ -21,6 +21,8 @@ const AdminUpdatePasswordPage = lazy(() => import('@/pages/AdminUpdatePasswordPa
 const WeatherPage = lazy(() => import('@/pages/weather/WeatherPage'));
 const CurrencyPage = lazy(() => import('@/pages/currency/CurrencyPage'));
 const ToursPage = lazy(() => import('@/pages/tours/ToursPage'));
+// Cargar VineyardsPage de forma estática
+import VineyardsPage from '@/pages/VineyardsPage';
 const ProtectedRoute = lazy(() => import('@/components/auth/ProtectedRoute'));
 const WhatsAppButton = lazy(() => import('@/components/shared/WhatsAppButton'));
 
@@ -90,6 +92,7 @@ const WhatsAppButton = lazy(() => import('@/components/shared/WhatsAppButton'));
                             <Route path="/emergencias" element={<div>Página de Emergências (em construção)</div>} />
                             <Route path="/conversor-moeda" element={<CurrencyPage />} />
                             <Route path="/passeios" element={<ToursPage />} />
+                            <Route path="/vinas" element={<VineyardsPage />} />
                             <Route path="/investir-chile" element={<div>Página Investir no Chile (em construção)</div>} />
                             <Route path="/blog/mariscos-chilenos" element={<div>Página Blog Mariscos (em construção)</div>} />
                         </Routes>

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, MountainSnow, X, LogOut, UserCircle, Settings, ShoppingBag, Star, Compass } from 'lucide-react';
+import { Menu, MountainSnow, X, LogOut, UserCircle, Settings, ShoppingBag, Star, Compass, Wine } from 'lucide-react';
 import { getSiteConfig, subscribeToConfigChanges } from '@/lib/tourData';
 import { cn } from '@/lib/utils';
 
@@ -160,6 +160,7 @@ const Header = ({ isLandingMode = false }) => {
     { to: "/tours", label: "Passeios", icon: ShoppingBag },
     { to: "/restaurantes", label: "Restaurantes", icon: Star },
     { to: "/centros-de-esqui", label: "Centros de Ski", icon: MountainSnow },
+    { to: "/vinas", label: "Viñas", icon: Wine },
   ];
   
   return (

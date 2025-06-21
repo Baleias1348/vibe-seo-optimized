@@ -7,7 +7,7 @@
     "dev": "vite",
     "presitebuild": "node -e \"try { const fs = require('fs'); const path = require('path'); const { generateSitemap } = require('./src/utils/generateSitemap'); const sitemap = generateSitemap(); const outputPath = path.join(process.cwd(), 'public'); if (!fs.existsSync(outputPath)) { fs.mkdirSync(outputPath, { recursive: true }); } fs.writeFileSync(path.join(outputPath, 'sitemap.xml'), sitemap); console.log('Sitemap generado exitosamente'); } catch (error) { console.error('Error generando sitemap:', error); process.exit(1); }\"",
     "build": "set -e && npm run presitebuild && vite build",
-    "build:ci": "cross-env NODE_ENV=production npm run build",
+    "build:ci": "npm run build",
     "preview": "vite preview --port 8081"
   },
   "dependencies": {
@@ -46,14 +46,12 @@
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^9.0.1"
   },
-  "dependencies": {
-    "cross-env": "^7.0.3",
+  "devDependencies": {
     "@types/node": "^20.8.3",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.16",
-
     "dotenv": "^16.5.0",
     "esbuild": "^0.25.5",
     "eslint": "^8.57.1",

@@ -42,8 +42,7 @@
     NODE_ENV = "production"
     VITE_BASE_URL = "https://tudominio.com"
     VITE_SUPABASE_URL = "https://yfgqpaxajeatchcqrehe.supabase.co"
-    VITE_SUPABASE_ANON_KEY = "tu-clave-anon-supabase"
-
+  
 # Configuración para despliegues de preview
 [context.deploy-preview.environment]
   NODE_VERSION = "18"
@@ -52,7 +51,6 @@
   CI = "false"
   VITE_BASE_URL = "https://deploy-preview-${DEPLOY_PRIME_URL##*-}--tusitio.netlify.app"
   VITE_SUPABASE_URL = "https://yfgqpaxajeatchcqrehe.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "tu-clave-anon-supabase"
 
 # Configuración para despliegues de ramas
 [context.branch-deploy.environment]
@@ -62,4 +60,3 @@
   CI = "false"
   VITE_BASE_URL = "https://${BRANCH}--tusitio.netlify.app"
   VITE_SUPABASE_URL = "https://yfgqpaxajeatchcqrehe.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "tu-clave-anon-supabase"

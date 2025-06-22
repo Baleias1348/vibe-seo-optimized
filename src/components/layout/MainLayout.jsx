@@ -18,6 +18,7 @@ const CurrencyPage = lazy(() => import('@/pages/currency/CurrencyPage'));
 const ToursPage = lazy(() => import('@/pages/tours/ToursPage'));
 const CasasCambioPage = lazy(() => import('@/pages/casas-cambio/CasasCambioPage'));
 const VinosVinicolasPage = lazy(() => import('@/pages/vinos-vinicolas/VinosVinicolasPage'));
+const LazySupabaseDebugPage = lazy(() => import('@/pages/SupabaseDebugPage.jsx'));
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import WhatsAppButton from '@/components/shared/WhatsAppButton';
 import { Toaster } from '@/components/ui/toaster';
@@ -251,6 +252,21 @@ const MainLayout = () => {
             )} 
           />
           
+          {/* Ruta de depuración Supabase */}
+          <Route 
+            path="/debug-supabase"
+            element={renderWithSeo(
+              <Suspense fallback={<div>Cargando...</div>}>
+                <LazySupabaseDebugPage />
+              </Suspense>,
+              {
+                title: 'Debug Supabase',
+                description: 'Herramienta de depuración para conexión y queries a Supabase',
+                keywords: 'debug, supabase, conexión, consulta, troubleshooting'
+              }
+            )}
+          />
+
           {/* Rutas de blog */}
           <Route 
             path={urls.blog} 

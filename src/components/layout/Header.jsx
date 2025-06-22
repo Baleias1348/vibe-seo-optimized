@@ -178,10 +178,11 @@ const Header = ({ isLandingMode = false }) => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           <Link to="/" className="flex items-center space-x-2" onClick={closeMobileMenu}>
-            <img-replace 
+            <img 
               src={siteConfigData.logoUrl || "https://placehold.co/40x40?text=VC"} 
               alt="Vibe Chile Logo" 
               className="h-10 w-10 object-contain rounded-md" 
+              loading="lazy"
             />
             <span className={cn(
                 "text-xl font-bold",

@@ -83,6 +83,7 @@ const RestaurantCard = ({ restaurant, className = '' }) => {
               src={mainPhotoUrl} 
               alt={name || 'Restaurante'}
               className="w-full h-full object-cover"
+              loading="lazy"
             />
           ) : (
             <div className="w-full h-full bg-gray-200 flex items-center justify-center">

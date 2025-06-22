@@ -3,20 +3,22 @@ import { useLocation, Routes, Route, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import HomePage from '@/pages/HomePage';
-import TourDetailPage from '@/pages/TourDetailPage';
-import RestaurantsPage from '@/features/restaurants/pages/RestaurantsPage';
-import SkiCentersPage from '@/pages/SkiCentersPage';
-import SkiCenterDetailPage from '@/pages/SkiCenterDetailPage';
-import ContactPage from '@/pages/ContactPage';
-import AdminPage from '@/pages/AdminPage';
-import AdminLoginPage from '@/pages/AdminLoginPage';
-import AdminUpdatePasswordPage from '@/pages/AdminUpdatePasswordPage';
-import WeatherPage from '@/pages/weather/WeatherPage';
-import CurrencyPage from '@/pages/currency/CurrencyPage';
-import ToursPage from '@/pages/tours/ToursPage';
-import CasasCambioPage from '@/pages/casas-cambio/CasasCambioPage';
-import VinosVinicolasPage from '@/pages/vinos-vinicolas/VinosVinicolasPage';
+import React, { Suspense, lazy } from 'react';
+
+const HomePage = lazy(() => import('@/pages/HomePage'));
+const TourDetailPage = lazy(() => import('@/pages/TourDetailPage'));
+const RestaurantsPage = lazy(() => import('@/features/restaurants/pages/RestaurantsPage'));
+const SkiCentersPage = lazy(() => import('@/pages/SkiCentersPage'));
+const SkiCenterDetailPage = lazy(() => import('@/pages/SkiCenterDetailPage'));
+const ContactPage = lazy(() => import('@/pages/ContactPage'));
+const AdminPage = lazy(() => import('@/pages/AdminPage'));
+const AdminLoginPage = lazy(() => import('@/pages/AdminLoginPage'));
+const AdminUpdatePasswordPage = lazy(() => import('@/pages/AdminUpdatePasswordPage'));
+const WeatherPage = lazy(() => import('@/pages/weather/WeatherPage'));
+const CurrencyPage = lazy(() => import('@/pages/currency/CurrencyPage'));
+const ToursPage = lazy(() => import('@/pages/tours/ToursPage'));
+const CasasCambioPage = lazy(() => import('@/pages/casas-cambio/CasasCambioPage'));
+const VinosVinicolasPage = lazy(() => import('@/pages/vinos-vinicolas/VinosVinicolasPage'));
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import WhatsAppButton from '@/components/shared/WhatsAppButton';
 import { Toaster } from '@/components/ui/toaster';
@@ -89,7 +91,8 @@ const MainLayout = () => {
     <div className="flex flex-col min-h-screen">
       {!hideHeader && <Header />}
       <main className="flex-grow">
-        <Routes>
+        <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="text-center"><span className="loader inline-block w-8 h-8 border-4 border-blue-300 border-t-transparent rounded-full animate-spin mb-2"></span><p className="text-lg text-muted-foreground">Cargando página...</p></div></div>}>
+          <Routes>
           {/* Página principal */}
           <Route 
             path={urls.home} 
@@ -381,6 +384,7 @@ const MainLayout = () => {
             )} 
           />
         </Routes>
+        </Suspense>
       </main>
       
       <Footer />

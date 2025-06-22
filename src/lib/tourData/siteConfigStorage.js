@@ -215,14 +215,32 @@ export const saveSiteConfig = async (config) => {
 };
 
 // Suscripción a cambios en tiempo real
+// --- Gestión global de canal y estado de suscripción para evitar múltiples instancias ---
+let globalSiteConfigChannel = null;
+let globalSiteConfigCallback = null;
+let globalIsSubscribed = false;
+let globalReconnectTimeout = null;
+
 export const subscribeToConfigChanges = (callback) => {
   console.log('Iniciando suscripción a cambios en tiempo real...');
   
+  // Si ya existe una suscripción activa, no crear una nueva
+  if (globalSiteConfigChannel && globalIsSubscribed) {
+    console.log('Ya existe una suscripción activa a site_config_changes. Reutilizando canal.');
+    // Actualizar callback si es diferente
+    globalSiteConfigCallback = callback;
+    return () => {
+      // Solo limpiar el callback, no la suscripción global
+      globalSiteConfigCallback = null;
+    };
+  }
+
   if (!supabase) {
     console.error('Error: supabase client no está inicializado');
     return () => {}; // Retorna una función vacía si no hay cliente
   }
   
+  globalIsSubscribed = true;
   let isSubscribed = true;
   let reconnectTimeout;
   let channel;
@@ -244,24 +262,19 @@ export const subscribeToConfigChanges = (callback) => {
             console.log('Cambio detectado en la configuración:', payload);
             if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
               try {
-                // Usar payload.new o payload.record según la versión de Supabase
                 const record = payload.new || payload.record;
                 if (!record) {
                   console.error('No se encontraron datos en el payload:', payload);
                   return;
                 }
-                
-                // Convertir al formato esperado por la aplicación
                 const updatedConfig = { 
                   ...defaultConfig, 
                   ...mapToLegacyFormat(record)
                 };
-                
                 console.log('Nueva configuración procesada:', updatedConfig);
-                
-                // Llamar al callback con los nuevos datos
-                if (typeof callback === 'function') {
-                  callback(updatedConfig);
+                // Usar siempre el último callback registrado
+                if (typeof globalSiteConfigCallback === 'function') {
+                  globalSiteConfigCallback(updatedConfig);
                 }
               } catch (error) {
                 console.error('Error al procesar la actualización:', error);
@@ -285,6 +298,9 @@ export const subscribeToConfigChanges = (callback) => {
           }
         });
       
+      // Guardar referencias globales
+      globalSiteConfigChannel = channel;
+      globalSiteConfigCallback = callback;
       return channel;
     } catch (error) {
       console.error('Error al configurar la suscripción:', error);
@@ -296,6 +312,7 @@ export const subscribeToConfigChanges = (callback) => {
   };
   
   const attemptReconnect = () => {
+    globalIsSubscribed = false;
     if (!isSubscribed) return;
     
     console.log('🔁 Intentando reconectar en 3 segundos...');
@@ -325,22 +342,24 @@ export const subscribeToConfigChanges = (callback) => {
   
   // Iniciar la primera suscripción
   setupSubscription();
-  
+
   // Devolver función para cancelar la suscripción
   return () => {
     console.log('🛑 Cancelando suscripción...');
     isSubscribed = false;
-    
-    if (reconnectTimeout) {
-      clearTimeout(reconnectTimeout);
+    globalIsSubscribed = false;
+    globalSiteConfigCallback = null;
+    if (globalReconnectTimeout) {
+      clearTimeout(globalReconnectTimeout);
+      globalReconnectTimeout = null;
     }
-    
-    if (channel) {
+    if (globalSiteConfigChannel) {
       try {
-        channel.unsubscribe();
+        globalSiteConfigChannel.unsubscribe();
       } catch (e) {
         console.error('Error al desuscribir el canal:', e);
       }
+      globalSiteConfigChannel = null;
     }
   };
 };

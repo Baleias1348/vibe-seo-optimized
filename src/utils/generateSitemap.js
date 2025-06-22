@@ -5,7 +5,10 @@
  * Convertido a CommonJS para compatibilidad con el proceso de construcción
  */
 
-const { createSafeUrl, getAppBaseUrl, isValidUrl } = require('./urlUtils');
+// Usar process.env para Node.js o import.meta.env para Vite
+const BASE_URL = (typeof process !== 'undefined' && process.env.VITE_BASE_URL) || 
+                (typeof import.meta !== 'undefined' && import.meta.env.VITE_BASE_URL) || 
+                'https://tudominio.com';
 
 // Función segura para obtener la URL base
 function getBaseUrl(customBaseUrl) {

@@ -40,6 +40,7 @@ import React from 'react';
                 src={mainImage.startsWith('https') ? mainImage : `https://images.unsplash.com/photo-1569372314472-8aea12c94019`}
                 alt={`${tourName} - Imagem Principal da Galeria`}
                 className="w-full h-full object-cover aspect-[4/3] md:aspect-auto md:min-h-[300px] lg:min-h-[400px] xl:min-h-[500px] transition-transform duration-300 hover:scale-105"
+                loading="lazy"
               />
             </div>
             {otherImages.map((imageKey, index) => (
@@ -48,6 +49,7 @@ import React from 'react';
                   src={imageKey.startsWith('https') ? imageKey : `https://images.unsplash.com/photo-1517423440428-a5a00ad493e8`}
                   alt={`${tourName} - Imagem ${index + 2}`}
                   className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  loading="lazy"
                 />
               </div>
             ))}

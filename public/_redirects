@@ -2,8 +2,6 @@
 /home-original / 301
 /passeios /tours 301
 /passeios/* /tours/:splat 301
-/centros-de-esqui /centros-esqui 301
-/centros-de-esqui/* /centros-esqui/:splat 301
 /clima-detalhado /clima/detallado 301
 /conversor-moeda /conversor/moneda 301
 /investir-chile /inversion 301

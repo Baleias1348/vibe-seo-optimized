@@ -17,20 +17,47 @@ const useRestaurants = () => {
       setIsLoading(true);
       setError(null);
       try {
-        // Fetch from the new table 'google_imported_restaurants'
+        // Consultar la tabla 'restaurants'
         const { data, error: dbError } = await supabase
-          .from('google_imported_restaurants') // Changed table name
+          .from('restaurants')
           .select('*')
-          // .eq('verified', true) // Optional: if you only want to show verified ones
-          .order('name', { ascending: true }); // Default order, maybe by rating or review_count later
+          .order('name', { ascending: true });
 
         if (dbError) throw dbError;
         
         if (!Array.isArray(data)) {
           console.error("Data received from Supabase is not an array:", data);
-          throw new Error("Formato de dados inesperado do servidor.");
+          throw new Error("Formato de datos inesperado del servidor.");
         }
-        setAllRestaurants(data);
+        
+        // Asegurarse de que el campo schedule sea un objeto JavaScript válido
+        const processedData = data.map(restaurant => {
+          try {
+            // Si schedule es un string, intentar parsearlo a objeto
+            if (restaurant.schedule && typeof restaurant.schedule === 'string') {
+              return {
+                ...restaurant,
+                schedule: JSON.parse(restaurant.schedule)
+              };
+            }
+            // Si es un objeto, asegurarse de que no sea null
+            return {
+              ...restaurant,
+              schedule: restaurant.schedule || {}
+            };
+          } catch (error) {
+            console.error('Error al procesar el horario para', restaurant.name, error);
+            return {
+              ...restaurant,
+              schedule: {}
+            };
+          }
+        });
+        
+        // Depuración: Mostrar los primeros 3 restaurantes para ver su estructura
+        console.log('Datos de restaurantes procesados:', processedData.slice(0, 3));
+        
+        setAllRestaurants(processedData);
       } catch (err) {
         console.error("Error fetching restaurants from DB:", err);
         setError(err.message || "Falha ao buscar restaurantes. Tente novamente mais tarde.");

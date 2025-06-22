@@ -23,9 +23,19 @@ const mapSkiCenterFromSupabase = (skiCenter) => {
     };
 };
 
+const generateSlug = (text) => {
+    return text
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+};
+
 const mapSkiCenterToSupabase = (skiCenterData) => {
     const slug = skiCenterData.name 
-        ? skiCenterData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+        ? generateSlug(skiCenterData.name)
         : skiCenterData.slug || ''; // Keep existing slug if name is not changing or not provided
 
     return {
@@ -74,26 +84,116 @@ export const getSkiCenterById = async (id) => {
     return mapSkiCenterFromSupabase(data);
 };
 
-export const getSkiCenterBySlug = async (slug) => {
-    const { data, error } = await supabase
-        .from('ski_centers')
-        .select('*')
-        .eq('slug', slug)
-        .single();
+// Función para normalizar slugs eliminando caracteres especiales
+const normalizeSlug = (str) => {
+    if (!str) return '';
+    return str
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Elimina acentos
+        .replace(/[^a-z0-9-]/g, '') // Mantiene solo letras, números y guiones
+        .replace(/-+/g, '-') // Reemplaza múltiples guiones por uno solo
+        .replace(/^-+|-+$/g, ''); // Elimina guiones al inicio y final
+};
 
-    if (error) {
-        console.error(`Error fetching ski center by slug ${slug}:`, error);
+export const getSkiCenterBySlug = async (slug) => {
+    console.log('Buscando centro con slug:', slug);
+    
+    if (!slug) {
+        console.error('No se proporcionó un slug para buscar');
         return null;
     }
-    return mapSkiCenterFromSupabase(data);
+
+    try {
+        // Normalizamos el slug de búsqueda
+        const normalizedSearchSlug = normalizeSlug(slug);
+        console.log('Slug normalizado para búsqueda:', normalizedSearchSlug);
+        
+        // Primero intentamos buscar por el slug exacto (sin normalizar)
+        const { data: exactData, error: exactError } = await supabase
+            .from('ski_centers')
+            .select('*')
+            .eq('slug', slug)
+            .single();
+
+        // Si encontramos por slug exacto, lo retornamos
+        if (exactData) {
+            console.log('Centro encontrado por slug exacto (sin normalizar)');
+            return mapSkiCenterFromSupabase(exactData);
+        }
+        
+        // Si no, intentamos con el slug normalizado
+        const { data, error } = await supabase
+            .from('ski_centers')
+            .select('*')
+            .eq('slug', normalizedSearchSlug)
+            .single();
+
+        // Si encontramos por slug normalizado, lo retornamos
+        if (data) {
+            console.log('Centro encontrado por slug normalizado');
+            return mapSkiCenterFromSupabase(data);
+        }
+        
+        console.log('No se encontró por slug exacto, buscando en todos los registros...');
+        
+        // Si no encontramos por slug exacto, buscamos en todos los registros
+        const { data: allData, error: allError } = await supabase
+            .from('ski_centers')
+            .select('*');
+            
+        if (allError) {
+            console.error('Error al buscar todos los centros:', allError);
+            return null;
+        }
+        
+        console.log('Total de centros encontrados:', allData.length);
+        
+        // Buscamos cualquier centro cuyo nombre normalizado coincida con el slug de búsqueda normalizado
+        const matchingCenter = allData.find(center => {
+            const centerNameSlug = generateSlug(center.name);
+            const normalizedCenterNameSlug = normalizeSlug(centerNameSlug);
+            const normalizedCenterSlug = normalizeSlug(center.slug || '');
+            
+            return normalizedCenterNameSlug === normalizedSearchSlug || 
+                   normalizedCenterSlug === normalizedSearchSlug;
+        });
+        
+        if (matchingCenter) {
+            console.log('Centro encontrado por coincidencia de nombre normalizado');
+            return mapSkiCenterFromSupabase(matchingCenter);
+        }
+        
+        // Último intento: buscar por coincidencia parcial en el nombre
+        const partialMatch = allData.find(center => {
+            const centerName = center.name.toLowerCase();
+            const searchName = slug.replace(/-/g, ' '); // Convertir guiones a espacios
+            return centerName.includes(searchName) || 
+                   searchName.includes(centerName.split(' ')[0].toLowerCase());
+        });
+        
+        if (partialMatch) {
+            console.log('Centro encontrado por coincidencia parcial del nombre');
+            return mapSkiCenterFromSupabase(partialMatch);
+        }
+        
+        console.error(`No se encontró ningún centro con el slug: ${slug} (normalizado: ${normalizedSearchSlug})`);
+        console.log('Nombres de centros disponibles:', allData.map(c => c.name));
+        return null;
+        
+    } catch (err) {
+        console.error('Error en getSkiCenterBySlug:', err);
+        return null;
+    }
 };
 
 export const addSkiCenter = async (skiCenterData) => {
-    const supabaseFriendlyData = mapSkiCenterToSupabase(skiCenterData);
+    const supabaseData = mapSkiCenterToSupabase(skiCenterData);
+    console.log('Adding ski center with data:', supabaseData);
     
     const { data, error } = await supabase
         .from('ski_centers')
-        .insert([supabaseFriendlyData])
+        .insert(supabaseData)
         .select()
         .single();
 
@@ -101,7 +201,10 @@ export const addSkiCenter = async (skiCenterData) => {
         console.error('Error adding ski center:', error);
         throw error;
     }
-    return mapSkiCenterFromSupabase(data);
+    
+    const result = mapSkiCenterFromSupabase(data);
+    console.log('Successfully added ski center:', result);
+    return result;
 };
 
 export const updateSkiCenter = async (id, skiCenterData) => {

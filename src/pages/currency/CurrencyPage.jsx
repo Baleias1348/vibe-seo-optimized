@@ -89,11 +89,36 @@ const CurrencyPage = () => {
         if (attempt < API_CONFIG.maxRetries) {
           await new Promise(resolve => setTimeout(resolve, API_CONFIG.retryDelay));
         }
+
+    try {
+      // Leer variables de entorno
+      const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+      const apiBaseUrl = import.meta.env.VITE_EXCHANGE_API_URL || 'https://v6.exchangerate-api.com/v6';
+      const baseCurrency = fromCurrency || 'USD'; // Usa la moneda seleccionada como base
+      
+      const url = `${apiBaseUrl}/${apiKey}/latest/${baseCurrency}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
       }
+    } catch (error) {
+      // Si llegamos aquí, todos los intentos fallaron
+      setIsError(true);
+      
+      // Mostrar notificación de error
+      toast.error(`Error al obtener tasas: ${error.message || 'Error desconocido'}`, {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      
+      console.error('Error al obtener tasas:', error);
     }
-    
-    // Si llegamos aquí, todos los intentos fallaron
-    setIsError(true);
+  }, [fromCurrency]);
     
     // Mostrar notificación de error
     toast.error(`Error al obtener tasas: ${lastError?.message || 'Error desconocido'}`, {
@@ -135,7 +160,143 @@ const CurrencyPage = () => {
     const fromRate = rates[fromCurrency];
     const toRate = rates[toCurrency];
     const brlAmount = parseFloat(amount) / fromRate;
-    const result = brlAmount * toRate;
+    const result = brlAmount import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ toRate;
     
     setConvertedAmount(result.toFixed(4));
   };
@@ -166,7 +327,279 @@ const CurrencyPage = () => {
 
   useEffect(() => {
     fetchRates();
-    const interval = setInterval(fetchRates, 5 * 60 * 1000);
+    const interval = setInterval(fetchRates, 5 import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ 60 import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -199,13 +632,557 @@ const CurrencyPage = () => {
   };
 
   // Obtener tasas específicas para las tarjetas de paridad
-  const brlToClpRate = rates.CLP ? (1 / rates.BRL * rates.CLP).toFixed(2) : '...';
-  const clpToBrlRate = rates.BRL ? (1 / rates.CLP * rates.BRL).toFixed(6) : '...';
+  const brlToClpRate = rates.CLP ? (1 / rates.BRL import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ rates.CLP).toFixed(2) : '...';
+  const clpToBrlRate = rates.BRL ? (1 / rates.CLP import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ rates.BRL).toFixed(6) : '...';
   const lastUpdateFormatted = lastUpdated || 'Cargando...';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      {/* Header */}
+      {/import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ Header import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+/}
       <header className="bg-blue-600 text-white p-4 shadow-md">
         <div className="container mx-auto flex items-center">
           <button 
@@ -227,7 +1204,279 @@ const CurrencyPage = () => {
         </div>
       </header>
 
-      {/* Cartões de paridade fixa */}
+      {/import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ Cartões de paridade fixa import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+/}
       <div className="container mx-auto px-4 py-4 max-w-3xl">
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-xl font-semibold text-gray-800">Cotações Principais</h2>
@@ -242,7 +1491,279 @@ const CurrencyPage = () => {
           </span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {/* Cartão BRL para CLP */}
+          {/import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ Cartão BRL para CLP import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+/}
           <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-100 hover:border-blue-100 transition-colors">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
@@ -260,7 +1781,279 @@ const CurrencyPage = () => {
             </div>
           </div>
 
-          {/* Cartão CLP para BRL */}
+          {/import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ Cartão CLP para BRL import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+/}
           <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-100 hover:border-blue-100 transition-colors">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
@@ -282,7 +2075,279 @@ const CurrencyPage = () => {
 
       <main className="container mx-auto p-4 max-w-3xl">
         <h2 className="text-xl font-semibold mb-3 text-gray-800 px-1">Conversor de Moeda</h2>
-        {/* Card de conversión */}
+        {/import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ Card de conversión import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+/}
         <div className="bg-white rounded-xl shadow-md p-6 mb-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
             <div className="w-full">
@@ -353,7 +2418,279 @@ const CurrencyPage = () => {
           </div>
         </div>
 
-        {/* Conversiones populares */}
+        {/import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ Conversiones populares import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+/}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center">
             <Info className="w-5 h-5 mr-2 text-blue-500" />
@@ -363,7 +2700,143 @@ const CurrencyPage = () => {
             {popularConversions.map((conv, index) => {
               const from = getCurrencyInfo(conv.from);
               const to = getCurrencyInfo(conv.to);
-              const value = (rates[to.code] / rates[from.code] * parseFloat(conv.amount)).toFixed(2);
+              const value = (rates[to.code] / rates[from.code] import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ parseFloat(conv.amount)).toFixed(2);
               
               return (
                 <button
@@ -383,7 +2856,279 @@ const CurrencyPage = () => {
           </div>
         </div>
 
-        {/* Información */}
+        {/import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ Información import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+/}
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>Las tasas de cambio se actualizan automáticamente cada 5 minutos</p>
           {lastUpdated && (
@@ -398,7 +3143,279 @@ const CurrencyPage = () => {
         </div>
       </main>
       
-      {/* Fuente de información */}
+      {/import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+ Fuente de información import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const API_CONFIG = {
+  endpoint: "https://v6.exchangerate-api.com/v6/",
+  maxRetries: 3,
+  retryDelay: 1000, // ms
+};
+
+const CurrencyPage = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("USD");
+  const [toCurrency, setToCurrency] = useState("CLP");
+  const [amount, setAmount] = useState(1);
+  const [converted, setConverted] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch supported currencies on mount
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      let lastError;
+      for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+        try {
+          // Leer variables de entorno
+          const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+          if (!apiKey) {
+            throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+          }
+          const url = `${API_CONFIG.endpoint}${apiKey}/codes`;
+          const response = await axios.get(url);
+          setCurrencies(response.data.supported_codes);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (attempt < API_CONFIG.maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+          }
+        }
+      }
+      setIsError(true);
+      setIsLoading(false);
+      toast.error(
+        `Error loading currencies: ${lastError?.message || "Unknown error"}`
+      );
+    };
+    fetchCurrencies();
+  }, []);
+
+  // Convert currency
+  const handleConvert = async () => {
+    setIsLoading(true);
+    setIsError(false);
+    let lastError;
+    for (let attempt = 1; attempt <= API_CONFIG.maxRetries; attempt++) {
+      try {
+        const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
+        if (!apiKey) {
+          throw new Error("No API key provided in VITE_EXCHANGE_API_KEY");
+        }
+        const url = `${API_CONFIG.endpoint}${apiKey}/pair/${fromCurrency}/${toCurrency}/${amount}`;
+        const response = await axios.get(url);
+        setConverted(response.data.conversion_result);
+        setIsLoading(false);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt < API_CONFIG.maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, API_CONFIG.retryDelay));
+        }
+      }
+    }
+    setIsError(true);
+    setIsLoading(false);
+    toast.error(
+      `Error converting currency: ${lastError?.message || "Unknown error"}`
+    );
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Currency Converter</h1>
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="border px-2 py-1 rounded"
+        />
+        <select
+          value={fromCurrency}
+          onChange={(e) => setFromCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <span className="self-center">to</span>
+        <select
+          value={toCurrency}
+          onChange={(e) => setToCurrency(e.target.value)}
+          className="border px-2 py-1 rounded"
+        >
+          {currencies.map(([code, name]) => (
+            <option key={code} value={code}>
+              {code} - {name}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleConvert}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          Convert
+        </button>
+      </div>
+      {isLoading && <p>Loading...</p>}
+      {isError && <p className="text-red-600">An error occurred. Please try again.</p>}
+      {converted !== null && (
+        <div className="mt-4 text-lg">
+          Result: <span className="font-bold">{converted}</span> {toCurrency}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CurrencyPage;
+/}
       <footer className="container mx-auto px-4 py-6 max-w-3xl text-center text-sm text-gray-500 border-t border-gray-100 mt-8">
         <p>Taxas de câmbio fornecidas por <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Exchange Rate API</a>. Atualizadas em tempo real.</p>
       </footer>

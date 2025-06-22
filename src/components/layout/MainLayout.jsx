@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { useLocation, Routes, Route, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import React, { Suspense, lazy } from 'react';
 
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const TourDetailPage = lazy(() => import('@/pages/TourDetailPage'));

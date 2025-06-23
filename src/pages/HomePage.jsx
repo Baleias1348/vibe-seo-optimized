@@ -460,27 +460,10 @@ const HomePage = () => {
         { title: "Centros de Ski", description: "Aventura na neve nos melhores picos.", icon: MountainSnow, link: "/centros-de-esqui" },
         { title: "Vinos y Vinícolas", description: "Descubre las mejores rutas del vino chileno.", icon: Wine, link: "/vinos-y-vinicolas" },
     ];
-                    <Link to="/passeios">
-                        <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-300 border-2 border-primary/20 hover:border-primary/40">
-                            <CardHeader className="items-center text-center">
-                                <div className="p-3 bg-primary/10 rounded-full mb-2">
-                                    <MountainSnow className="h-8 w-8 text-primary" />
-                                </div>
-                                <CardTitle className="text-xl">Passeios e Experiências</CardTitle>
-                            </CardHeader>
-                            <CardContent className="text-center flex-grow">
-                                <p className="text-sm text-muted-foreground mb-4">Descubra as melhores experiências e passeios pelo Chile</p>
-                                <Button variant="outline" className="mt-2">
-                                    Ver todos os passeios
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    </Link>
-                </motion.div>
-            </section>
-        </>
-    );
-};
+
+        return (
+        <>
+            <HeroBanner />
             <section className="py-12 bg-white">
                 <div className="container mx-auto p-4">
                     <h2 className="text-3xl font-bold mb-4">Acceso rápido</h2>

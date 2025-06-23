@@ -149,35 +149,7 @@ const NewsTicker = () => {
         </div>
     );
 };
-        { icon: Flag, text: `Dólar (USD) em Reais: ${tickerData.find(d => d.id === 'currency_usd_brl')?.content || 'R$--'}`, id: 'currency_usd_brl' },
-        { icon: Flag, text: `Dólar (USD) em Pesos: ${tickerData.find(d => d.id === 'currency_usd_clp')?.content || '$--'}`, id: 'currency_usd_clp' },
-    ].filter(item => item.text && (item.id === 'datetime' || (tickerData.find(d => d.id === item.id)?.content || '').trim() !== '--'));
 
-
-    return (
-        <div className="bg-red-600 text-white py-3 overflow-hidden h-[50px] flex items-center font-arial">
-            <motion.div
-                className="flex"
-                animate={{ x: ['100%', '-100%'] }}
-                transition={{
-                    x: {
-                        repeat: Infinity,
-                        repeatType: "loop",
-                        duration: 200, // Aumentado para hacer más lento el ticker
-                        ease: "linear",
-                    },
-                }}
-            >
-                {tickerContent.map((item, index) => (
-                    <TickerItem key={index} icon={item.icon} text={item.text} highlight={item.highlight} />
-                ))}
-                 {tickerContent.map((item, index) => (
-                    <TickerItem key={`dup-${index}`} icon={item.icon} text={item.text} highlight={item.highlight} />
-                ))}
-            </motion.div>
-        </div>
-    );
-};
 
 // HeroCarousel ha sido movido a un componente separado en @/components/HeroCarousel/HeroCarousel
 
@@ -521,18 +493,20 @@ const HomePage = () => {
 
     // Hero Banner Estático
     const HeroBanner = () => (
-      <section className="w-full" style={{ height: 400, overflow: 'hidden' }}>
+      <section className="w-full overflow-hidden h-64 md:h-96 xl:h-[400px]">
         {siteConfigData.hero_images && siteConfigData.hero_images.length > 0 ? (
           <img
             src={siteConfigData.hero_images[0].url}
             alt={siteConfigData.hero_images[0].alt || 'Hero Banner'}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            className="w-full h-full object-cover block rounded-md md:rounded-lg xl:rounded-none"
+            draggable={false}
           />
         ) : (
           <img
             src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop"
             alt="Hero Banner"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            className="w-full h-full object-cover block rounded-md md:rounded-lg xl:rounded-none"
+            draggable={false}
           />
         )}
       </section>

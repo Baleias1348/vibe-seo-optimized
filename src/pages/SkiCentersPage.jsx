@@ -3,7 +3,6 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import urls from '@/config/urls';
 import { getAllSkiCenters } from '@/lib/tourData';
-import urls from '@/config/urls';
 
 // Función para generar un slug a partir de un texto
 const generateSlug = (text) => {

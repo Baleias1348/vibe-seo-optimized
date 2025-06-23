@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import HeroCarousel from '@/components/HeroCarousel/HeroCarousel';
+
 
 const TickerItem = ({ icon: Icon, text, highlight = false }) => (
     <div className={`flex items-center space-x-3 mx-5 ${highlight ? 'text-yellow-300' : ''}`}>
@@ -446,22 +446,18 @@ const HomePage = () => {
         { id: "sim1", nameLine1: "Aventura", nameLine2:"no Deserto", location: "Atacama, Chile", duration: "3 dias", pricePerAdult: 1200, description: "Explore as paisagens lunares do deserto mais árido do mundo.", image: "https://images.unsplash.com/photo-1508094361382-5f7c69a863c9?q=80&w=1470&auto=format&fit=crop" },
         { id: "sim2", nameLine1: "Patagônia", nameLine2:"Selvagem", location: "Torres del Paine, Chile", duration: "5 dias", pricePerAdult: 2500, description: "Caminhe por trilhas icônicas e admire glaciares imponentes.", image: "https://images.unsplash.com/photo-1529973568089-a1968960c675?q=80&w=1470&auto=format&fit=crop" },
         { id: "sim3", nameLine1: "Vinhos & Vales", nameLine2:"Experiência", location: "Vale de Colchagua", duration: "1 dia", pricePerAdult: 350, description: "Deguste vinhos premiados em vinícolas charmosas.", image: "https://images.unsplash.com/photo-1506377295352-e3154d43ea9e?q=80&w=1470&auto=format&fit=crop" },
-    ];
 
-    const toursToShow = [...featuredTours, ...simulatedTours.slice(0, Math.max(0, 4 - featuredTours.length))].slice(0, 4);
+    <NewsTicker tickerData={tickerData} />
 
-    return (
-        <div className="bg-background">
-            <NewsTicker tickerData={tickerData} />
-            <HeroCarousel images={finalHeroImages} />
-
-            <section className="w-full bg-[#0b64ee] py-6">
-                <div className="container">
-                    <h2 className="text-center text-white text-2xl font-bold mb-6">INFORMAÇÕES EM TEMPO REAL DO CHILE</h2>
-                    <div className="flex justify-center items-start flex-wrap gap-x-6 gap-y-6 md:gap-x-10">
-                        {quickAccessItems.map(item => (
-                            <Link to={item.link} key={item.label} className="no-underline">
-                                <QuickAccessButton icon={item.icon} label={item.label} />
+    <section className="w-full bg-[#0b64ee] py-6">
+      <div className="container">
+        <h2 className="text-center text-white text-2xl font-bold mb-6">INFORMAÇÕES EM TEMPO REAL DO CHILE</h2>
+        <div className="flex justify-center items-start flex-wrap gap-x-6 gap-y-6 md:gap-x-10">
+          {quickAccessItems.map(item => (
+            <Link to={item.link} key={item.label} className="no-underline">
+              <QuickAccessButton icon={item.icon} label={item.label} />
+            </Link>
+          ))}
                             </Link>
                         ))}
                     </div>

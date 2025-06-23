@@ -422,6 +422,9 @@ const HomePage = () => {
       }];
     };
     
+    // --- Estado para el ticker ---
+    const [tickerData, setTickerData] = useState([]);
+
     const finalHeroImages = getHeroImages();
     console.log('Imágenes del carrusel procesadas:', finalHeroImages);
 
@@ -444,6 +447,31 @@ const HomePage = () => {
       </section>
     );
 
+    // --- Fetch Ticker Data (con manejo de errores para exchange rate) ---
+    const fetchTickerData = async () => {
+        try {
+            console.log('Buscando datos del ticker...');
+            const { data, error } = await supabase.from('ticker_data').select('*');
+            if (error) {
+                console.error('Error al buscar datos del ticker:', error);
+                setTickerData([]);
+            } else {
+                console.log('Datos del ticker recibidos:', data);
+                setTickerData(data || []);
+            }
+        } catch (err) {
+            console.error('Error inesperado al buscar ticker:', err);
+            setTickerData([]);
+        }
+    };
+
+    useEffect(() => {
+        fetchTickerData();
+        // Opcional: refresco periódico para ticker en tiempo real
+        const interval = setInterval(fetchTickerData, 5 * 60 * 1000); // cada 5 minutos
+        return () => clearInterval(interval);
+    }, []);
+
     const quickAccessItems = [
         { icon: Thermometer, label: "Clima", link: "/clima" },
         { icon: Banknote, label: "Conversor de Moeda", link: "/conversor-moeda" },
@@ -464,6 +492,9 @@ const HomePage = () => {
         return (
         <>
             <HeroBanner />
+            {/* NewsTicker rojo debajo del banner principal */}
+            <NewsTicker tickerData={tickerData} />
+
             <section className="py-12 bg-white">
                 <div className="container mx-auto p-4">
                     <h2 className="text-3xl font-bold mb-4">Acceso rápido</h2>

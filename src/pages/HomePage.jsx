@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import HeroCarousel from '@/components/HeroCarousel/HeroCarousel';
+
 
 // TickerItem Component
 const TickerItem = ({ icon: Icon, text, highlight = false }) => (
@@ -510,7 +510,21 @@ const HomePage = () => {
       <NewsTicker tickerData={tickerData} />
       
       {/* Hero Carousel */}
-      <HeroCarousel images={finalHeroImages} />
+      <div className="w-full" style={{ height: 400, overflow: 'hidden' }}>
+  {siteConfigData.hero_images && siteConfigData.hero_images.length > 0 ? (
+    <img
+      src={siteConfigData.hero_images[0].url}
+      alt={siteConfigData.hero_images[0].alt || 'Hero Banner'}
+      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+    />
+  ) : (
+    <img
+      src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop"
+      alt="Hero Banner"
+      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+    />
+  )}
+</div>
 
       {/* Quick Access Section */}
       <section className="w-full bg-[#0b64ee] py-6">

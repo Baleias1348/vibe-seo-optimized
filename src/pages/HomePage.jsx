@@ -22,42 +22,133 @@ const TickerItem = ({ icon: Icon, text, highlight = false }) => (
     </div>
 );
 
-const NewsTicker = ({ tickerData }) => {
+const NewsTicker = () => {
     const [currentDateTime, setCurrentDateTime] = useState(new Date());
+    const [weather, setWeather] = useState({});
+    const [rates, setRates] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [lastUpdate, setLastUpdate] = useState(null);
+    const [error, setError] = useState(null);
+
+    // Ciudades principales de Chile
+    const cities = [
+        { name: 'Santiago', q: 'Santiago,CL' },
+        { name: 'Valparaíso', q: 'Valparaiso,CL' },
+        { name: 'Viña del Mar', q: 'Vina del Mar,CL' },
+        { name: 'Concepción', q: 'Concepcion,CL' },
+        { name: 'La Serena', q: 'La Serena,CL' }
+    ];
+
+    // Fetch weather y rates
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            // OpenWeatherMap
+            const weatherResults = {};
+            for (const city of cities) {
+                try {
+                    const res = await fetch(`${import.meta.env.VITE_OPENWEATHER_BASE_URL}/weather?q=${encodeURIComponent(city.q)}&units=metric&appid=${import.meta.env.VITE_OPENWEATHER_API_KEY}&lang=es`);
+                    const data = await res.json();
+                    if (data && data.main && typeof data.main.temp === 'number') {
+                        weatherResults[city.name] = `${Math.round(data.main.temp)}ºC`;
+                    } else {
+                        weatherResults[city.name] = '--ºC';
+                    }
+                } catch {
+                    weatherResults[city.name] = '--ºC';
+                }
+            }
+            setWeather(weatherResults);
+
+            // Exchange rates (BRL, CLP, USD)
+            const resRates = await fetch(`${import.meta.env.VITE_EXCHANGE_API_URL}/latest?apikey=${import.meta.env.VITE_EXCHANGE_API_KEY}&base=BRL&symbols=CLP,USD,BRL`);
+            const dataRates = await resRates.json();
+            // Calcula todos los cruces requeridos
+            const brl_clp = dataRates.rates?.CLP || null;
+            const brl_usd = dataRates.rates?.USD || null;
+            // Para CLP-USD y USD-CLP, necesitamos otra consulta (base CLP y base USD)
+            let clp_brl = null, clp_usd = null, usd_brl = null, usd_clp = null;
+            try {
+                const resCLP = await fetch(`${import.meta.env.VITE_EXCHANGE_API_URL}/latest?apikey=${import.meta.env.VITE_EXCHANGE_API_KEY}&base=CLP&symbols=BRL,USD`);
+                const dataCLP = await resCLP.json();
+                clp_brl = dataCLP.rates?.BRL || null;
+                clp_usd = dataCLP.rates?.USD || null;
+            } catch {}
+            try {
+                const resUSD = await fetch(`${import.meta.env.VITE_EXCHANGE_API_URL}/latest?apikey=${import.meta.env.VITE_EXCHANGE_API_KEY}&base=USD&symbols=BRL,CLP`);
+                const dataUSD = await resUSD.json();
+                usd_brl = dataUSD.rates?.BRL || null;
+                usd_clp = dataUSD.rates?.CLP || null;
+            } catch {}
+            setRates({ brl_clp, clp_brl, brl_usd, usd_brl, clp_usd, usd_clp });
+            setLastUpdate(new Date());
+            setLoading(false);
+        } catch (err) {
+            setError('No se pudo cargar toda la información.');
+            setLoading(false);
+        }
+    }, []);
+
+    // Actualización periódica
+    useEffect(() => {
+        fetchData();
+        const interval = setInterval(fetchData, 60000); // 60s
+        return () => clearInterval(interval);
+    }, [fetchData]);
 
     useEffect(() => {
-        const timer = setInterval(() => setCurrentDateTime(new Date()), 60000); // Update every minute
+        const timer = setInterval(() => setCurrentDateTime(new Date()), 60000);
         return () => clearInterval(timer);
     }, []);
 
-    if (!tickerData || tickerData.length === 0) {
-        return (
-            <div className="bg-red-600 text-white py-3 overflow-hidden">
-                <p className="text-center italic text-sm">Carregando informações do ticker...</p>
-            </div>
-        );
-    }
-    
+    // Render ticker content
     const formattedDate = format(currentDateTime, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
     const formattedTime = format(currentDateTime, "HH:mm");
-
-    const dateAndTimeText = `Informações do dia: ${formattedDate}, Hora de Chile: ${formattedTime} horas`;
-    
+    const dateAndTimeText = `Información del día: ${formattedDate}, Hora de Chile: ${formattedTime}`;
+    const weatherItems = cities.map(city => ({
+        icon: Cloud,
+        text: `${city.name}: ${weather[city.name] || '--ºC'}`,
+        id: `weather_${city.name.toLowerCase().replace(/\s/g, '_')}`
+    }));
+    const rateItems = [
+        { icon: Banknote, text: `BRL → CLP: ${rates.brl_clp ? rates.brl_clp.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' }) : '--'}`, id: 'brl_clp' },
+        { icon: Banknote, text: `CLP → BRL: ${rates.clp_brl ? rates.clp_brl.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '--'}`, id: 'clp_brl' },
+        { icon: Banknote, text: `BRL → USD: ${rates.brl_usd ? rates.brl_usd.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : '--'}`, id: 'brl_usd' },
+        { icon: Banknote, text: `USD → BRL: ${rates.usd_brl ? rates.usd_brl.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '--'}`, id: 'usd_brl' },
+        { icon: Banknote, text: `CLP → USD: ${rates.clp_usd ? rates.clp_usd.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : '--'}`, id: 'clp_usd' },
+        { icon: Banknote, text: `USD → CLP: ${rates.usd_clp ? rates.usd_clp.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' }) : '--'}`, id: 'usd_clp' },
+    ];
     const tickerContent = [
         { icon: SunDim, text: dateAndTimeText, id: 'datetime' },
-        { icon: Cloud, text: `Santiago: ${tickerData.find(d => d.id === 'weather_santiago')?.content || '--º'}`, id: 'weather_santiago' },
-        { icon: Cloud, text: `Viña del Mar: ${tickerData.find(d => d.id === 'weather_vina')?.content || '--º'}`, id: 'weather_vina' },
-        { icon: Cloud, text: `Valparaíso: ${tickerData.find(d => d.id === 'weather_valparaiso')?.content || '--º'}`, id: 'weather_valparaiso' },
-        { icon: CloudRain, text: `Concepción: ${tickerData.find(d => d.id === 'weather_concepcion')?.content || '--º'}`, id: 'weather_concepcion' },
-        { icon: Cloud, text: `Chillán (cidade): ${tickerData.find(d => d.id === 'weather_chillan_city')?.content || '--º'}`, id: 'weather_chillan_city' },
-        { icon: Sun, text: `Antofagasta: ${tickerData.find(d => d.id === 'weather_antofagasta')?.content || '--º'}`, id: 'weather_antofagasta' },
-        { icon: MountainSnow, text: `Valle Nevado: ${tickerData.find(d => d.id === 'ski_valle_nevado')?.content || '--'}`, id: 'ski_valle_nevado' },
-        { icon: MountainSnow, text: `Farellones: ${tickerData.find(d => d.id === 'ski_farellones')?.content || '--'}`, id: 'ski_farellones' },
-        { icon: MountainSnow, text: `El Colorado: ${tickerData.find(d => d.id === 'ski_el_colorado')?.content || '--'}`, id: 'ski_el_colorado' },
-        { icon: MountainSnow, text: `Portillo: ${tickerData.find(d => d.id === 'ski_portillo')?.content || '--'}`, id: 'ski_portillo' },
-        { icon: MountainSnow, text: `La Parva: ${tickerData.find(d => d.id === 'ski_la_parva')?.content || '--'}`, id: 'ski_la_parva' },
-        { icon: MountainSnow, text: `Nevados de Chillán: ${tickerData.find(d => d.id === 'ski_nevados_chillan')?.content || '--'}`, id: 'ski_nevados_chillan' },
-        { icon: Flag, text: `Real (BRL): ${tickerData.find(d => d.id === 'currency_brl_clp')?.content || '$--'}`, id: 'currency_brl_clp' },
+        ...weatherItems,
+        ...rateItems
+    ];
+
+    return (
+        <div className="bg-red-600 text-white py-3 overflow-hidden">
+            <motion.div
+                className="flex items-center whitespace-nowrap animate-marquee"
+                initial={{ x: '100%' }}
+                animate={{ x: '-100%' }}
+                transition={{
+                    repeat: Infinity,
+                    duration: 40,
+                    ease: 'linear',
+                }}
+            >
+                {loading ? (
+                    <span className="italic text-sm px-4">Cargando información actualizada...</span>
+                ) : (
+                    tickerContent.map((item, idx) => (
+                        <TickerItem key={item.id + idx} icon={item.icon} text={item.text} />
+                    ))
+                )}
+            </motion.div>
+            {error && <div className="text-yellow-200 text-xs text-center mt-1">{error}</div>}
+        </div>
+    );
+};
         { icon: Flag, text: `Dólar (USD) em Reais: ${tickerData.find(d => d.id === 'currency_usd_brl')?.content || 'R$--'}`, id: 'currency_usd_brl' },
         { icon: Flag, text: `Dólar (USD) em Pesos: ${tickerData.find(d => d.id === 'currency_usd_clp')?.content || '$--'}`, id: 'currency_usd_clp' },
     ].filter(item => item.text && (item.id === 'datetime' || (tickerData.find(d => d.id === item.id)?.content || '').trim() !== '--'));
@@ -491,9 +582,9 @@ const HomePage = () => {
 
         return (
         <>
+            {/* NewsTicker rojo inmediatamente debajo del encabezado */}
+            <NewsTicker />
             <HeroBanner />
-            {/* NewsTicker rojo debajo del banner principal */}
-            <NewsTicker tickerData={tickerData} />
 
             <section className="py-12 bg-white">
                 <div className="container mx-auto p-4">

@@ -425,6 +425,25 @@ const HomePage = () => {
     const finalHeroImages = getHeroImages();
     console.log('Imágenes del carrusel procesadas:', finalHeroImages);
 
+    // Hero Banner Estático
+    const HeroBanner = () => (
+      <section className="w-full" style={{ height: 400, overflow: 'hidden' }}>
+        {siteConfigData.hero_images && siteConfigData.hero_images.length > 0 ? (
+          <img
+            src={siteConfigData.hero_images[0].url}
+            alt={siteConfigData.hero_images[0].alt || 'Hero Banner'}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        ) : (
+          <img
+            src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop"
+            alt="Hero Banner"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        )}
+      </section>
+    );
+
     const quickAccessItems = [
         { icon: Thermometer, label: "Clima", link: "/clima" },
         { icon: Banknote, label: "Conversor de Moeda", link: "/conversor-moeda" },
@@ -441,67 +460,6 @@ const HomePage = () => {
         { title: "Centros de Ski", description: "Aventura na neve nos melhores picos.", icon: MountainSnow, link: "/centros-de-esqui" },
         { title: "Vinos y Vinícolas", description: "Descubre las mejores rutas del vino chileno.", icon: Wine, link: "/vinos-y-vinicolas" },
     ];
-
-    const simulatedTours = [
-        { id: "sim1", nameLine1: "Aventura", nameLine2:"no Deserto", location: "Atacama, Chile", duration: "3 dias", pricePerAdult: 1200, description: "Explore as paisagens lunares do deserto mais árido do mundo.", image: "https://images.unsplash.com/photo-1508094361382-5f7c69a863c9?q=80&w=1470&auto=format&fit=crop" },
-        { id: "sim2", nameLine1: "Patagônia", nameLine2:"Selvagem", location: "Torres del Paine, Chile", duration: "5 dias", pricePerAdult: 2500, description: "Caminhe por trilhas icônicas e admire glaciares imponentes.", image: "https://images.unsplash.com/photo-1529973568089-a1968960c675?q=80&w=1470&auto=format&fit=crop" },
-        { id: "sim3", nameLine1: "Vinhos & Vales", nameLine2:"Experiência", location: "Vale de Colchagua", duration: "1 dia", pricePerAdult: 350, description: "Deguste vinhos premiados em vinícolas charmosas.", image: "https://images.unsplash.com/photo-1506377295352-e3154d43ea9e?q=80&w=1470&auto=format&fit=crop" },
-
-    <NewsTicker tickerData={tickerData} />
-
-    <section className="w-full bg-[#0b64ee] py-6">
-      <div className="container">
-        <h2 className="text-center text-white text-2xl font-bold mb-6">INFORMAÇÕES EM TEMPO REAL DO CHILE</h2>
-        <div className="flex justify-center items-start flex-wrap gap-x-6 gap-y-6 md:gap-x-10">
-          {quickAccessItems.map(item => (
-            <Link to={item.link} key={item.label} className="no-underline">
-              <QuickAccessButton icon={item.icon} label={item.label} />
-            </Link>
-          ))}
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            <section className="container py-8 md:py-12">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                    {infoCards.map((card, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.2 }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                        >
-                            <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-300">
-                                <CardHeader className="items-center text-center">
-                                    <div className="p-3 bg-primary/10 rounded-full mb-2">
-                                        <card.icon className="h-8 w-8 text-primary" />
-                                    </div>
-                                    <CardTitle className="text-lg">{card.title}</CardTitle>
-                                </CardHeader>
-                                <CardContent className="text-center flex-grow">
-                                    <p className="text-sm text-muted-foreground mb-4">{card.description}</p>
-                                </CardContent>
-                                <div className="p-4 pt-0 text-center">
-                                    <Button asChild variant="outline" className="w-full">
-                                        <Link to={card.link}>Explorar</Link>
-                                    </Button>
-                                </div>
-                            </Card>
-                        </motion.div>
-                    ))}
-                </div>
-            </section>
-            
-            <section className="container py-8 md:py-12">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{ duration: 0.5 }}
-                >
                     <Link to="/passeios">
                         <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-300 border-2 border-primary/20 hover:border-primary/40">
                             <CardHeader className="items-center text-center">
@@ -519,49 +477,123 @@ const HomePage = () => {
                         </Card>
                     </Link>
                 </motion.div>
-            </section>
 
-            <section className="container py-8 md:py-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                    <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, amount: 0.2 }}
-                        transition={{ duration: 0.6 }}
-                    >
-                        <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow duration-300 flex flex-col">
-                            <div className="aspect-[16/9] w-full overflow-hidden">
-                                <img-replace src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1470&auto=format&fit=crop" alt="Pessoas em reunião de negócios planejando investimento" className="w-full h-full object-cover" />
+    const fetchTickerData = async () => {
+        console.log('Buscando datos del ticker...');
+        const { data, error } = await supabase.from('ticker_data').select('*');
+        if (error) {
+            console.error('Erro ao buscar dados do ticker:', error);
+        } else {
+            console.log('Datos del ticker recibidos:', data);
+            setTickerData(data || []);
+        }
+    };
+
+    const fetchFeaturedTours = async () => {
+        setIsLoadingTours(true);
+        try {
+            const allTours = await getAllTours();
+            if (Array.isArray(allTours)) {
+                setFeaturedTours(allTours); 
+            } else {
+                console.error("getAllTours did not return an array:", allTours);
+                setFeaturedTours([]);
+            }
+        } catch (error) {
+            console.error("Error fetching tours for HomePage:", error);
+            setFeaturedTours([]);
+        } finally {
+            setIsLoadingTours(false);
+        }
+    };
+
+    return (
+        <>
+            <HeroBanner />
+            <section className="py-12 bg-white">
+                <div className="container mx-auto p-4">
+                    <h2 className="text-3xl font-bold mb-4">Acceso rápido</h2>
+                    <div className="flex flex-wrap justify-center mb-4">
+                        {quickAccessItems.map((item, index) => (
+                            <Link to={item.link} key={index} className="m-2">
+                                <div className="bg-white rounded-lg shadow-md p-4 w-40 h-40 flex flex-col items-center justify-center">
+                                    <item.icon className="h-8 w-8 text-primary mb-2" />
+                                    <span className="text-lg font-bold">{item.label}</span>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </section>
+            <section className="py-12 bg-white">
+                <div className="container mx-auto p-4">
+                    <h2 className="text-3xl font-bold mb-4">Información útil</h2>
+                    <div className="flex flex-wrap justify-center mb-4">
+                        {infoCards.map((card, index) => (
+                            <Link to={card.link} key={index} className="m-2">
+                                <div className="bg-white rounded-lg shadow-md p-4 w-80 h-80 flex flex-col items-center justify-center">
+                                    <card.icon className="h-8 w-8 text-primary mb-2" />
+                                    <h3 className="text-lg font-bold">{card.title}</h3>
+                                    <p className="text-sm text-muted-foreground">{card.description}</p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </section>
+            <section className="py-12 bg-white">
+                <div className="container mx-auto p-4">
+                    <h2 className="text-3xl font-bold mb-4">Pronóstico del clima</h2>
+                    <div className="flex flex-wrap justify-center mb-4">
+                        {siteConfigData.hero_images && siteConfigData.hero_images.length > 0 ? (
+                            <img
+                                src={siteConfigData.hero_images[0].url}
+                                alt={siteConfigData.hero_images[0].alt || 'Hero Banner'}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                            />
+                        ) : (
+                            <img
+                                src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop"
+                                alt="Hero Banner"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                            />
+                        )}
+                    </div>
+                </div>
+            </section>
+            <section className="py-12 bg-white">
+                <div className="container mx-auto p-4">
+                    <h2 className="text-3xl font-bold mb-4">Paseos y experiencias</h2>
+                    <div className="flex flex-wrap justify-center mb-4">
+                        <Link to="/paseos">
+                            <div className="bg-white rounded-lg shadow-md p-4 w-80 h-80 flex flex-col items-center justify-center">
+                                <MountainSnow className="h-8 w-8 text-primary mb-2" />
+                                <h3 className="text-lg font-bold">Paseos y experiencias</h3>
+                                <p className="text-sm text-muted-foreground">Descubre las mejores experiencias y paseos por Chile</p>
                             </div>
-                            <CardContent className="p-6 flex-grow flex flex-col">
-                                <h3 className="text-xl font-semibold mb-2 text-primary">Invista no Chile</h3>
-                                <p className="text-muted-foreground mb-4 flex-grow">Saiba como investir no Chile passo a passo. Oportunidades e guias.</p>
-                                <Button variant="link" asChild className="mt-auto self-start px-0"><Link to="/investir-chile">Leia Mais &rarr;</Link></Button>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                    <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, amount: 0.2 }}
-                        transition={{ duration: 0.6 }}
-                    >
+                        </Link>
+                    </div>
+                </div>
+            </section>
+            <section className="py-12 bg-white">
+                <div className="container mx-auto p-4">
+                    <h2 className="text-3xl font-bold mb-4">Noticias destacadas</h2>
+                    <div className="flex flex-wrap justify-center mb-4">
                         <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow duration-300 flex flex-col">
                             <div className="aspect-[16/9] w-full overflow-hidden">
                                 <img-replace src="https://images.unsplash.com/photo-1558464876-94cf36537234?q=80&w=1374&auto=format&fit=crop" alt="Prato de mariscos chilenos frescos" className="w-full h-full object-cover" />
                             </div>
                             <CardContent className="p-6 flex-grow flex flex-col">
-                                <p className="text-sm font-semibold text-secondary mb-1">Reportagem Destacada</p>
+                                <p className="text-sm font-semibold text-secondary mb-1">Reportaje destacado</p>
                                 <h3 className="text-xl font-semibold mb-2 text-primary">O Sabor dos Mariscos Chilenos</h3>
                                 <p className="text-muted-foreground mb-4 flex-grow">Uma imersão na rica culinária costeira do Chile.</p>
                                 <Button variant="link" asChild className="mt-auto self-start px-0"><Link to="/blog/mariscos-chilenos">Leia Mais &rarr;</Link></Button>
                             </CardContent>
                         </Card>
-                    </motion.div>
+                    </div>
                 </div>
             </section>
-
-        </div>
+        </>
     );
 };
 

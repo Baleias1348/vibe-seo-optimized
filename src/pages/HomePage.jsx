@@ -423,7 +423,7 @@ const HomePage = () => {
     };
     
     // --- Estado para el ticker ---
-    const [tickerData, setTickerData] = useState([]);
+    // (Ya está declarado, eliminada la duplicación)
 
     const finalHeroImages = getHeroImages();
     console.log('Imágenes del carrusel procesadas:', finalHeroImages);

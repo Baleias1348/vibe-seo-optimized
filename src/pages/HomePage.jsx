@@ -477,39 +477,10 @@ const HomePage = () => {
                         </Card>
                     </Link>
                 </motion.div>
-
-    const fetchTickerData = async () => {
-        console.log('Buscando datos del ticker...');
-        const { data, error } = await supabase.from('ticker_data').select('*');
-        if (error) {
-            console.error('Erro ao buscar dados do ticker:', error);
-        } else {
-            console.log('Datos del ticker recibidos:', data);
-            setTickerData(data || []);
-        }
-    };
-
-    const fetchFeaturedTours = async () => {
-        setIsLoadingTours(true);
-        try {
-            const allTours = await getAllTours();
-            if (Array.isArray(allTours)) {
-                setFeaturedTours(allTours); 
-            } else {
-                console.error("getAllTours did not return an array:", allTours);
-                setFeaturedTours([]);
-            }
-        } catch (error) {
-            console.error("Error fetching tours for HomePage:", error);
-            setFeaturedTours([]);
-        } finally {
-            setIsLoadingTours(false);
-        }
-    };
-
-    return (
-        <>
-            <HeroBanner />
+            </section>
+        </>
+    );
+};
             <section className="py-12 bg-white">
                 <div className="container mx-auto p-4">
                     <h2 className="text-3xl font-bold mb-4">Acceso rápido</h2>

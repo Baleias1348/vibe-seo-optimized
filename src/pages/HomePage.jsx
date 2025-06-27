@@ -103,8 +103,12 @@ const NewsTicker = () => {
 
     // Render ticker content
     const formattedDate = format(currentDateTime, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-    const formattedTime = format(currentDateTime, "HH:mm");
-    const dateAndTimeText = `Informação do dia: ${formattedDate}, Hora do Chile: ${formattedTime}`;
+    // Hora do Brasil (São Paulo): igual à hora local
+    const horaBrasil = format(currentDateTime, "HH:mm");
+    // Hora do Chile (Santiago): uma hora a menos
+    const currentDateChile = new Date(currentDateTime.getTime() - 60 * 60 * 1000);
+    const horaChile = format(currentDateChile, "HH:mm");
+    const dateAndTimeText = `Informação do dia: ${formattedDate}, Hora do Brasil (São Paulo): ${horaBrasil}, Hora do Chile (Santiago): ${horaChile}`;
     const weatherItems = cities.map(city => ({
         icon: Cloud,
         text: `${city.name}: ${weather[city.name] || '--ºC'}`,

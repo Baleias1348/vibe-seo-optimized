@@ -175,6 +175,7 @@ const Header = ({ isLandingMode = false }) => {
         'bg-black border-b border-transparent' // Siempre fondo negro
       )}
     >
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           <Link to="/" className="flex items-center space-x-2" onClick={closeMobileMenu}>

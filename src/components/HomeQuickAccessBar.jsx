@@ -37,36 +37,38 @@ const quickLinks = [
 
 const HomeQuickAccessBar = () => (
   <nav
-    className="w-full h-[70px] bg-[#1238f5] flex items-center justify-center gap-4 md:gap-8 px-0 md:px-8 z-10 overflow-x-auto flex-nowrap scrollbar-hide"
+    className="w-full bg-[#1238f5] px-0 py-2"
     aria-label="Acessos rápidos"
   >
-    {quickLinks.map(({ icon: Icon, label, url }, idx) => (
-      url ? (
-        <Link
-          key={label}
-          to={url}
-          className="flex flex-col items-center group focus:outline-none min-w-[70px] py-1"
-          tabIndex={0}
-          aria-label={label}
-        >
-          <Icon className="w-7 h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" />
-          <span className="text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">
-            {label}
-          </span>
-        </Link>
-      ) : (
-        <div
-          key={label}
-          className="flex flex-col items-center opacity-70 cursor-not-allowed min-w-[70px] py-1"
-          aria-label={label}
-        >
-          <Icon className="w-7 h-7 text-white mb-1" />
-          <span className="text-xs md:text-sm font-semibold text-white text-center leading-tight">
-            {label}
-          </span>
-        </div>
-      )
-    ))}
+    <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:gap-4 sm:justify-center items-center w-full">
+      {quickLinks.map(({ icon: Icon, label, url }, idx) => (
+        url ? (
+          <Link
+            key={label}
+            to={url}
+            className="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]"
+            tabIndex={0}
+            aria-label={label}
+          >
+            <Icon className="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" />
+            <span className="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">
+              {label}
+            </span>
+          </Link>
+        ) : (
+          <div
+            key={label}
+            className="flex flex-col items-center opacity-70 cursor-not-allowed w-full py-2 sm:w-auto sm:min-w-[80px]"
+            aria-label={label}
+          >
+            <Icon className="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1" />
+            <span className="text-base sm:text-xs md:text-sm font-semibold text-white text-center leading-tight">
+              {label}
+            </span>
+          </div>
+        )
+      ))}
+    </div>
   </nav>
 );
 

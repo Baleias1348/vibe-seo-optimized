@@ -92,7 +92,7 @@ const NewsTicker = ({ weather, rates, loading, error }) => {
 };
 
 
-// HeroCarousel ha sido movido a un componente separado en @/components/HeroCarousel/HeroCarousel
+import HeroCarousel from '@/components/HeroCarousel/HeroCarousel';
 
 const QuickAccessButton = ({ icon: Icon, label, onClick }) => {
     const words = label.split(' ');
@@ -434,23 +434,7 @@ const HomePage = () => {
 
     // Hero Banner Estático
     const HeroBanner = () => (
-      <section className="w-full overflow-hidden h-64 md:h-96 xl:h-[400px]">
-        {siteConfigData.hero_images && siteConfigData.hero_images.length > 0 ? (
-          <img
-            src={siteConfigData.hero_images[0].url}
-            alt={siteConfigData.hero_images[0].alt || 'Hero Banner'}
-            className="w-full h-full object-cover block rounded-md md:rounded-lg xl:rounded-none"
-            draggable={false}
-          />
-        ) : (
-          <img
-            src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop"
-            alt="Hero Banner"
-            className="w-full h-full object-cover block rounded-md md:rounded-lg xl:rounded-none"
-            draggable={false}
-          />
-        )}
-      </section>
+      <HeroCarousel images={finalHeroImages} />
     );
 
     // --- Fetch Ticker Data (con manejo de errores para exchange rate) ---

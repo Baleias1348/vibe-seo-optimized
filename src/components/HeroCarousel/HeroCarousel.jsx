@@ -110,13 +110,7 @@ const HeroCarousel = ({ images = [] }) => {
 
     return (
         <div 
-            className="relative w-full min-h-[220px] md:min-h-[340px] lg:min-h-[420px] overflow-hidden bg-black hero-carousel-container"
-            style={{
-                width: '100%',
-                aspectRatio: '21/9', // Para navegadores modernos
-                position: 'relative',
-                overflow: 'hidden'
-            }}
+            className="relative w-full bg-black hero-carousel-container h-[132px] md:h-[374px] lg:h-[462px] overflow-hidden"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -153,21 +147,7 @@ const HeroCarousel = ({ images = [] }) => {
                         <img 
                             src={slides[currentIndex].src} 
                             alt={slides[currentIndex].alt || `Slide ${currentIndex + 1}`}
-                            className="w-full h-full object-cover object-center block"
-                            style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                objectPosition: 'center',
-                                display: 'block',
-                                willChange: 'transform',
-                                transform: 'none',
-                                maxWidth: '100%',
-                                maxHeight: '100%'
-                            }}
+                            className="w-full h-full object-cover object-center block absolute inset-0"
                             loading="eager"
                             onLoad={(e) => {
                                 const nextIndex = (currentIndex + 1) % slides.length;
@@ -186,39 +166,7 @@ const HeroCarousel = ({ images = [] }) => {
                 </motion.div>
             </AnimatePresence>
             
-            {slides.length > 1 && (
-                <>
-                    <button 
-                        onClick={goToPrev}
-                        className="absolute left-2 top-2 z-20 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-colors transform hover:scale-110"
-                        aria-label="Imagen anterior"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <button 
-                        onClick={goToNext}
-                        className="absolute right-2 top-2 z-20 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-colors transform hover:scale-110"
-                        aria-label="Siguiente imagen"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
-                    
-                    <div className="absolute top-2 left-1/2 -translate-x-1/2 flex space-x-2 z-20 bg-black/30 px-3 py-1 rounded-full">
-                        {slides.map((_, index) => (
-                            <button
-                                key={index}
-                                onClick={() => goToSlide(index)}
-                                className={`h-2 rounded-full transition-all ${index === currentIndex ? 'bg-white w-6' : 'bg-white/50 w-2'}`}
-                                aria-label={`Ir a la imagen ${index + 1}`}
-                            />
-                        ))}
-                    </div>
-                </>
-            )}
+
             
             <div className="relative z-10 h-full"></div>
         </div>

@@ -37,7 +37,7 @@ const quickLinks = [
 
 const HomeQuickAccessBar = () => (
   <nav
-    className="w-full h-[70px] bg-[#1238f5] flex items-center justify-center gap-4 md:gap-8 px-2 md:px-8 z-10"
+    className="w-full h-[70px] bg-[#1238f5] flex items-center justify-center gap-4 md:gap-8 px-0 md:px-8 z-10 overflow-x-auto flex-nowrap scrollbar-hide"
     aria-label="Acessos rápidos"
   >
     {quickLinks.map(({ icon: Icon, label, url }, idx) => (
@@ -45,7 +45,7 @@ const HomeQuickAccessBar = () => (
         <Link
           key={label}
           to={url}
-          className="flex flex-col items-center group focus:outline-none"
+          className="flex flex-col items-center group focus:outline-none min-w-[70px] py-1"
           tabIndex={0}
           aria-label={label}
         >
@@ -57,7 +57,7 @@ const HomeQuickAccessBar = () => (
       ) : (
         <div
           key={label}
-          className="flex flex-col items-center opacity-70 cursor-not-allowed"
+          className="flex flex-col items-center opacity-70 cursor-not-allowed min-w-[70px] py-1"
           aria-label={label}
         >
           <Icon className="w-7 h-7 text-white mb-1" />

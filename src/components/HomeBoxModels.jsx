@@ -15,7 +15,7 @@ const cities = [
 ];
 
 const WeatherCard = ({ city, temp, icon, desc }) => (
-  <div className="flex flex-col items-center justify-between bg-[#0c37e6] rounded-xl p-5 text-white shadow-md w-full h-full min-h-[130px] max-h-[180px]">
+  <div className="flex flex-col items-center justify-between bg-[#0c37e6] rounded-none p-4 text-white shadow-none w-full h-full min-h-[110px] max-h-[160px] border border-white/10">
     <div className="font-semibold text-sm mb-2 text-white/80">{city}</div>
     <div className="flex items-center gap-2 mb-2">
       {icon}
@@ -28,7 +28,7 @@ const WeatherCard = ({ city, temp, icon, desc }) => (
 const WeatherBox = ({ weatherData }) => (
   <div className="bg-white rounded-2xl border border-blue-100 shadow-lg p-6 flex flex-col h-full w-full justify-between">
     <h2 className="font-bold text-xl md:text-2xl mb-6 text-[#0c37e6] font-sans">Clima ao vivo</h2>
-    <div className="grid grid-cols-2 grid-rows-2 gap-6 flex-1 mb-4">
+    <div className="grid grid-cols-2 grid-rows-2 gap-0 flex-1 mb-4">
       {cities.map(city => (
         <WeatherCard
           key={city.key}
@@ -49,7 +49,7 @@ const WeatherBox = ({ weatherData }) => (
 );
 
 const RateCard = ({ from, to, value, flagFrom, flagTo }) => (
-  <div className="bg-[#05882f] rounded-xl p-5 flex flex-col items-center text-white shadow-md w-full h-full min-h-[70px] max-h-[110px]">
+  <div className="bg-[#05882f] rounded-xl p-5 flex flex-col items-center justify-center text-white shadow-md w-full h-full min-h-[90px] max-h-[120px]">
     <div className="flex items-center gap-2 mb-2">
       <span className="text-lg">{flagFrom}</span>
       <span className="font-bold text-lg">{from}</span>
@@ -57,15 +57,15 @@ const RateCard = ({ from, to, value, flagFrom, flagTo }) => (
       <span className="font-bold text-lg">{to}</span>
       <span className="text-lg">{flagTo}</span>
     </div>
-    <div className="text-2xl font-bold mb-2">{value}</div>
-    <Link to="/converter-reais-em-pesos-chilenos" className="text-xs underline hover:text-yellow-300">Vá para o conversor de moedas</Link>
+    <div className="text-2xl font-bold mb-2 text-center w-full">{value}</div>
+    <Link to="/converter-reais-em-pesos-chilenos" className="text-xs underline hover:text-yellow-300 text-center w-full block">Vá para o conversor de moedas</Link>
   </div>
 );
 
 const CasasCambioCard = () => (
-  <div className="bg-[#05882f] rounded-xl p-5 flex flex-col items-center text-white shadow-md cursor-pointer hover:bg-green-700 transition-colors w-full h-full min-h-[70px] max-h-[110px]">
-    <div className="font-bold text-lg mb-1">Casas de Câmbio</div>
-    <div className="text-xs mb-2">Classificação com avaliações reais</div>
+  <div className="bg-[#05882f] rounded-xl p-5 flex flex-col items-center justify-center text-white shadow-md cursor-pointer hover:bg-green-700 transition-colors w-full h-full min-h-[90px] max-h-[120px]">
+    <div className="font-bold text-lg mb-1 text-center w-full">Casas de Câmbio</div>
+    <div className="text-xs mb-2 text-center w-full">Classificação com avaliações reais</div>
     {/* Link será añadido posteriormente */}
   </div>
 );
@@ -73,7 +73,7 @@ const CasasCambioCard = () => (
 const RatesBox = ({ rates }) => (
   <div className="bg-white rounded-2xl border border-green-100 shadow-lg p-6 flex flex-col h-full w-full justify-between">
     <h2 className="font-bold text-xl md:text-2xl mb-6 text-[#0c37e6] font-sans">Taxas de câmbio hoje</h2>
-    <div className="flex flex-col gap-6 flex-1 mb-2">
+    <div className="flex flex-col gap-4 flex-1 mb-2 justify-center">
       <RateCard from="CLP" to="BRL" value={rates.clp_brl || "--"} flagFrom={<FlagCL />} flagTo={<FlagBR />} />
       <RateCard from="BRL" to="CLP" value={rates.brl_clp || "--"} flagFrom={<FlagBR />} flagTo={<FlagCL />} />
       <CasasCambioCard />

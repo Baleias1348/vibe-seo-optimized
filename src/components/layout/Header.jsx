@@ -67,7 +67,7 @@ const Header = ({ isLandingMode = false }) => {
         ...config,
         // Asegurar que los campos críticos tengan valores por defecto
         siteName: config.siteName || 'CHILE ao Vivo',
-        logoUrl: config.logoUrl || 'https://placehold.co/120x50?text=CHILEaoVivo'
+        logoUrl: undefined // El logo ya no se usa
       }));
     } catch (error) {
       console.error('Error al cargar la configuración:', error);
@@ -86,7 +86,7 @@ const Header = ({ isLandingMode = false }) => {
         ...newConfig,
         // Asegurar que los campos críticos tengan valores por defecto
         siteName: newConfig.siteName || prev.siteName || 'CHILE ao Vivo',
-        logoUrl: newConfig.logoUrl || prev.logoUrl || 'https://placehold.co/120x50?text=CHILEaoVivo'
+        logoUrl: undefined // El logo ya no se usa
       }));
     });
 
@@ -178,13 +178,7 @@ const Header = ({ isLandingMode = false }) => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2" onClick={closeMobileMenu}>
-            <img 
-              src={siteConfigData.logoUrl || "https://placehold.co/40x40?text=VC"} 
-              alt="Vibe Chile Logo" 
-              className="h-10 w-10 object-contain rounded-md" 
-              loading="lazy"
-            />
+          <Link to="/" className="flex items-center" onClick={closeMobileMenu}>
             <span className={cn(
                 "text-xl font-bold",
                 'text-white' // Texto del logo siempre blanco
@@ -225,11 +219,6 @@ const Header = ({ isLandingMode = false }) => {
                 <div className="flex flex-col h-full">
                   <div className="p-6 border-b">
                     <Link to="/" className="flex items-center space-x-2 mb-6" onClick={closeMobileMenu}>
-                       <img-replace 
-                        src={siteConfigData.logoUrl || "https://placehold.co/40x40?text=VC"} 
-                        alt="Vibe Chile Logo" 
-                        className="h-10 w-10 object-contain rounded-md" 
-                      />
                       <span className="text-xl font-bold text-foreground">{siteConfigData.siteName || "Vibe Chile"}</span>
                     </Link>
                   </div>

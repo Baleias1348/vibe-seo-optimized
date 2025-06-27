@@ -110,10 +110,10 @@ const HeroCarousel = ({ images = [] }) => {
 
     return (
         <div 
-            className="relative w-full overflow-hidden bg-black hero-carousel-container"
+            className="relative w-full min-h-[220px] md:min-h-[340px] lg:min-h-[420px] overflow-hidden bg-black hero-carousel-container"
             style={{
                 width: '100%',
-                paddingTop: '42.85%', // 21:9 aspect ratio (9/21 ≈ 0.4285)
+                aspectRatio: '21/9', // Para navegadores modernos
                 position: 'relative',
                 overflow: 'hidden'
             }}
@@ -153,18 +153,18 @@ const HeroCarousel = ({ images = [] }) => {
                         <img 
                             src={slides[currentIndex].src} 
                             alt={slides[currentIndex].alt || `Slide ${currentIndex + 1}`}
-                            className="w-full h-full"
+                            className="w-full h-full object-cover object-center block"
                             style={{
                                 position: 'absolute',
-                                top: '50%',
-                                left: '50%',
+                                top: 0,
+                                left: 0,
                                 width: '100%',
                                 height: '100%',
                                 objectFit: 'cover',
                                 objectPosition: 'center',
                                 display: 'block',
                                 willChange: 'transform',
-                                transform: 'translateZ(0) translate(-50%, -50%)',
+                                transform: 'none',
                                 maxWidth: '100%',
                                 maxHeight: '100%'
                             }}

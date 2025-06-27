@@ -16,6 +16,7 @@ const process = {
 };
 
 const urls = {
+  banana: '/banana',
   // Páginas principales
   home: '/',
   tours: '/tours',

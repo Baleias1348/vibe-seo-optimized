@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
 const HomePage = lazy(() => import('@/pages/HomePage'));
+const BananaPage = lazy(() => import('@/pages/BananaPage'));
 const TourDetailPage = lazy(() => import('@/pages/TourDetailPage'));
 const RestaurantsPage = lazy(() => import('@/features/restaurants/pages/RestaurantsPage'));
 const SkiCentersPage = lazy(() => import('@/pages/SkiCentersPage'));
@@ -94,6 +95,10 @@ const MainLayout = () => {
         <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="text-center"><span className="loader inline-block w-8 h-8 border-4 border-blue-300 border-t-transparent rounded-full animate-spin mb-2"></span><p className="text-lg text-muted-foreground">Cargando página...</p></div></div>}>
           <Routes>
           {/* Página principal */}
+          <Route 
+            path={urls.banana}
+            element={renderWithSeo(<BananaPage />, { title: 'Conversor Banana', description: 'Convierte monedas con frutas', keywords: 'banana, conversor, monedas, frutas' })}
+          />
           <Route 
             path={urls.home} 
             element={renderWithSeo(

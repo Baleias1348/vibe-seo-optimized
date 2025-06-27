@@ -37,12 +37,9 @@ const CurrencyPage = () => {
     setIsError(false);
     
     try {
-      // Leer variables de entorno
-      const apiKey = import.meta.env.VITE_EXCHANGE_API_KEY;
-      const apiBaseUrl = import.meta.env.VITE_EXCHANGE_API_URL || 'https://v6.exchangerate-api.com/v6';
+      // Usar API pública open.er-api.com sin API key
       const baseCurrency = fromCurrency || 'USD'; // Usa la moneda seleccionada como base
-      
-      const url = `${apiBaseUrl}/${apiKey}/latest/${baseCurrency}`;
+      const url = `https://open.er-api.com/v6/latest/${baseCurrency}`;
       const response = await fetch(url);
       
       if (!response.ok) {

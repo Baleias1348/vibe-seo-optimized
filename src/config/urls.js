@@ -24,7 +24,7 @@ const urls = {
   restaurantes: '/restaurantes',
   centrosEsqui: '/centros-de-esqui',
   centroEsquiDetail: (slug) => `/centros-de-esqui/${slug}`,
-  clima: '/clima',
+  clima: '/clima-no-santiago-do-chile', // SEO friendly URL
   climaDetallado: '/clima/detallado',
   conversorMoneda: '/converter-reais-em-pesos-chilenos', // SEO friendly URL
   casasCambio: '/casas-de-cambio',

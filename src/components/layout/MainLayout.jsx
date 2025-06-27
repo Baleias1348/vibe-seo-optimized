@@ -174,7 +174,7 @@ const MainLayout = () => {
           />
           
           <Route 
-            path={urls.clima} 
+            path="/clima-no-santiago-do-chile" 
             element={renderWithSeo(
               <WeatherPage />,
               {

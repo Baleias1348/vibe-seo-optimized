@@ -198,15 +198,16 @@ const MainLayout = () => {
           />
           
           <Route 
-            path={urls.conversorMoneda} 
+            path={urls.conversorMoneda}
             element={renderWithSeo(
-              <CurrencyPage />,
+              <CurrencyPage />, 
               {
-                title: 'Conversor de Moneda',
-                description: 'Convierte entre diferentes monedas con nuestro conversor actualizado',
-                keywords: 'conversor, moneda, cambio, divisas, pesos chilenos, dólar, euro'
+                title: 'Conversor de Moedas',
+                description: 'Converta Reais em Pesos Chilenos, Dólares, Euros e mais. Taxas de câmbio ao vivo para viajantes.',
+                keywords: 'conversor de moedas, real, peso chileno, dólar, euro, câmbio, viagem',
+                type: 'website'
               }
-            )} 
+            )}
           />
           
           <Route 

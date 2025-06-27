@@ -26,7 +26,7 @@ const urls = {
   centroEsquiDetail: (slug) => `/centros-de-esqui/${slug}`,
   clima: '/clima',
   climaDetallado: '/clima/detallado',
-  conversorMoneda: '/conversor/moneda',
+  conversorMoneda: '/converter-reais-em-pesos-chilenos', // SEO friendly URL
   casasCambio: '/casas-de-cambio',
   vinosVinicolas: '/vinos-y-vinicolas',
   emergencias: '/emergencias',

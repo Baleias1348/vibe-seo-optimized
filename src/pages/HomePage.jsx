@@ -565,8 +565,33 @@ const HomePage = () => {
             <NewsTicker />
             <HeroBanner />
             <HomeQuickAccessBar />
-            <div className="bg-white w-full">
-                <HomeBoxModels weatherData={{}} rates={{}} />
+            <div className="bg-white w-full flex justify-center">
+                <HomeBoxModels weatherData={{
+                    'Santiago': {
+                        temp: weather['Santiago'] || '--',
+                        icon: <Cloud className="w-5 h-5" />, // Podrías mapear a iconos reales según estado
+                        desc: 'Atualizado agora'
+                    },
+                    'Viña del Mar': {
+                        temp: weather['Viña del Mar'] || '--',
+                        icon: <Cloud className="w-5 h-5" />, // idem
+                        desc: 'Atualizado agora'
+                    },
+                    'Valparaíso': {
+                        temp: weather['Valparaíso'] || '--',
+                        icon: <Cloud className="w-5 h-5" />, // idem
+                        desc: 'Atualizado agora'
+                    },
+                    'Concepción': {
+                        temp: weather['Concepción'] || '--',
+                        icon: <Cloud className="w-5 h-5" />, // idem
+                        desc: 'Atualizado agora'
+                    }
+                }}
+                rates={{
+                    clp_brl: rates.clp_brl ? rates.clp_brl.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '--',
+                    brl_clp: rates.brl_clp ? rates.brl_clp.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' }) : '--',
+                }} />
             </div>
             <section className="py-12 bg-white">
                 <div className="container mx-auto p-4">

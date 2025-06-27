@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import HomeQuickAccessBar from '@/components/HomeQuickAccessBar';
+import HomeBoxModels from '@/components/HomeBoxModels';
 
 
 const TickerItem = ({ icon: Icon, text, highlight = false }) => (
@@ -562,72 +564,10 @@ const HomePage = () => {
             {/* NewsTicker rojo inmediatamente debajo del encabezado */}
             <NewsTicker />
             <HeroBanner />
-
-            <section className="py-12 bg-white">
-                <div className="container mx-auto p-4">
-                    <h2 className="text-3xl font-bold mb-4">Acceso rápido</h2>
-                    <div className="flex flex-wrap justify-center mb-4">
-                        {quickAccessItems.map((item, index) => (
-                            <Link to={item.link} key={index} className="m-2">
-                                <div className="bg-white rounded-lg shadow-md p-4 w-40 h-40 flex flex-col items-center justify-center">
-                                    <item.icon className="h-8 w-8 text-primary mb-2" />
-                                    <span className="text-lg font-bold">{item.label}</span>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            </section>
-            <section className="py-12 bg-white">
-                <div className="container mx-auto p-4">
-                    <h2 className="text-3xl font-bold mb-4">Información útil</h2>
-                    <div className="flex flex-wrap justify-center mb-4">
-                        {infoCards.map((card, index) => (
-                            <Link to={card.link} key={index} className="m-2">
-                                <div className="bg-white rounded-lg shadow-md p-4 w-80 h-80 flex flex-col items-center justify-center">
-                                    <card.icon className="h-8 w-8 text-primary mb-2" />
-                                    <h3 className="text-lg font-bold">{card.title}</h3>
-                                    <p className="text-sm text-muted-foreground">{card.description}</p>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            </section>
-            <section className="py-12 bg-white">
-                <div className="container mx-auto p-4">
-                    <h2 className="text-3xl font-bold mb-4">Pronóstico del clima</h2>
-                    <div className="flex flex-wrap justify-center mb-4">
-                        {siteConfigData.hero_images && siteConfigData.hero_images.length > 0 ? (
-                            <img
-                                src={siteConfigData.hero_images[0].url}
-                                alt={siteConfigData.hero_images[0].alt || 'Hero Banner'}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                            />
-                        ) : (
-                            <img
-                                src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop"
-                                alt="Hero Banner"
-                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                            />
-                        )}
-                    </div>
-                </div>
-            </section>
-            <section className="py-12 bg-white">
-                <div className="container mx-auto p-4">
-                    <h2 className="text-3xl font-bold mb-4">Paseos y experiencias</h2>
-                    <div className="flex flex-wrap justify-center mb-4">
-                        <Link to="/paseos">
-                            <div className="bg-white rounded-lg shadow-md p-4 w-80 h-80 flex flex-col items-center justify-center">
-                                <MountainSnow className="h-8 w-8 text-primary mb-2" />
-                                <h3 className="text-lg font-bold">Paseos y experiencias</h3>
-                                <p className="text-sm text-muted-foreground">Descubre las mejores experiencias y paseos por Chile</p>
-                            </div>
-                        </Link>
-                    </div>
-                </div>
-            </section>
+            <HomeQuickAccessBar />
+            <div className="bg-white w-full">
+                <HomeBoxModels weatherData={{}} rates={{}} />
+            </div>
             <section className="py-12 bg-white">
                 <div className="container mx-auto p-4">
                     <h2 className="text-3xl font-bold mb-4">Noticias destacadas</h2>

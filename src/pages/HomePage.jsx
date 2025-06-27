@@ -495,6 +495,75 @@ const HomePage = () => {
         { title: "Vinos y Vinícolas", description: "Descubre las mejores rutas del vino chileno.", icon: Wine, link: "/vinos-y-vinicolas" },
     ];
 
+    // Estado y lógica de clima y tasas (antes en NewsTicker)
+    const [weather, setWeather] = useState({});
+    const [rates, setRates] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Ciudades principales de Chile
+    const cities = [
+        { name: 'Santiago', q: 'Santiago,CL' },
+        { name: 'Valparaíso', q: 'Valparaiso,CL' },
+        { name: 'Viña del Mar', q: 'Vina del Mar,CL' },
+        { name: 'Concepción', q: 'Concepcion,CL' },
+        { name: 'La Serena', q: 'La Serena,CL' }
+    ];
+
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            // OpenWeatherMap
+            const weatherResults = {};
+            for (const city of cities) {
+                try {
+                    const res = await fetch(`${import.meta.env.VITE_OPENWEATHER_BASE_URL}/weather?q=${encodeURIComponent(city.q)}&units=metric&appid=${import.meta.env.VITE_OPENWEATHER_API_KEY}&lang=es`);
+                    const data = await res.json();
+                    if (data && data.main && typeof data.main.temp === 'number') {
+                        weatherResults[city.name] = `${Math.round(data.main.temp)}ºC`;
+                    } else {
+                        weatherResults[city.name] = '--ºC';
+                    }
+                } catch {
+                    weatherResults[city.name] = '--ºC';
+                }
+            }
+            setWeather(weatherResults);
+
+            // Fetch rates from open.er-api.com (no API key, no CSP issues)
+            const [clpRes, brlRes, usdRes] = await Promise.all([
+                fetch('https://open.er-api.com/v6/latest/CLP').then(r => r.json()),
+                fetch('https://open.er-api.com/v6/latest/BRL').then(r => r.json()),
+                fetch('https://open.er-api.com/v6/latest/USD').then(r => r.json()),
+            ]);
+            // Defensive: check API success
+            if (clpRes.result !== 'success' || brlRes.result !== 'success' || usdRes.result !== 'success') {
+                throw new Error('No se pudieron obtener tasas de cambio');
+            }
+            // CLP base
+            const clp_brl = clpRes.rates.BRL || null;
+            const clp_usd = clpRes.rates.USD || null;
+            // BRL base
+            const brl_clp = brlRes.rates.CLP || null;
+            const brl_usd = brlRes.rates.USD || null;
+            // USD base
+            const usd_brl = usdRes.rates.BRL || null;
+            const usd_clp = usdRes.rates.CLP || null;
+            setRates({ brl_clp, clp_brl, brl_usd, usd_brl, clp_usd, usd_clp });
+            setLoading(false);
+        } catch (err) {
+            setError('No se pudo cargar toda la información.');
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchData();
+        const interval = setInterval(fetchData, 60000); // 60s
+        return () => clearInterval(interval);
+    }, [fetchData]);
+
     return (
         <>
             {/* NewsTicker rojo inmediatamente debajo del encabezado */}

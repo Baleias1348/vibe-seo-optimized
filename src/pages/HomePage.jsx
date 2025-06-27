@@ -61,26 +61,25 @@ const NewsTicker = () => {
             }
             setWeather(weatherResults);
 
-            // Exchange rates (BRL, CLP, USD)
-            const resRates = await fetch(`${import.meta.env.VITE_EXCHANGE_API_URL}/latest?apikey=${import.meta.env.VITE_EXCHANGE_API_KEY}&base=BRL&symbols=CLP,USD,BRL`);
-            const dataRates = await resRates.json();
-            // Calcula todos los cruces requeridos
-            const brl_clp = dataRates.rates?.CLP || null;
-            const brl_usd = dataRates.rates?.USD || null;
-            // Para CLP-USD y USD-CLP, necesitamos otra consulta (base CLP y base USD)
-            let clp_brl = null, clp_usd = null, usd_brl = null, usd_clp = null;
-            try {
-                const resCLP = await fetch(`${import.meta.env.VITE_EXCHANGE_API_URL}/latest?apikey=${import.meta.env.VITE_EXCHANGE_API_KEY}&base=CLP&symbols=BRL,USD`);
-                const dataCLP = await resCLP.json();
-                clp_brl = dataCLP.rates?.BRL || null;
-                clp_usd = dataCLP.rates?.USD || null;
-            } catch {}
-            try {
-                const resUSD = await fetch(`${import.meta.env.VITE_EXCHANGE_API_URL}/latest?apikey=${import.meta.env.VITE_EXCHANGE_API_KEY}&base=USD&symbols=BRL,CLP`);
-                const dataUSD = await resUSD.json();
-                usd_brl = dataUSD.rates?.BRL || null;
-                usd_clp = dataUSD.rates?.CLP || null;
-            } catch {}
+            // Fetch rates from open.er-api.com (no API key, no CSP issues)
+            const [clpRes, brlRes, usdRes] = await Promise.all([
+                fetch('https://open.er-api.com/v6/latest/CLP').then(r => r.json()),
+                fetch('https://open.er-api.com/v6/latest/BRL').then(r => r.json()),
+                fetch('https://open.er-api.com/v6/latest/USD').then(r => r.json()),
+            ]);
+            // Defensive: check API success
+            if (clpRes.result !== 'success' || brlRes.result !== 'success' || usdRes.result !== 'success') {
+                throw new Error('No se pudieron obtener tasas de cambio');
+            }
+            // CLP base
+            const clp_brl = clpRes.rates.BRL || null;
+            const clp_usd = clpRes.rates.USD || null;
+            // BRL base
+            const brl_clp = brlRes.rates.CLP || null;
+            const brl_usd = brlRes.rates.USD || null;
+            // USD base
+            const usd_brl = usdRes.rates.BRL || null;
+            const usd_clp = usdRes.rates.CLP || null;
             setRates({ brl_clp, clp_brl, brl_usd, usd_brl, clp_usd, usd_clp });
             setLastUpdate(new Date());
             setLoading(false);
@@ -105,7 +104,7 @@ const NewsTicker = () => {
     // Render ticker content
     const formattedDate = format(currentDateTime, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
     const formattedTime = format(currentDateTime, "HH:mm");
-    const dateAndTimeText = `Información del día: ${formattedDate}, Hora de Chile: ${formattedTime}`;
+    const dateAndTimeText = `Informação do dia: ${formattedDate}, Hora do Chile: ${formattedTime}`;
     const weatherItems = cities.map(city => ({
         icon: Cloud,
         text: `${city.name}: ${weather[city.name] || '--ºC'}`,
@@ -138,14 +137,14 @@ const NewsTicker = () => {
                 }}
             >
                 {loading ? (
-                    <span className="italic text-sm px-4">Cargando información actualizada...</span>
+                    <span className="italic text-sm px-4">Carregando informações atualizadas...</span>
                 ) : (
                     tickerContent.map((item, idx) => (
                         <TickerItem key={item.id + idx} icon={item.icon} text={item.text} />
                     ))
                 )}
             </motion.div>
-            {error && <div className="text-yellow-200 text-xs text-center mt-1">{error}</div>}
+            {error && <div className="text-yellow-200 text-xs text-center mt-1">{error.replace('No se pudo cargar toda la información.', 'Não foi possível carregar todas as informações.')}</div>}
         </div>
     );
 };

@@ -15,55 +15,16 @@ const cities = [
 ];
 
 const WeatherCard = ({ city, temp, icon, desc }) => (
-  <div className="flex flex-col items-center justify-between bg-[#0c37e6] rounded-xl p-3 text-white shadow-md min-w-[110px] min-h-[100px] max-w-[140px] max-h-[130px] w-full h-full">
-    <div className="font-semibold text-xs mb-1 text-white/80">{city}</div>
-    <div className="flex items-center gap-1 mb-1">
+  <div className="flex flex-col items-center justify-between bg-[#0c37e6] rounded-xl p-5 text-white shadow-md w-full h-full min-h-[130px] max-h-[180px]">
+    <div className="font-semibold text-sm mb-2 text-white/80">{city}</div>
+    <div className="flex items-center gap-2 mb-2">
       {icon}
-      <span className="text-2xl font-bold">{temp}</span>
+      <span className="text-3xl md:text-4xl font-bold">{temp}</span>
     </div>
     <div className="text-xs text-white/70 italic">{desc}</div>
   </div>
 );
 
-const WeatherBox = ({ weatherData }) => (
-  <div className="bg-white rounded-2xl border border-blue-100 shadow-md p-4 flex flex-col h-full">
-    <h2 className="font-bold text-lg md:text-xl mb-4 text-[#0c37e6] font-sans">Clima ao vivo</h2>
-    <div className="grid grid-cols-2 gap-3 mb-3">
-      {cities.map(city => (
-        <WeatherCard
-          key={city.key}
-          city={city.name}
-          temp={weatherData[city.key]?.temp || "--"}
-          icon={weatherData[city.key]?.icon || <Cloud className="w-5 h-5" />}
-          desc={weatherData[city.key]?.desc || "-"}
-        />
-      ))}
-    </div>
-    <Link
-      to="/clima-no-santiago-do-chile"
-      className="mt-1 bg-[#1238f5] hover:bg-blue-700 transition-colors text-white py-2 px-3 rounded-lg text-center font-semibold text-sm shadow-md"
-    >
-      Veja a previsão para os próximos 5 dias
-    </Link>
-  </div>
-);
-
-// --- BOX 2: Taxas de câmbio hoje ---
-const RateCard = ({ from, to, value, flagFrom, flagTo }) => (
-  <div className="bg-[#05882f] rounded-xl p-3 mb-3 flex flex-col items-center text-white shadow-md">
-    <div className="flex items-center gap-1 mb-1">
-      <span className="text-lg">{flagFrom}</span>
-      <span className="font-bold text-base">{from}</span>
-      <ArrowRight className="w-4 h-4 mx-1" />
-      <span className="font-bold text-base">{to}</span>
-      <span className="text-lg">{flagTo}</span>
-    </div>
-    <div className="text-xl font-bold mb-2">{value}</div>
-    <Link to="/converter-reais-em-pesos-chilenos" className="text-xs underline hover:text-yellow-300">Vá para o conversor de moedas</Link>
-  </div>
-);
-
-const CasasCambioCard = () => (
   <div className="bg-[#05882f] rounded-xl p-3 flex flex-col items-center text-white shadow-md cursor-pointer hover:bg-green-700 transition-colors mb-1">
     <div className="font-bold text-base mb-1">Casas de Câmbio</div>
     <div className="text-xs mb-2">Classificação com avaliações reais</div>

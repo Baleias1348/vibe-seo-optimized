@@ -131,7 +131,7 @@ const MainLayout = () => {
           />
           
           <Route 
-            path={urls.restaurantes} 
+            path="/ranking-dos-melhores-restaurantes-de-Santiago-do-chile" 
             element={renderWithSeo(
               <RestaurantsPage />,
               {

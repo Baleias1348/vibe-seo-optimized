@@ -21,7 +21,7 @@ const urls = {
   home: '/',
   tours: '/tours',
   tourDetail: (tourId) => `/tours/${tourId}`,
-  restaurantes: '/restaurantes',
+  restaurantes: '/ranking-dos-melhores-restaurantes-de-Santiago-do-chile', // SEO friendly URL
   centrosEsqui: '/centros-de-esqui-chile', // SEO friendly URL
   centroEsquiDetail: (slug) => `/centros-de-esqui-chile/${slug}`,
   clima: '/clima-no-santiago-do-chile', // SEO friendly URL

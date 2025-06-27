@@ -78,14 +78,15 @@ const NewsTicker = ({ weather, rates, loading, error }) => {
                     ease: 'linear',
                 }}
             >
-                {loading ? (
-                    <span className="italic text-sm px-4">Carregando informações atualizadas...</span>
-                ) : (
-                    tickerContent.map((item, idx) => (
-                        <TickerItem key={item.id + idx} icon={item.icon} text={item.text} />
-                    ))
-                )}
+                {tickerContent.map((item, idx) => (
+                    <TickerItem key={item.id + idx} icon={item.icon} text={item.text} />
+                ))}
             </motion.div>
+            {loading && (
+                <span className="absolute bottom-1 right-2 bg-gray-800/80 text-gray-100 text-xs px-2 py-1 rounded shadow z-30 pointer-events-none">
+                    Atualizando cotações...
+                </span>
+            )}
             {error && <div className="text-yellow-200 text-xs text-center mt-1">{error.replace('No se pudo cargar toda la información.', 'Não foi possível carregar todas as informações.')}</div>}
         </div>
     );

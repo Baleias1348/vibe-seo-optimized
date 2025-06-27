@@ -112,33 +112,22 @@ const RestaurantCard = ({ restaurant, className = '' }) => {
                   {price_level === 1 ? '$' : price_level === 2 ? '$$' : '$$$'}
                 </span>
               )}
-              <div className={`flex items-center text-sm font-medium ${
-                isOpen ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {isOpen ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 mr-1" />
-                    <span>Abierto</span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="w-4 h-4 mr-1" />
-                    <span>Cerrado</span>
-                  </>
-                )}
-              </div>
+              
             </div>
           </div>
           <div className="h-px bg-gray-200 w-full my-2"></div>
 
           {/* Línea 3: Dirección y Ciudad */}
           <div className="space-y-2 mb-3">
+            {type && (
+              <div className="text-xs font-bold mb-2">
+                {type}
+              </div>
+            )}
             {address && (
-              <div className="text-sm text-gray-600">
-                <div className="flex items-start">
-                  <MapPin className="h-4 w-4 mr-2 mt-0.5 text-orange-400 flex-shrink-0" />
-                  <span className="break-words">{address}</span>
-                </div>
+              <div className="flex items-start">
+                <MapPin className="h-4 w-4 mr-2 mt-0.5 text-orange-400 flex-shrink-0" />
+                <span className="break-words">{address}</span>
               </div>
             )}
             {city && (
@@ -167,21 +156,22 @@ const RestaurantCard = ({ restaurant, className = '' }) => {
           <div className="space-y-2 mb-3">
             <div className="text-sm text-gray-600">
               <div className="flex items-start">
-                <Clock className="w-4 h-4 mr-2 mt-0.5 text-orange-400 flex-shrink-0" />
                 <div className="w-full">
-                  <div className="font-medium">Horario de hoy:</div>
-                  {todaySchedule && todaySchedule !== 'Horario no disponible' ? (
-                    <div className="flex flex-col sm:flex-row sm:items-center mt-1 gap-2">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${
-                        isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {isOpen ? 'Abierto ahora' : 'Cerrado ahora'}
-                      </span>
-                      <span className="text-gray-800 font-medium">{todaySchedule}</span>
-                    </div>
-                  ) : (
-                    <span className="text-gray-600">Horario no disponible</span>
-                  )}
+                  <div className="flex items-center gap-2 mt-1">
+                    <Clock className="w-4 h-4 text-orange-400 flex-shrink-0" />
+                    <span className="font-medium">Horario:</span>
+                    {restaurant.place_link && (
+                      <a
+                        href={restaurant.place_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-2 px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-200 transition"
+                        style={{ textDecoration: 'none' }}
+                      >
+                        Verificar
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

@@ -71,10 +71,13 @@ const RestaurantsPage = () => {
     };
   }, []);
 
+  // Función para normalizar texto (minúsculas y sin tildes)
+  const normalize = (str) => str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : '';
+
   // Filtrar restaurantes cuando cambia la especialidad seleccionada
   useEffect(() => {
     if (selectedCuisine) {
-      const filtered = restaurants.filter(restaurant => restaurant.cuisine === selectedCuisine);
+      const filtered = restaurants.filter(restaurant => normalize(restaurant.cuisine) === normalize(selectedCuisine));
       setFilteredRestaurants(filtered);
     } else {
       setFilteredRestaurants(restaurants);
@@ -85,6 +88,9 @@ const RestaurantsPage = () => {
   const handleSpecialtyChange = (value) => {
     setSelectedCuisine(value === 'all' ? '' : value);
   };
+
+  // Normalizar el valor antes de enviarlo a Supabase (si se implementa filtro server-side)
+  // Si quieres filtrar desde el backend, deberías enviar normalize(value) en la query
 
   return (
     <div className="restaurants-page">

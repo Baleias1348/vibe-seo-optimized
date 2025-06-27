@@ -102,6 +102,17 @@ const ErrorMessage = ({ message, onRetry }) => (
 );
 
 const WeatherPage = () => {
+  // Forzar fondo negro SOLO en esta página
+  useEffect(() => {
+    const prevBg = document.body.style.backgroundColor;
+    const prevColor = document.body.style.color;
+    document.body.style.backgroundColor = '#000';
+    document.body.style.color = '#fff';
+    return () => {
+      document.body.style.backgroundColor = prevBg;
+      document.body.style.color = prevColor;
+    };
+  }, []);
   const navigate = useNavigate();
   const [selectedCity, setSelectedCity] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
@@ -320,7 +331,7 @@ const WeatherPage = () => {
   // Renderizar el componente
   if (isLoading && !weatherData) {
     return (
-      <div className="weather-container">
+      <div className="weather-container min-h-screen bg-black text-black">
         <LoadingSpinner text="Cargando datos del clima..." />
       </div>
     );
@@ -328,69 +339,35 @@ const WeatherPage = () => {
 
   if (error) {
     return (
-      <div className="weather-container p-4">
-        <div className="container mx-auto py-8">
-          <button
-            onClick={handleBack}
-            className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
-          >
-            <ArrowLeft className="w-5 h-5 mr-1" />
-            Volver
-          </button>
-          
-          <ErrorMessage 
-            message={error} 
-            onRetry={() => selectedCity && loadWeatherData(selectedCity)} 
-          />
-        </div>
+      <div className="weather-container min-h-screen bg-black text-black">
+        <ErrorMessage 
+          message={error} 
+          onRetry={() => selectedCity && loadWeatherData(selectedCity)} 
+        />
       </div>
     );
   }
 
   return (
-    <div className="weather-container">
-      {/* Componente de depuración de variables de entorno */}
-      <DebugEnvVars />
-      
-      {/* Metadatos SEO */}
+    <div className="weather-container min-h-screen bg-white text-black">
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
-        <meta name="keywords" content={`clima, tiempo, ${weatherData?.name || ''}, Chile, pronóstico, temperatura, humedad, viento`} />
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={pageDescription} />
-        <meta property="og:type" content="website" />
-        <meta property="og:locale" content="pt_BR" />
-        <link rel="canonical" href={window.location.href} />
       </Helmet>
-
-      {/* Barra superior */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-4 flex items-center">
-          <button
-            onClick={handleBack}
-            className="flex items-center text-white hover:text-blue-100 mr-4 transition-colors"
-            aria-label="Volver"
-          >
-            <ArrowLeft className="w-5 h-5 mr-1" />
-            Volver
-          </button>
-          <h1 className="text-xl font-semibold">Clima en Chile</h1>
-          {lastUpdated && (
-            <div className="ml-auto text-sm text-blue-100">
-              Actualizado: {format(lastUpdated, 'HH:mm')}
-            </div>
-          )}
-        </div>
+      <div className="container mx-auto py-8">
+        <button
+          onClick={handleBack}
+          className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
+        >
+          <ArrowLeft className="w-5 h-5 mr-1" />
+          Volver
+        </button>
       </div>
-
-      <main className="container mx-auto px-4 py-6 max-w-6xl">
-        {/* Selector de ciudad */}
-        <div className="mb-8" style={{ border: '2px solid red', padding: '10px', borderRadius: '8px' }}>
+      <main className="container mx-auto py-8">
+        <div className="mb-8 max-w-2xl mx-auto w-full bg-white rounded-lg shadow">
           <label 
             htmlFor="city-select" 
-            className="block text-sm font-medium text-gray-700 mb-2"
-            style={{ color: 'blue', fontWeight: 'bold' }}
+            className="block text-sm font-medium text-gray-800 mb-2 font-bold"
           >
             Selecione uma cidade
           </label>
@@ -399,13 +376,12 @@ const WeatherPage = () => {
               id="city-select"
               value={selectedCity?.name || ''}
               onChange={(e) => {
-                console.log('Evento onChange del select:', e.target.value);
                 handleCitySelect(e.target.value);
               }}
-              className="block w-full pl-3 pr-10 py-3 text-base border-2 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-lg shadow-sm appearance-none bg-white"
+              className="block w-full pl-3 pr-10 py-3 text-base border-2 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-lg shadow-sm appearance-none bg-white text-gray-900"
               aria-label="Selecione uma cidade"
               style={{
-                backgroundColor: '#ffffff',
+                backgroundColor: '#fff',
                 borderColor: '#3b82f6',
                 color: '#1f2937',
                 padding: '12px',
@@ -415,23 +391,18 @@ const WeatherPage = () => {
               }}
             >
               <option value="">(Selecione uma cidade)</option>
-              
-              {CITY_GROUPS.map((group, groupIndex) => {
-                console.log(`Renderizando grupo ${groupIndex}:`, group.label, 'con ciudades:', group.cities);
-                return (
-                  <optgroup key={groupIndex} label={group.label}>
-                    {group.cities.map((cityName) => {
-                      const city = CHILEAN_CITIES.find(c => c.name === cityName);
-                      console.log(`Ciudad en el mapeo: ${cityName}`, 'Encontrada:', !!city);
-                      return city ? (
-                        <option key={city.name} value={city.name}>
-                          {city.name}
-                        </option>
-                      ) : null;
-                    })}
-                  </optgroup>
-                );
-              })}
+              {CITY_GROUPS.map((group, groupIndex) => (
+                <optgroup key={groupIndex} label={group.label}>
+                  {group.cities.map((cityName) => {
+                    const city = CHILEAN_CITIES.find(c => c.name === cityName);
+                    return city ? (
+                      <option key={city.name} value={city.name}>
+                        {city.name}
+                      </option>
+                    ) : null;
+                  })}
+                </optgroup>
+              ))}
             </select>
             <div 
               className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
@@ -452,143 +423,73 @@ const WeatherPage = () => {
             </div>
           </div>
         </div>
-
-        {/* Clima actual */}
         {weatherData && (
-          <div className="weather-card mb-8 overflow-hidden animate-fade-in">
-            <div className="p-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                <div>
-                  <div className="flex items-center mb-1">
-                    <MapPin className="w-5 h-5 text-blue-500 mr-2" />
-                    <h2 className="text-2xl font-bold text-gray-800">
-                      {weatherData.name}, Chile
-                    </h2>
-                  </div>
-                  <p className="text-gray-600">
-                    {formatDate(weatherData.dt, 'EEEE d \'de\' MMMM', { weekday: 'long', month: 'long', day: 'numeric' })}
-                  </p>
-                </div>
-                <div className="mt-4 md:mt-0 text-center md:text-right">
-                  <div className="flex items-center justify-center md:justify-end">
-                    {weatherData.weather[0]?.icon && (
-                      <div className="mr-3">
-                        <WeatherIcon iconCode={weatherData.weather[0].icon} />
-                      </div>
-                    )}
-                    <div>
-                      <div className="text-5xl font-bold text-blue-600">
-                        {Math.round(weatherData.main.temp)}°C
-                      </div>
-                      <div className="text-lg text-gray-600 capitalize">
-                        {weatherData.weather[0].description}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          <div className="bg-gradient-to-br from-blue-500 to-blue-400 rounded-2xl shadow-xl px-8 py-8 flex flex-col items-center w-full max-w-2xl mx-auto animate-fade-in mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-black text-center mb-2">
+              {weatherData.name}, Chile
+            </h2>
+            <p className="text-black text-base md:text-lg mb-3 text-center">
+              {formatDate(weatherData.dt, "EEEE, d 'de' MMMM 'de' yyyy", { locale: es })}
+            </p>
+            <div className="flex flex-col items-center justify-center mb-4">
+              {weatherData.weather[0]?.icon && (
+                <span className="mb-2">
+                  <WeatherIcon iconCode={weatherData.weather[0].icon} size="text-6xl md:text-7xl" />
+                </span>
+              )}
+              <span className="text-6xl md:text-7xl font-bold text-black leading-none">
+                {Math.round(weatherData.main.temp)}°
+              </span>
+              <span className="text-black text-lg md:text-2xl font-medium mt-2 capitalize">
+                {weatherData.weather[0]?.description ? weatherData.weather[0].description.charAt(0).toUpperCase() + weatherData.weather[0].description.slice(1) : ''}
+              </span>
+            </div>
+            {/* Franja de detalles completa */}
+            <div className="bg-white/20 rounded-lg flex flex-wrap justify-center gap-6 px-6 py-3 mb-2 w-full max-w-xl">
+              <div className="flex flex-col items-center">
+                <Thermometer className="w-5 h-5 text-black mb-1" />
+                <span className="text-xs text-black">Sensação</span>
+                <span className="text-sm font-semibold text-black">{Math.round(weatherData.main.feels_like)}°</span>
               </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-100">
-                <div className="weather-detail">
-                  <ThermometerSun className="w-5 h-5 text-blue-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Sensação</p>
-                    <p className="font-medium">{Math.round(weatherData.main.feels_like)}°C</p>
-                  </div>
-                </div>
-                
-                <div className="weather-detail">
-                  <Droplets className="w-5 h-5 text-blue-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Humedad</p>
-                    <p className="font-medium">{weatherData.main.humidity}%</p>
-                  </div>
-                </div>
-                
-                <div className="weather-detail">
-                  <WindIcon className="w-5 h-5 text-blue-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Viento</p>
-                    <p className="font-medium">{Math.round(weatherData.wind.speed * 3.6)} km/h</p>
-                  </div>
-                </div>
-                
-                <div className="weather-detail">
-                  <Gauge className="w-5 h-5 text-blue-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Presión</p>
-                    <p className="font-medium">{weatherData.main.pressure} hPa</p>
-                  </div>
-                </div>
+              <div className="flex flex-col items-center">
+                <Droplet className="w-5 h-5 text-black mb-1" />
+                <span className="text-xs text-black">Umidade</span>
+                <span className="text-sm font-semibold text-black">{weatherData.main.humidity}%</span>
               </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                <div className="weather-detail">
-                  <Sunrise className="w-5 h-5 text-yellow-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Amanecer</p>
-                    <p className="font-medium">{formatDate(weatherData.sys.sunrise, 'HH:mm')}</p>
-                  </div>
-                </div>
-                
-                <div className="weather-detail">
-                  <Sunset className="w-5 h-5 text-orange-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Atardecer</p>
-                    <p className="font-medium">{formatDate(weatherData.sys.sunset, 'HH:mm')}</p>
-                  </div>
-                </div>
-                
-                <div className="weather-detail">
-                  <Navigation className="w-5 h-5 text-blue-500" />
-                  <div>
-                    <p className="text-sm text-gray-500">Dirección viento</p>
-                    <p className="font-medium">
-                      {(() => {
-                        const deg = weatherData.wind.deg;
-                        if (deg >= 337.5 || deg < 22.5) return 'Norte';
-                        if (deg >= 22.5 && deg < 67.5) return 'Noreste';
-                        if (deg >= 67.5 && deg < 112.5) return 'Este';
-                        if (deg >= 112.5 && deg < 157.5) return 'Sureste';
-                        if (deg >= 157.5 && deg < 202.5) return 'Sur';
-                        if (deg >= 202.5 && deg < 247.5) return 'Suroeste';
-                        if (deg >= 247.5 && deg < 292.5) return 'Oeste';
-                        return 'Noroeste';
-                      })()}
-                    </p>
-                  </div>
-                </div>
+              <div className="flex flex-col items-center">
+                <Wind className="w-5 h-5 text-black mb-1" />
+                <span className="text-xs text-black">Vento</span>
+                <span className="text-sm font-semibold text-black">{Math.round(weatherData.wind.speed * 3.6)} km/h</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <Gauge className="w-5 h-5 text-black mb-1" />
+                <span className="text-xs text-black">Pressão</span>
+                <span className="text-sm font-semibold text-black">{weatherData.main.pressure} hPa</span>
               </div>
             </div>
           </div>
         )}
-
-        {/* Pronóstico extendido */}
         {forecastData.length > 0 && (
-          <div className="mb-8 animate-fade-in" style={{ animationDelay: '100ms' }}>
-            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+          <div className="mb-8 animate-fade-in max-w-2xl mx-auto w-full" style={{ animationDelay: '100ms' }}>
+            <h2 className="text-xl font-bold text-black mb-4 flex items-center">
               <Calendar className="w-5 h-5 mr-2 text-blue-500" />
               Pronóstico extendido
             </h2>
-            
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {forecastData.map((day, index) => (
                 <div key={day.dt} className="weather-card p-4 text-center">
                   <h3 className="font-medium text-gray-800 mb-2">
                     {index === 0 ? 'Hoje' : formatDisplayDate(day.dt)}
                   </h3>
-                  
                   {day.weather?.[0]?.icon && (
                     <div className="my-2 flex justify-center">
                       <WeatherIcon iconCode={day.weather[0].icon} size="text-3xl" />
                     </div>
                   )}
-                  
                   <div className="flex justify-between mt-2 text-sm">
                     <span className="text-blue-600 font-medium">{Math.round(day.temp_max)}°</span>
                     <span className="text-gray-500">{Math.round(day.temp_min)}°</span>
                   </div>
-                  
                   <div className="mt-1 text-xs text-gray-500 capitalize">
                     {day.weather?.[0]?.description || ''}
                   </div>
@@ -597,15 +498,12 @@ const WeatherPage = () => {
             </div>
           </div>
         )}
-
-        {/* Ciudades destacadas */}
         {featuredCities.length > 0 && (
-          <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
-            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+          <div className="animate-fade-in max-w-2xl mx-auto w-full" style={{ animationDelay: '200ms' }}>
+            <h2 className="text-xl font-bold text-black mb-4 flex items-center">
               <MapPin className="w-5 h-5 mr-2 text-blue-500" />
               Otras ciudades
             </h2>
-            
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {featuredCities.map((city) => (
                 <button
@@ -640,13 +538,9 @@ const WeatherPage = () => {
           </div>
         )}
       </main>
-
-      {/* Pie de página */}
-      <footer className="bg-gray-50 border-t border-gray-200 mt-12 py-6">
-        <div className="container mx-auto px-4 text-center text-gray-500 text-sm">
-          <p>Dados meteorológicos fornecidos por <a href="https://openweathermap.org/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">OpenWeatherMap</a></p>
-          <p className="mt-1">Atualizado: {lastUpdated ? format(lastUpdated, "d 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: es }) : 'Carregando...'}</p>
-        </div>
+      <footer className="container mx-auto py-8 text-black">
+        <p>Dados meteorológicos fornecidos por <a href="https://openweathermap.org/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">OpenWeatherMap</a></p>
+        <p className="mt-1">Atualizado: {lastUpdated ? format(lastUpdated, "d 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: es }) : 'Carregando...'}</p>
       </footer>
     </div>
   );

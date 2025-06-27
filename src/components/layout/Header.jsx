@@ -203,11 +203,7 @@ const Header = ({ isLandingMode = false }) => {
                 </Button>
               </NavLink>
             )}
-            {user && (
-              <Button variant="outline" className="text-white border-white hover:bg-white/10 hover:text-white" size="sm" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" /> Sair
-              </Button>
-            )}
+            
 
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild className="lg:hidden">
@@ -232,24 +228,7 @@ const Header = ({ isLandingMode = false }) => {
                   </nav>
 
                   <div className="p-4 border-t mt-auto">
-                    {user ? (
-                      <>
-                        <MobileNavItem to="/admin" onClick={closeMobileMenu} icon={Settings}>
-                          Painel Admin
-                        </MobileNavItem>
-                        <button
-                          onClick={handleLogout}
-                          className="w-full flex items-center px-4 py-3 text-base font-medium rounded-md text-destructive-foreground bg-destructive hover:bg-destructive/90 transition-colors duration-200 mt-2"
-                        >
-                          <LogOut className="mr-3 h-5 w-5" />
-                          Sair
-                        </button>
-                      </>
-                    ) : (
-                      <MobileNavItem to="/admin/login" onClick={closeMobileMenu} icon={UserCircle}>
-                        Login Admin
-                      </MobileNavItem>
-                    )}
+                    
                   </div>
                 </div>
               </SheetContent>

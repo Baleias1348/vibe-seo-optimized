@@ -81,8 +81,9 @@ const useRestaurants = () => {
     }
 
     if (selectedSpecialty !== 'all') {
-      restaurants = restaurants.filter(r => 
-        r.types?.some(type => type.toLowerCase().includes(selectedSpecialty.toLowerCase()))
+      restaurants = restaurants.filter(r =>
+        (r.types && r.types.some(type => type.toLowerCase().includes(selectedSpecialty.toLowerCase()))) ||
+        (r.cuisine && r.cuisine.toLowerCase().includes(selectedSpecialty.toLowerCase()))
       );
     }
     

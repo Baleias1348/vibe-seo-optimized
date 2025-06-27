@@ -38,6 +38,9 @@ yarn-error.log*
 *.sw?
 
 # OS generated files
+
+# Archivos de pruebas y estáticos temporales
+/static/
 .DS_Store
 .DS_Store?
 ._*

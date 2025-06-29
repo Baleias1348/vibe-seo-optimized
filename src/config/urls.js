@@ -16,6 +16,7 @@ const process = {
 };
 
 const urls = {
+  estadoVoosBrasilChile: '/estado-do-voos-entre-Brasil-e-Chile',
   banana: '/banana',
   // Páginas principales
   home: '/',

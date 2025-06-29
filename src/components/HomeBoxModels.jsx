@@ -15,7 +15,7 @@ const cities = [
 ];
 
 const WeatherCard = ({ city, temp, icon, desc }) => (
-  <div className="flex flex-col items-center justify-between bg-[#0c37e6] rounded-none p-4 text-white shadow-none w-full h-full min-h-[110px] max-h-[160px] border border-white/10">
+  <div className="flex flex-col items-center justify-between bg-[#0c37e6] rounded-xl p-5 text-white shadow-md w-full h-full min-h-[90px] max-h-[120px]">
     <div className="font-semibold text-sm mb-2 text-white/80">{city}</div>
     <div className="flex items-center gap-2 mb-2">
       {icon}
@@ -28,7 +28,7 @@ const WeatherCard = ({ city, temp, icon, desc }) => (
 const WeatherBox = ({ weatherData }) => (
   <div className="bg-white rounded-2xl border border-blue-100 shadow-lg p-6 flex flex-col h-full w-full justify-between">
     <h2 className="font-bold text-xl md:text-2xl mb-6 text-[#0c37e6] font-sans">Clima ao vivo</h2>
-    <div className="grid grid-cols-2 grid-rows-2 gap-0 flex-1 mb-4">
+    <div className="grid grid-cols-1 gap-4 flex-1 mb-4">
       {cities.map(city => (
         <WeatherCard
           key={city.key}
@@ -72,7 +72,7 @@ const CasasCambioCard = () => (
 
 const RatesBox = ({ rates }) => (
   <div className="bg-white rounded-2xl border border-green-100 shadow-lg p-6 flex flex-col h-full w-full justify-between">
-    <h2 className="font-bold text-xl md:text-2xl mb-6 text-[#0c37e6] font-sans">Taxas de câmbio hoje</h2>
+    <h2 className="font-bold text-xl md:text-2xl mb-6 text-[#0c37e6] font-sans">Cotações de moeda</h2>
     <div className="flex flex-col gap-4 flex-1 mb-2 justify-center">
       <RateCard from="CLP" to="BRL" value={rates.clp_brl || "--"} flagFrom={<FlagCL />} flagTo={<FlagBR />} />
       <RateCard from="BRL" to="CLP" value={rates.brl_clp || "--"} flagFrom={<FlagBR />} flagTo={<FlagCL />} />
@@ -97,26 +97,24 @@ const FlightCard = ({ airline }) => (
   </div>
 );
 
+import FlightAwareHomeSearch from './FlightAwareHomeSearch.jsx';
+
 const FlightsBox = () => (
   <div className="bg-white rounded-2xl border border-blue-100 shadow-lg p-6 flex flex-col h-full w-full justify-between">
-    <h2 className="font-bold text-xl md:text-2xl mb-6 text-[#0c37e6] font-sans">Estado do voo</h2>
-    <div className="flex flex-col gap-6 flex-1">
-      {airlines.map(airline => (
-        <FlightCard key={airline.name} airline={airline.name} />
-      ))}
-    </div>
+    <h2 className="font-bold text-2xl md:text-3xl mb-8 text-[#0c37e6] font-sans">Estado do voo</h2>
+    <FlightAwareHomeSearch />
   </div>
 );
 
 const HomeBoxModels = ({ weatherData, rates }) => (
-  <section className="w-full flex flex-col md:flex-row gap-8 mt-8 mb-12 px-2 md:px-0 max-w-7xl mx-auto">
-    <div className="flex-1 min-w-[320px] max-w-[700px] flex items-stretch">
+  <section className="w-full flex flex-col md:flex-row gap-8 mt-8 mb-12 px-2 md:px-0 max-w-7xl mx-auto items-start">
+    <div className="flex-[0.5] min-w-[160px] max-w-[340px] flex items-stretch">
       <WeatherBox weatherData={weatherData} />
     </div>
-    <div className="flex-[0.8] min-w-[220px] max-w-[340px] flex items-stretch">
+    <div className="flex-[0.5] min-w-[160px] max-w-[340px] flex items-stretch">
       <RatesBox rates={rates} />
     </div>
-    <div className="flex-[0.8] min-w-[220px] max-w-[340px] flex items-stretch">
+    <div className="flex-[1.5] min-w-[340px] max-w-[700px] flex items-stretch">
       <FlightsBox />
     </div>
   </section>

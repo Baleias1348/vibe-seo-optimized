@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, MountainSnow, X, LogOut, UserCircle, Settings, ShoppingBag, Star, Compass, Sun, BookOpen } from 'lucide-react';
+import { Menu, MountainSnow, X, LogOut, UserCircle, Settings, ShoppingBag, Star, Compass, Sun, BookOpen, Plane } from 'lucide-react';
 import { getSiteConfig, subscribeToConfigChanges } from '@/lib/tourData';
 import { cn } from '@/lib/utils';
 import urls from '@/config/urls';
@@ -156,12 +156,14 @@ const Header = ({ isLandingMode = false }) => {
     return null; 
   }
 
+
   const navLinks = [
     { to: urls.home, label: "Inicio", icon: Compass, exact: true },
     { to: urls.tours, label: "Tours", icon: ShoppingBag },
     { to: urls.restaurantes, label: "Restaurantes", icon: Star },
     { to: urls.centrosEsqui, label: "Centros de Esquí", icon: MountainSnow },
     { to: urls.clima, label: "Clima", icon: Sun },
+    { to: urls.estadoVoosBrasilChile, label: "Vuelos Brasil-Chile", icon: Plane },
     { to: urls.blog, label: "Blog", icon: BookOpen },
   ];
   

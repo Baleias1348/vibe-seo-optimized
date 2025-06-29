@@ -1,8 +1,12 @@
 import React, { Suspense, lazy } from 'react';
+const EstadoDoVoosEntreBrasilEChile = lazy(() => import('@/pages/EstadoDoVoosEntreBrasilEChile.jsx'));
 import { useLocation, Routes, Route, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import SocialPosts from '@/pages/SocialPosts.jsx';
+import FlightStatusAeroDataBox from '@/pages/FlightStatusAeroDataBox';
+const FlightAwareDemoLazy = React.lazy(() => import('@/pages/FlightAwareDemo.jsx'));
 
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const BananaPage = lazy(() => import('@/pages/BananaPage'));
@@ -19,6 +23,7 @@ const CurrencyPage = lazy(() => import('@/pages/currency/CurrencyPage'));
 const ToursPage = lazy(() => import('@/pages/tours/ToursPage'));
 const CasasCambioPage = lazy(() => import('@/pages/casas-cambio/CasasCambioPage'));
 const VinosVinicolasPage = lazy(() => import('@/pages/vinos-vinicolas/VinosVinicolasPage'));
+const FlightResults = lazy(() => import('@/pages/FlightResults.jsx'));
 const LazySupabaseDebugPage = lazy(() => import('@/pages/SupabaseDebugPage.jsx'));
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import WhatsAppButton from '@/components/shared/WhatsAppButton';
@@ -123,6 +128,67 @@ const MainLayout = () => {
                 keywords: 'tours, excursiones, paseos, Chile, viajes organizados'
               }
             )} 
+          />
+
+          {/* Social Posts - Mejores publicaciones sobre Chile */}
+          <Route 
+            path="/social-posts" 
+            element={renderWithSeo(<SocialPosts />, {
+              title: 'Mejores Posts sobre Chile',
+              description: 'Selección de publicaciones destacadas de redes sociales sobre turismo y noticias de Chile.',
+              keywords: 'Chile, turismo, redes sociales, Instagram, Twitter, YouTube, Facebook, TikTok, noticias'
+            })}
+          />
+
+          {/* Demo AeroDataBox */}
+          <Route 
+            path="/flight-status-demo"
+            element={renderWithSeo(<FlightStatusAeroDataBox />, {
+              title: 'Demo Estado de Vuelo (AeroDataBox)',
+              description: 'Prueba la consulta de estado de vuelos usando la API de AeroDataBox.',
+              keywords: 'vuelos, estado de vuelo, API, AeroDataBox, demo'
+            })}
+          />
+          {/* Estado de vuelos entre Brasil y Chile */}
+          <Route
+            path={urls.estadoVoosBrasilChile}
+            element={renderWithSeo(
+              <Suspense fallback={<div>Cargando...</div>}>
+                <EstadoDoVoosEntreBrasilEChile />
+              </Suspense>,
+              {
+                title: 'Estado de vuelos entre Brasil y Chile',
+                description: 'Consulta el estado de vuelos directos entre Brasil y Chile: horarios, aerolíneas y estado en tiempo real.',
+                keywords: 'vuelos, Brasil, Chile, estado de vuelo, horarios, aerolíneas, directo'
+              }
+            )}
+          />
+
+          {/* Resultados de búsqueda de vuelos */}
+          <Route
+            path="/flight-results"
+            element={renderWithSeo(
+              <Suspense fallback={<div>Cargando resultados...</div>}>
+                <FlightResults />
+              </Suspense>,
+              {
+                title: 'Resultados de vuelos',
+                description: 'Resultados de la búsqueda de vuelos y rutas.',
+                keywords: 'vuelos, resultados, búsqueda, rutas, estado de vuelo'
+              }
+            )}
+          />
+          {/* Demo FlightAware API */}
+          <Route 
+            path="/flightaware-demo"
+            element={renderWithSeo(
+              <React.Suspense fallback={<div>Cargando...</div>}>
+                <FlightAwareDemoLazy />
+              </React.Suspense>, {
+                title: 'Demo Estado de Vuelos (FlightAware)',
+                description: 'Consulta vuelos en tiempo real usando FlightAware AeroAPI.',
+                keywords: 'vuelos, estado de vuelo, API, FlightAware, demo'
+              })}
           />
           
           <Route 

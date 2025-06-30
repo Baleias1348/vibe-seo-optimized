@@ -42,8 +42,9 @@ export default function FlightAwareSearch({ originPage }) {
   async function fetchAirportSuggestions(query, setter) {
     if (!query || query.length < 2) return setter([]);
     try {
+      const apiUrl = import.meta.env.VITE_FLIGHTAWARE_API_URL || "http://localhost:3011";
       const res = await fetch(
-        `http://localhost:3011/api/fa/autocomplete/airports?q=${encodeURIComponent(query)}`
+        `${apiUrl}/api/fa/autocomplete/airports?q=${encodeURIComponent(query)}`
       );
       if (!res.ok) throw new Error("No se pudo buscar aeropuertos");
       const data = await res.json();
@@ -60,8 +61,9 @@ export default function FlightAwareSearch({ originPage }) {
     setFlightError("");
     setFlightResult([]);
     try {
+      const apiUrl = import.meta.env.VITE_FLIGHTAWARE_API_URL || "http://localhost:3011";
       const res = await fetch(
-        `http://localhost:3011/api/fa/flight/number/${flightNumber}/${todayISO()}`
+        `${apiUrl}/api/fa/flight/number/${flightNumber}/${todayISO()}`
       );
       if (!res.ok) throw new Error("No se encontró información para ese vuelo.");
       const data = await res.json();
@@ -102,8 +104,9 @@ export default function FlightAwareSearch({ originPage }) {
       const origin = originIata || (originQuery.length === 3 ? originQuery.toUpperCase() : "");
       const dest = destIata || (destQuery.length === 3 ? destQuery.toUpperCase() : "");
       if (!origin || !dest) throw new Error("Debes seleccionar o ingresar el código IATA de origen y destino (3 letras)");
+      const apiUrl = import.meta.env.VITE_FLIGHTAWARE_API_URL || "http://localhost:3011";
       const res = await fetch(
-        `http://localhost:3011/api/fa/to-route/${origin}/${dest}/${todayISO()}`
+        `${apiUrl}/api/fa/to-route/${origin}/${dest}/${todayISO()}`
       );
       if (!res.ok) throw new Error("No se encontraron vuelos para esa ruta y fecha.");
       const data = await res.json();

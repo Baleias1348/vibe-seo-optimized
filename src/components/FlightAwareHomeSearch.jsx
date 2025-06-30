@@ -37,7 +37,8 @@ export default function FlightAwareHomeSearch() {
     setRouteError("");
     try {
       if (!originIata || !destIata) throw new Error("Debes seleccionar origen y destino");
-      const res = await fetch(`http://localhost:3011/api/fa/to-route/${originIata}/${destIata}/${todayISO()}`);
+      const API_BASE = import.meta.env.VITE_FLIGHTAWARE_API_URL || "http://localhost:3011";
+      const res = await fetch(`${API_BASE}/api/fa/to-route/${originIata}/${destIata}/${todayISO()}`);
       if (!res.ok) throw new Error("No se encontraron vuelos para esa ruta y fecha.");
       const data = await res.json();
       const segments = (data.flights || []).flatMap(f => f.segments || []);

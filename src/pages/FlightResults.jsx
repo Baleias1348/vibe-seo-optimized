@@ -61,7 +61,16 @@ export default function FlightResults() {
         {!loading && !error && flights.length === 0 && (
           <div className="text-white text-center">No se encontraron vuelos.</div>
         )}
-        {!loading && flights.length > 0 && <FlightAwareDemoGrouped flights={flights} />}
+        {!loading && flights.length > 0 && (
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4 text-center">
+              {flights.length === 1
+                ? 'Vuelo directo'
+                : `Vuelo con ${flights.length - 1} escala${flights.length - 1 > 1 ? 's' : ''}`}
+            </h3>
+            <FlightSegments segments={flights} />
+          </div>
+        )}
       </div>
     </div>
   );

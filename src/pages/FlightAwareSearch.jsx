@@ -105,14 +105,13 @@ export default function FlightAwareSearch({ originPage }) {
       const dest = destIata || (destQuery.length === 3 ? destQuery.toUpperCase() : "");
       if (!origin || !dest) throw new Error("Debes seleccionar o ingresar el código IATA de origen y destino (3 letras)");
       const apiUrl = import.meta.env.VITE_FLIGHTAWARE_API_URL || "http://localhost:3011";
-      const res = await fetch(
-        `${apiUrl}/api/fa/to-route/${origin}/${dest}/${todayISO()}`
-      );
+      const url = `${apiUrl}${apiUrl.includes('/api') ? '' : '/api'}/fa/to-route/${origin}/${dest}/${todayISO()}`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error("No se encontraron vuelos para esa ruta y fecha.");
       const data = await res.json();
       const segments = (data.flights || []).flatMap(f => f.segments || []);
       if (originPage === "home") {
-        navigate(`/flight-results?type=route&flights=${encodeURIComponent(JSON.stringify(segments))}`);
+        navigate(`/flight-results?type=route&origin=${origin}&dest=${dest}&date=${todayISO()}`);
       } else {
         setRouteResult(segments);
       }

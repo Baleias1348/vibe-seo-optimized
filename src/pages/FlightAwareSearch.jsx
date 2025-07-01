@@ -81,6 +81,8 @@ export default function FlightAwareSearch({ originPage }) {
         // Guarda los resultados y parámetros en sessionStorage
         sessionStorage.setItem('flightaware_search_type', 'flight');
         sessionStorage.setItem('flightaware_search_params', JSON.stringify({ flightNumber, date: todayISO() }));
+        // Guarda resultados en localStorage para ser leídos en la página de resultados
+        localStorage.setItem('flightaware_results', JSON.stringify(segments));
         // Navega solo con los parámetros esenciales
         navigate(`/flight-results?type=flight&flightNumber=${encodeURIComponent(flightNumber)}&date=${todayISO()}`);
       } else {
@@ -118,6 +120,8 @@ export default function FlightAwareSearch({ originPage }) {
         // Guarda los resultados y parámetros en sessionStorage
         sessionStorage.setItem('flightaware_search_type', 'route');
         sessionStorage.setItem('flightaware_search_params', JSON.stringify({ origin, dest, date: todayISO() }));
+        // Guarda resultados en localStorage para ser leídos en la página de resultados
+        localStorage.setItem('flightaware_results', JSON.stringify(segments));
         // Navega solo con los parámetros esenciales
         navigate(`/flight-results?type=route&origin=${origin}&dest=${dest}&date=${todayISO()}`);
       } else {

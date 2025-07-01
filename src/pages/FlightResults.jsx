@@ -40,6 +40,18 @@ export default function FlightResults() {
   const [error, setError] = React.useState("");
 
   React.useEffect(() => {
+    // Intenta leer resultados desde localStorage
+    const stored = localStorage.getItem('flightaware_results');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setFlights(parsed);
+          localStorage.removeItem('flightaware_results'); // Limpia para evitar resultados viejos
+          return;
+        }
+      } catch {}
+    }
     async function fetchFlights() {
       if (type === "route" && (!origin || !dest || !date)) {
         setError("Faltan parámetros de búsqueda (origen, destino o fecha).");

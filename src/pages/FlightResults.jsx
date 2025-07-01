@@ -56,7 +56,7 @@ export default function FlightResults() {
         <h2 className="text-2xl font-bold mb-6 text-orange-400 text-center flex items-center justify-center gap-2">
           <span role="img" aria-label="avion">🛫</span> Resultados de la búsqueda de vuelos
         </h2>
-        {loading && <div className="text-white text-center">Buscando vuelos...</div>}
+        {loading && <div className="text-white text-center">Buscando voos...</div>}
         {error && <div className="text-red-400 text-lg mb-4">{error}</div>}
         {!loading && !error && flights.length === 0 && (
           <div className="text-white text-center">No se encontraron vuelos.</div>

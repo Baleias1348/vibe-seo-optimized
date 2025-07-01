@@ -7,6 +7,16 @@ function useQuery() {
 }
 
 export default function FlightResults() {
+  const location = useLocation();
+  // Detecta URLs antiguas con flights= o type=...
+  React.useEffect(() => {
+    const search = location.search;
+    if (search.includes('flights=') || search.includes('type=route') || search.includes('type=flight')) {
+      // Limpia la URL y muestra mensaje instructivo
+      window.history.replaceState({}, '', '/flight-results');
+      alert('La URL de resultados de vuelos ha cambiado. Por favor, realiza una nueva búsqueda.');
+    }
+  }, [location]);
   const query = useQuery();
   // Leer id de la URL
   const id = query.get('id');

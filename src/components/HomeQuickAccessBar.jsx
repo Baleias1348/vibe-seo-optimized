@@ -26,7 +26,7 @@ const quickLinks = [
   {
     icon: Plane,
     label: "Estado do voo",
-    url: "/flightaware-search",
+    url: "/estado-do-voos-entre-Brasil-e-Chile",
   },
   {
     icon: AlertTriangle,

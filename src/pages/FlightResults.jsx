@@ -12,9 +12,11 @@ export default function FlightResults() {
   React.useEffect(() => {
     const search = location.search;
     if (search.includes('flights=') || search.includes('type=route') || search.includes('type=flight')) {
-      // Limpia la URL y muestra mensaje instructivo
       window.history.replaceState({}, '', '/flight-results');
-      alert('La URL de resultados de vuelos ha cambiado. Por favor, realiza una nueva búsqueda.');
+      // Solo mostrar el alert si NO está embebido (ej: no en home)
+      if (window.self === window.top) {
+        alert('La URL de resultados de vuelos ha cambiado. Por favor, realiza una nueva búsqueda.');
+      }
     }
   }, [location]);
   const query = useQuery();

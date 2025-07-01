@@ -22,8 +22,19 @@ export default function FlightAwareHomeSearch() {
     setFlightError("");
     try {
       if (!flightNumber.trim()) throw new Error("Debes ingresar el número de vuelo");
-      // Aquí podrías validar formato si quieres
-      navigate(`/flight-results?type=flight&flightNumber=${encodeURIComponent(flightNumber.trim())}`);
+      // Buscar el vuelo usando la API y guardar en Supabase
+      const API_BASE = import.meta.env.VITE_FLIGHTAWARE_API_URL || "http://localhost:3011";
+      const res = await fetch(`${API_BASE}/api/fa/to-flight/${encodeURIComponent(flightNumber.trim())}`);
+      if (!res.ok) throw new Error("No se encontraron datos para ese vuelo.");
+      const data = await res.json();
+      const segments = (data.flights || []).flatMap(f => f.segments || []);
+      if (!segments.length) throw new Error("No se encontraron segmentos para ese vuelo.");
+      // Guardar en Supabase y navegar con el ID
+      const { data: supaData, error } = await import('../lib/supabaseClient').then(({ supabase }) =>
+        supabase.from('flight_search_results').insert([{ data: segments }]).select('id').single()
+      );
+      if (error || !supaData?.id) throw error || new Error('No se pudo guardar el resultado');
+      navigate(`/flight-results?id=${supaData.id}`);
     } catch (err) {
       setFlightError(err.message);
     } finally {
@@ -43,7 +54,12 @@ export default function FlightAwareHomeSearch() {
       const data = await res.json();
       const segments = (data.flights || []).flatMap(f => f.segments || []);
       if (!segments.length) throw new Error("No se encontraron vuelos para esa ruta y fecha.");
-      navigate(`/flight-results?type=route&flights=${encodeURIComponent(JSON.stringify(segments))}`);
+      // Guardar en Supabase y navegar con el ID
+      const { data: supaData, error } = await import('../lib/supabaseClient').then(({ supabase }) =>
+        supabase.from('flight_search_results').insert([{ data: segments }]).select('id').single()
+      );
+      if (error || !supaData?.id) throw error || new Error('No se pudo guardar el resultado');
+      navigate(`/flight-results?id=${supaData.id}`);
     } catch (err) {
       setRouteError(err.message);
     } finally {

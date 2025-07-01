@@ -3,3 +3,4 @@
   Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS
   Access-Control-Allow-Headers: X-Requested-With, Content-Type, Authorization, apikey, x-client-info
   Cross-Origin-Embedder-Policy: credentialless
+  Content-Security-Policy: connect-src 'self' https://yfgqpaxajeatchcqrehe.supabase.co https://*.supabase.co wss://*.supabase.co https://api.openweathermap.org https://api.exchangerate-api.com https://open.er-api.com https://v6.exchangerate-api.com https://www.google-analytics.com https://api-vuelos2.onrender.com https://vibechile.life;

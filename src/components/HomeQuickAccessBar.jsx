@@ -26,7 +26,7 @@ const quickLinks = [
   {
     icon: Plane,
     label: "Estado do voo",
-    url: null,
+    url: "/flightaware-search",
   },
   {
     icon: AlertTriangle,

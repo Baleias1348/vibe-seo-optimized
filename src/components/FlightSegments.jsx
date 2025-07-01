@@ -6,11 +6,42 @@ import React from "react";
  */
 export default function FlightSegments({ segments }) {
   if (!segments || segments.length === 0) return null;
+
+  // Construir resumen de ruta (ej: CNF → LIM → SCL)
+  const route = segments.map(seg => seg.origin).concat(segments[segments.length - 1].destination);
+  const routeStr = route.join(' → ');
+
+  // Encabezado
+  const isDirect = segments.length === 1;
+
+  // Advertencia si es solo un segmento pero ruta larga (heurística: origen y destino en distintos países)
+  let showWarning = false;
+  if (isDirect && segments[0]?.origin && segments[0]?.destination) {
+    // Heurística simple: si los códigos son muy distintos (ej: CNF y SCL)
+    if (segments[0].origin[0] !== segments[0].destination[0]) showWarning = true;
+  }
+
   return (
     <div className="space-y-6">
+      <div className="mb-4 text-center">
+        <div className="inline-block bg-blue-700/80 text-white px-4 py-2 rounded-full font-bold text-base shadow mb-2">
+          {isDirect ? 'Vuelo directo' : `Vuelo con ${segments.length - 1} escala${segments.length - 1 > 1 ? 's' : ''}`}
+        </div>
+        <div className="mt-2 text-lg font-mono text-orange-200 tracking-wide">
+          {routeStr}
+        </div>
+        {showWarning && (
+          <div className="mt-2 text-xs text-yellow-300 bg-yellow-900/60 px-3 py-1 rounded shadow inline-block">
+            Advertencia: Este vuelo podría tener escalas no reflejadas en los datos. Verifica con la aerolínea.
+          </div>
+        )}
+      </div>
       {segments.map((seg, i) => (
         <React.Fragment key={i}>
-          <div className="bg-blue-950 rounded-xl p-4 shadow border border-blue-800">
+          <div className={`rounded-xl shadow border overflow-hidden ${i === 0 ? 'bg-blue-950 border-blue-800' : 'bg-blue-900 border-blue-700'}`}> 
+            {/* Foto y nombre de la aerolínea si corresponde */}
+            <AirlineHeader airline={seg.airline} />
+            <div className="p-4">
             <div className="flex justify-between items-center mb-2">
               <span className="font-bold text-orange-300 text-lg">
                 {seg.origin} <span className="text-white">→</span> {seg.destination}
@@ -58,6 +89,33 @@ export default function FlightSegments({ segments }) {
           Vuelo con <span className="font-bold text-orange-300">{segments.length - 1}</span> escala{segments.length - 1 > 1 ? 's' : ''}
         </div>
       )}
+    </div>
+  );
+}
+
+function AirlineHeader({ airline }) {
+  // Normaliza el nombre de la aerolínea y asigna imagen y label
+  let img = null, label = null;
+  const name = (airline || '').toLowerCase();
+  if (name.includes('latam')) {
+    img = '/logos/1 avion latam.jpg';
+    label = 'Latam';
+  } else if (name.includes('sky')) {
+    img = '/logos/2 avion sky.png';
+    label = 'Sky';
+  } else if (name.includes('jet')) {
+    img = '/logos/3 avion jetsmart.jpg';
+    label = 'Jetsmart';
+  }
+  if (!img) return null;
+  return (
+    <div className="relative w-full h-36 md:h-44 bg-black">
+      <img src={img} alt={label} className="object-cover w-full h-full opacity-90" loading="lazy" />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-3xl md:text-4xl font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)] uppercase tracking-wide bg-black/30 px-4 py-1 rounded-lg">
+          {label}
+        </span>
+      </div>
     </div>
   );
 }

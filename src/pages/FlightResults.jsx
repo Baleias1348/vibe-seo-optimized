@@ -8,18 +8,46 @@ function useQuery() {
 
 export default function FlightResults() {
   const query = useQuery();
-  const type = query.get("type"); // "flight" o "route"
-  const origin = query.get("origin") || "";
-  const dest = query.get("dest") || "";
-  const date = query.get("date") || "";
+  // Leer tipo y parámetros de la URL o sessionStorage
+  let type = query.get("type"); // "flight" o "route"
+  let origin = query.get("origin") || "";
+  let dest = query.get("dest") || "";
+  let date = query.get("date") || "";
+  let flightNumber = query.get("flightNumber") || "";
+
+  // Si falta algún parámetro esencial, intenta recuperarlo de sessionStorage
+  if (!type || ((type === "route") && (!origin || !dest || !date)) || (type === "flight" && (!flightNumber || !date))) {
+    const storedType = sessionStorage.getItem('flightaware_search_type');
+    const storedParams = sessionStorage.getItem('flightaware_search_params');
+    if (storedType && storedParams) {
+      type = storedType;
+      try {
+        const params = JSON.parse(storedParams);
+        if (type === "flight") {
+          flightNumber = params.flightNumber;
+          date = params.date;
+        } else if (type === "route") {
+          origin = params.origin;
+          dest = params.dest;
+          date = params.date;
+        }
+      } catch {}
+    }
+  }
+
   const [flights, setFlights] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
 
   React.useEffect(() => {
     async function fetchFlights() {
-      if (!origin || !dest || !date) {
+      if (type === "route" && (!origin || !dest || !date)) {
         setError("Faltan parámetros de búsqueda (origen, destino o fecha).");
+        setFlights([]);
+        return;
+      }
+      if (type === "flight" && (!flightNumber || !date)) {
+        setError("Faltan parámetros de búsqueda (número de vuelo o fecha).");
         setFlights([]);
         return;
       }
@@ -27,10 +55,21 @@ export default function FlightResults() {
       setError("");
       try {
         const apiUrl = import.meta.env.VITE_FLIGHTAWARE_API_URL || "http://localhost:3011";
-        const res = await fetch(`${apiUrl}/api/fa/to-route/${origin}/${dest}/${date}`);
-        if (!res.ok) throw new Error("No se encontraron vuelos para esa ruta y fecha.");
-        const data = await res.json();
-        const segments = (data.flights || []).flatMap(f => f.segments || []);
+        let res, data, segments = [];
+        if (type === "route") {
+          res = await fetch(`${apiUrl}/api/fa/to-route/${origin}/${dest}/${date}`);
+          if (!res.ok) throw new Error("No se encontraron vuelos para esa ruta y fecha.");
+          data = await res.json();
+          segments = (data.flights || []).flatMap(f => f.segments || []);
+        } else if (type === "flight") {
+          res = await fetch(`${apiUrl}/api/fa/flight/number/${flightNumber}/${date}`);
+          if (!res.ok) throw new Error("No se encontró información para ese vuelo.");
+          data = await res.json();
+          // Filtra vuelos por la fecha
+          let filtered = data.flights.filter(f => f.scheduled_out && f.scheduled_out.startsWith(date));
+          segments = filtered.flatMap(f => f.segments || []);
+          if (segments.length === 0 && filtered.length > 0) segments = filtered;
+        }
         setFlights(segments);
       } catch (err) {
         setError(err.message || "Error al buscar vuelos.");
@@ -40,7 +79,7 @@ export default function FlightResults() {
       }
     }
     fetchFlights();
-  }, [origin, dest, date]);
+  }, [type, origin, dest, date, flightNumber]);
 
   return (
     <div className="min-h-screen bg-black py-10 px-2">

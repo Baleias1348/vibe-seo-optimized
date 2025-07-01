@@ -73,3 +73,6 @@ secrets.*
 *.pem
 *.key
 *.cert
+
+# Local Netlify folder
+.netlify

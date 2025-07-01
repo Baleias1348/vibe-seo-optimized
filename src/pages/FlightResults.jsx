@@ -8,90 +8,35 @@ function useQuery() {
 
 export default function FlightResults() {
   const query = useQuery();
-  // Leer tipo y parámetros de la URL o sessionStorage
-  let type = query.get("type"); // "flight" o "route"
-  let origin = query.get("origin") || "";
-  let dest = query.get("dest") || "";
-  let date = query.get("date") || "";
-  let flightNumber = query.get("flightNumber") || "";
-
-  // Si falta algún parámetro esencial, intenta recuperarlo de sessionStorage
-  if (!type || ((type === "route") && (!origin || !dest || !date)) || (type === "flight" && (!flightNumber || !date))) {
-    const storedType = sessionStorage.getItem('flightaware_search_type');
-    const storedParams = sessionStorage.getItem('flightaware_search_params');
-    if (storedType && storedParams) {
-      type = storedType;
-      try {
-        const params = JSON.parse(storedParams);
-        if (type === "flight") {
-          flightNumber = params.flightNumber;
-          date = params.date;
-        } else if (type === "route") {
-          origin = params.origin;
-          dest = params.dest;
-          date = params.date;
-        }
-      } catch {}
-    }
-  }
-
+  // Leer id de la URL
+  const id = query.get('id');
   const [flights, setFlights] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
 
   React.useEffect(() => {
-    // Intenta leer resultados desde localStorage
-    const stored = localStorage.getItem('flightaware_results');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setFlights(parsed);
-          localStorage.removeItem('flightaware_results'); // Limpia para evitar resultados viejos
-          return;
-        }
-      } catch {}
-    }
-    async function fetchFlights() {
-      if (type === "route" && (!origin || !dest || !date)) {
-        setError("Faltan parámetros de búsqueda (origen, destino o fecha).");
-        setFlights([]);
-        return;
-      }
-      if (type === "flight" && (!flightNumber || !date)) {
-        setError("Faltan parámetros de búsqueda (número de vuelo o fecha).");
-        setFlights([]);
-        return;
-      }
+    if (id) {
       setLoading(true);
       setError("");
-      try {
-        const apiUrl = import.meta.env.VITE_FLIGHTAWARE_API_URL || "http://localhost:3011";
-        let res, data, segments = [];
-        if (type === "route") {
-          res = await fetch(`${apiUrl}/api/fa/to-route/${origin}/${dest}/${date}`);
-          if (!res.ok) throw new Error("No se encontraron vuelos para esa ruta y fecha.");
-          data = await res.json();
-          segments = (data.flights || []).flatMap(f => f.segments || []);
-        } else if (type === "flight") {
-          res = await fetch(`${apiUrl}/api/fa/flight/number/${flightNumber}/${date}`);
-          if (!res.ok) throw new Error("No se encontró información para ese vuelo.");
-          data = await res.json();
-          // Filtra vuelos por la fecha
-          let filtered = data.flights.filter(f => f.scheduled_out && f.scheduled_out.startsWith(date));
-          segments = filtered.flatMap(f => f.segments || []);
-          if (segments.length === 0 && filtered.length > 0) segments = filtered;
-        }
-        setFlights(segments);
-      } catch (err) {
-        setError(err.message || "Error al buscar vuelos.");
-        setFlights([]);
-      } finally {
-        setLoading(false);
-      }
+      import('../lib/supabaseClient').then(({ supabase }) => {
+        supabase
+          .from('flight_search_results')
+          .select('data')
+          .eq('id', id)
+          .single()
+          .then(({ data, error }) => {
+            if (error || !data) {
+              setError("No se encontraron resultados para este ID o han expirado.");
+              setFlights([]);
+            } else {
+              setFlights(data.data);
+              setError("");
+            }
+            setLoading(false);
+          });
+      });
     }
-    fetchFlights();
-  }, [type, origin, dest, date, flightNumber]);
+  }, [id]);
 
   return (
     <div className="min-h-screen bg-black py-10 px-2">

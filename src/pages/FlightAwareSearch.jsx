@@ -81,10 +81,19 @@ export default function FlightAwareSearch({ originPage }) {
         // Guarda los resultados y parámetros en sessionStorage
         sessionStorage.setItem('flightaware_search_type', 'flight');
         sessionStorage.setItem('flightaware_search_params', JSON.stringify({ flightNumber, date: todayISO() }));
-        // Guarda resultados en localStorage para ser leídos en la página de resultados
-        localStorage.setItem('flightaware_results', JSON.stringify(segments));
-        // Navega solo con los parámetros esenciales
-        navigate(`/flight-results?type=flight&flightNumber=${encodeURIComponent(flightNumber)}&date=${todayISO()}`);
+        // Guarda resultados en Supabase y navega con el id
+        try {
+          const { data, error } = await supabase
+            .from('flight_search_results')
+            .insert([{ data: segments }])
+            .select('id')
+            .single();
+          if (error || !data?.id) throw error || new Error('No se pudo guardar el resultado');
+          navigate(`/flight-results?id=${data.id}`);
+        } catch (e) {
+          setFlightError('No se pudo guardar el resultado de la búsqueda.');
+        }
+        return;
       } else {
         setFlightResult(segments);
       }
@@ -120,10 +129,19 @@ export default function FlightAwareSearch({ originPage }) {
         // Guarda los resultados y parámetros en sessionStorage
         sessionStorage.setItem('flightaware_search_type', 'route');
         sessionStorage.setItem('flightaware_search_params', JSON.stringify({ origin, dest, date: todayISO() }));
-        // Guarda resultados en localStorage para ser leídos en la página de resultados
-        localStorage.setItem('flightaware_results', JSON.stringify(segments));
-        // Navega solo con los parámetros esenciales
-        navigate(`/flight-results?type=route&origin=${origin}&dest=${dest}&date=${todayISO()}`);
+        // Guarda resultados en Supabase y navega con el id
+        try {
+          const { data, error } = await supabase
+            .from('flight_search_results')
+            .insert([{ data: segments }])
+            .select('id')
+            .single();
+          if (error || !data?.id) throw error || new Error('No se pudo guardar el resultado');
+          navigate(`/flight-results?id=${data.id}`);
+        } catch (e) {
+          setRouteError('No se pudo guardar el resultado de la búsqueda.');
+        }
+        return;
       } else {
         setRouteResult(segments);
       }

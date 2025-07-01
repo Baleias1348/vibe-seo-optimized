@@ -1,6 +1,7 @@
 import React from "react";
-import FlightAwareDemoGrouped from "./FlightAwareDemoGrouped";
+
 import { useLocation } from "react-router-dom";
+import FlightSegments from "../components/FlightSegments";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);

@@ -1,8 +1,9 @@
 import React from 'react';
-    import { motion } from 'framer-motion';
-    import { Building, Target, Eye } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Building, Target, Eye } from 'lucide-react';
+import EstadoClimaPortilloCard from '../components/EstadoClimaPortilloCard';
 
-    const AboutPage = () => {
+const AboutPage = () => {
         const foundationYear = "2015";
 
         return (
@@ -21,7 +22,7 @@ import React from 'react';
                     </p>
                 </motion.div>
 
-                 <motion.section
+                <motion.section
                     initial={{ opacity: 0, x: -50 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
@@ -39,8 +40,11 @@ import React from 'react';
                             Ao longo dos anos, crescemos e evoluímos, mas nosso compromisso central permanece o mesmo: oferecer um serviço excepcional, itinerários cuidadosamente elaborados e um profundo respeito pelas culturas e ambientes que visitamos, com foco especial na beleza do Chile.
                         </p>
                     </div>
-                     <div className="rounded-lg overflow-hidden shadow-lg">
-                         <img  class="w-full h-auto object-cover aspect-video" alt="Equipe da Alliance Vacation sorrindo em uma paisagem chilena" src="https://images.unsplash.com/photo-1624864005286-87dd57af16f3" />
+                    <div className="flex flex-col gap-8">
+                      <div className="rounded-lg overflow-hidden shadow-lg mb-6">
+                        <img className="w-full h-auto object-cover aspect-video" alt="Equipe da Alliance Vacation sorrindo em uma paisagem chilena" src="https://images.unsplash.com/photo-1624864005286-87dd57af16f3" />
+                      </div>
+                      <EstadoClimaPortilloCard />
                     </div>
                 </motion.section>
 

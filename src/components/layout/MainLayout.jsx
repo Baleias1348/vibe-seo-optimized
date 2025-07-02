@@ -14,6 +14,7 @@ const TourDetailPage = lazy(() => import('@/pages/TourDetailPage'));
 const RestaurantsPage = lazy(() => import('@/features/restaurants/pages/RestaurantsPage'));
 const SkiCentersPage = lazy(() => import('@/pages/SkiCentersPage'));
 const SkiCenterDetailPage = lazy(() => import('@/pages/SkiCenterDetailPage'));
+const PortilloSkiResort = lazy(() => import('@/pages/PortilloSkiResort.jsx'));
 const ContactPage = lazy(() => import('@/pages/ContactPage'));
 const AdminPage = lazy(() => import('@/pages/AdminPage'));
 const AdminLoginPage = lazy(() => import('@/pages/AdminLoginPage'));
@@ -99,6 +100,14 @@ const MainLayout = () => {
       <main className="flex-grow">
         <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="text-center"><span className="loader inline-block w-8 h-8 border-4 border-blue-300 border-t-transparent rounded-full animate-spin mb-2"></span><p className="text-lg text-muted-foreground">Cargando página...</p></div></div>}>
           <Routes>
+          <Route 
+            path="/portillo" 
+            element={renderWithSeo(<PortilloSkiResort />, {
+              title: 'Portillo: A lenda dos Andes',
+              description: 'Portillo: centro de esqui lendário dos Andes chilenos, ficha técnica, clima e dicas para brasileiros.',
+              keywords: 'portillo, ski chile, centros de esqui, neve, andes, ficha técnica, clima, dicas, brasileiros'
+            })}
+          />
           {/* Página principal */}
           <Route 
             path={urls.banana}

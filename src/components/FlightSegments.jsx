@@ -37,7 +37,7 @@ export default function FlightSegments({ segments }) {
         )}
       </div>
       {segments.map((seg, i) => (
-        <React.Fragment key={i}>
+        <div key={i}>
           <div className={`rounded-xl shadow border overflow-hidden ${i === 0 ? 'bg-blue-950 border-blue-800' : 'bg-blue-900 border-blue-700'}`}> 
             {/* Foto y nombre de la aerolínea si corresponde */}
             <AirlineHeader airline={seg.airline} />
@@ -82,7 +82,7 @@ export default function FlightSegments({ segments }) {
           {i < segments.length - 1 && (
             <LayoverInfo prev={seg} next={segments[i + 1]} />
           )}
-        </React.Fragment>
+        </div>
       ))}
       {segments.length > 1 && (
         <div className="text-center text-xs text-gray-400 mt-4">

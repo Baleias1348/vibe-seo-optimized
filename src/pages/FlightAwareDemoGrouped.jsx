@@ -78,7 +78,19 @@ export default function FlightAwareDemoGrouped({ flights = [] }) {
                   </div>
                   <div className="bg-black text-white px-3 py-2 flex flex-col gap-1">
                     <div className="flex justify-between text-sm">
-                      <span>{(f.origin && (f.origin.code_iata || f.origin.code)) || 'Origen'} → {(f.destination && (f.destination.code_iata || f.destination.code)) || 'Destino'}</span>
+                      <span>{
+  f.origin
+    ? (typeof f.origin === 'object'
+        ? (f.origin.code_iata || f.origin.code || f.origin.name || '[dato inválido]')
+        : f.origin)
+    : 'Origen'
+} → {
+  f.destination
+    ? (typeof f.destination === 'object'
+        ? (f.destination.code_iata || f.destination.code || f.destination.name || '[dato inválido]')
+        : f.destination)
+    : 'Destino'
+}</span>
                     </div>
                     <div className="flex justify-between text-lg font-mono">
                       <span>Salida: {formatTime(f.scheduled_out)}</span>

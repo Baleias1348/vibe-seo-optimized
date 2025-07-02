@@ -37,53 +37,52 @@ export default function FlightSegments({ segments }) {
         )}
       </div>
       {segments.map((seg, i) => (
-        <div key={i}>
+        <React.Fragment key={i}>
           <div className={`rounded-xl shadow border overflow-hidden ${i === 0 ? 'bg-blue-950 border-blue-800' : 'bg-blue-900 border-blue-700'}`}> 
             {/* Foto y nombre de la aerolínea si corresponde */}
             <AirlineHeader airline={seg.airline} />
             <div className="p-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-bold text-orange-300 text-lg">
-                  {typeof seg.origin === 'object' ? (seg.origin.code_iata || seg.origin.code || seg.origin.name || '[dato inválido]') : seg.origin} <span className="text-white">→</span> {typeof seg.destination === 'object' ? (seg.destination.code_iata || seg.destination.code || seg.destination.name || '[dato inválido]') : seg.destination}
-                </span>
-                <span className="text-xs text-gray-400">Segmento {i + 1}{segments.length > 1 ? ` de ${segments.length}` : ''}</span>
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-bold text-orange-300 text-lg">
+                {seg.origin} <span className="text-white">→</span> {seg.destination}
+              </span>
+              <span className="text-xs text-gray-400">Segmento {i + 1}{segments.length > 1 ? ` de ${segments.length}` : ''}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-white text-sm">
+              <div>
+                <span className="font-semibold">Salida programada:</span><br/>{seg.scheduled_departure ? formatDate(seg.scheduled_departure) : '-'}
               </div>
-              <div className="grid grid-cols-2 gap-2 text-white text-sm">
-                <div>
-                  <span className="font-semibold">Salida programada:</span><br/>{seg.scheduled_departure ? formatDate(seg.scheduled_departure) : '-'}
-                </div>
-                <div>
-                  <span className="font-semibold">Llegada programada:</span><br/>{seg.scheduled_arrival ? formatDate(seg.scheduled_arrival) : '-'}
-                </div>
-                <div>
-                  <span className="font-semibold">Salida estimada:</span><br/>{seg.estimated_departure ? formatDate(seg.estimated_departure) : '-'}
-                </div>
-                <div>
-                  <span className="font-semibold">Llegada estimada:</span><br/>{seg.estimated_arrival ? formatDate(seg.estimated_arrival) : '-'}
-                </div>
-                {seg.gate_origin && (
-                  <div><span className="font-semibold">Puerta salida:</span><br/>{seg.gate_origin}</div>
-                )}
-                {seg.gate_destination && (
-                  <div><span className="font-semibold">Puerta llegada:</span><br/>{seg.gate_destination}</div>
-                )}
-                {seg.terminal_origin && (
-                  <div><span className="font-semibold">Terminal salida:</span><br/>{seg.terminal_origin}</div>
-                )}
-                {seg.terminal_destination && (
-                  <div><span className="font-semibold">Terminal llegada:</span><br/>{seg.terminal_destination}</div>
-                )}
-                {seg.status && (
-                  <div className="col-span-2"><span className="font-semibold">Estado:</span> <span className="ml-2 text-orange-400">{seg.status}</span></div>
-                )}
+              <div>
+                <span className="font-semibold">Llegada programada:</span><br/>{seg.scheduled_arrival ? formatDate(seg.scheduled_arrival) : '-'}
               </div>
+              <div>
+                <span className="font-semibold">Salida estimada:</span><br/>{seg.estimated_departure ? formatDate(seg.estimated_departure) : '-'}
+              </div>
+              <div>
+                <span className="font-semibold">Llegada estimada:</span><br/>{seg.estimated_arrival ? formatDate(seg.estimated_arrival) : '-'}
+              </div>
+              {seg.gate_origin && (
+                <div><span className="font-semibold">Puerta salida:</span><br/>{seg.gate_origin}</div>
+              )}
+              {seg.gate_destination && (
+                <div><span className="font-semibold">Puerta llegada:</span><br/>{seg.gate_destination}</div>
+              )}
+              {seg.terminal_origin && (
+                <div><span className="font-semibold">Terminal salida:</span><br/>{seg.terminal_origin}</div>
+              )}
+              {seg.terminal_destination && (
+                <div><span className="font-semibold">Terminal llegada:</span><br/>{seg.terminal_destination}</div>
+              )}
+              {seg.status && (
+                <div className="col-span-2"><span className="font-semibold">Estado:</span> <span className="ml-2 text-orange-400">{seg.status}</span></div>
+              )}
             </div>
           </div>
           {/* Mostrar layover si no es el último segmento */}
           {i < segments.length - 1 && (
             <LayoverInfo prev={seg} next={segments[i + 1]} />
           )}
-        </div>
+        </React.Fragment>
       ))}
       {segments.length > 1 && (
         <div className="text-center text-xs text-gray-400 mt-4">

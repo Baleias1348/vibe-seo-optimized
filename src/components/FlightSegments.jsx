@@ -7,17 +7,8 @@ import React from "react";
 export default function FlightSegments({ segments }) {
   if (!segments || segments.length === 0) return null;
 
-  // Helper para mostrar código/nombre de aeropuerto
-  function airportLabel(a) {
-    if (!a) return '-';
-    if (typeof a === 'string') return a;
-    if (typeof a === 'object') {
-      return a.code_iata || a.code || a.name || '[dato inválido]';
-    }
-    return '[dato inválido]';
-  }
   // Construir resumen de ruta (ej: CNF → LIM → SCL)
-  const route = segments.map(seg => airportLabel(seg.origin)).concat(airportLabel(segments[segments.length - 1].destination));
+  const route = segments.map(seg => seg.origin).concat(segments[segments.length - 1].destination);
   const routeStr = route.join(' → ');
 
   // Encabezado
@@ -46,13 +37,14 @@ export default function FlightSegments({ segments }) {
         )}
       </div>
       {segments.map((seg, i) => (
-        <div key={i} className={`rounded-xl shadow border overflow-hidden ${i === 0 ? 'bg-blue-950 border-blue-800' : 'bg-blue-900 border-blue-700'}`}>
-          {/* Foto y nombre de la aerolínea si corresponde */}
-          <AirlineHeader airline={seg.airline} />
-          <div className="p-4">
+        <React.Fragment key={i}>
+          <div className={`rounded-xl shadow border overflow-hidden ${i === 0 ? 'bg-blue-950 border-blue-800' : 'bg-blue-900 border-blue-700'}`}> 
+            {/* Foto y nombre de la aerolínea si corresponde */}
+            <AirlineHeader airline={seg.airline} />
+            <div className="p-4">
             <div className="flex justify-between items-center mb-2">
               <span className="font-bold text-orange-300 text-lg">
-                {airportLabel(seg.origin)} <span className="text-white">→</span> {airportLabel(seg.destination)}
+                {seg.origin} <span className="text-white">→</span> {seg.destination}
               </span>
               <span className="text-xs text-gray-400">Segmento {i + 1}{segments.length > 1 ? ` de ${segments.length}` : ''}</span>
             </div>
@@ -90,7 +82,7 @@ export default function FlightSegments({ segments }) {
           {i < segments.length - 1 && (
             <LayoverInfo prev={seg} next={segments[i + 1]} />
           )}
-        </div>
+        </React.Fragment>
       ))}
       {segments.length > 1 && (
         <div className="text-center text-xs text-gray-400 mt-4">

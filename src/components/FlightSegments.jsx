@@ -43,7 +43,9 @@ export default function FlightSegments({ segments }) {
           <div className="p-4">
             <div className="flex justify-between items-center mb-2">
               <span className="font-bold text-orange-300 text-lg">
-                {seg.origin} <span className="text-white">→</span> {seg.destination}
+                {typeof seg.origin === 'object' ? (seg.origin.code_iata || seg.origin.code || seg.origin.name || '[dato inválido]') : seg.origin}
+                <span className="text-white">→</span>
+                {typeof seg.destination === 'object' ? (seg.destination.code_iata || seg.destination.code || seg.destination.name || '[dato inválido]') : seg.destination}
               </span>
               <span className="text-xs text-gray-400">Segmento {i + 1}{segments.length > 1 ? ` de ${segments.length}` : ''}</span>
             </div>

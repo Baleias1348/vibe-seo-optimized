@@ -7,8 +7,17 @@ import React from "react";
 export default function FlightSegments({ segments }) {
   if (!segments || segments.length === 0) return null;
 
+  // Helper para mostrar código/nombre de aeropuerto
+  function airportLabel(a) {
+    if (!a) return '-';
+    if (typeof a === 'string') return a;
+    if (typeof a === 'object') {
+      return a.code_iata || a.code || a.name || '[dato inválido]';
+    }
+    return '[dato inválido]';
+  }
   // Construir resumen de ruta (ej: CNF → LIM → SCL)
-  const route = segments.map(seg => seg.origin).concat(segments[segments.length - 1].destination);
+  const route = segments.map(seg => airportLabel(seg.origin)).concat(airportLabel(segments[segments.length - 1].destination));
   const routeStr = route.join(' → ');
 
   // Encabezado
@@ -43,9 +52,7 @@ export default function FlightSegments({ segments }) {
           <div className="p-4">
             <div className="flex justify-between items-center mb-2">
               <span className="font-bold text-orange-300 text-lg">
-                {typeof seg.origin === 'object' ? (seg.origin.code_iata || seg.origin.code || seg.origin.name || '[dato inválido]') : seg.origin}
-                <span className="text-white">→</span>
-                {typeof seg.destination === 'object' ? (seg.destination.code_iata || seg.destination.code || seg.destination.name || '[dato inválido]') : seg.destination}
+                {airportLabel(seg.origin)} <span className="text-white">→</span> {airportLabel(seg.destination)}
               </span>
               <span className="text-xs text-gray-400">Segmento {i + 1}{segments.length > 1 ? ` de ${segments.length}` : ''}</span>
             </div>

@@ -48,23 +48,53 @@ export default function PesquisaDeVooPorRota() {
       </h2>
       <form className="flex flex-col gap-4 mb-6" onSubmit={handleBuscar} autoComplete="off">
         <label className="text-white font-semibold">Origem</label>
-        <input
-          type="text"
-          required
-          placeholder="Ex: SCEL, SCL, Santiago"
-          className="p-3 rounded-lg border border-gray-300 focus:outline-none flex-1"
+        <select
+          className="p-3 rounded-lg border border-gray-300 focus:outline-none flex-1 bg-white text-black"
           value={origem}
-          onChange={e => setOrigem(e.target.value.toUpperCase())}
-        />
-        <label className="text-white font-semibold">Destino</label>
-        <input
-          type="text"
+          onChange={e => setOrigem(e.target.value)}
           required
-          placeholder="Ex: SBGR, GRU, São Paulo"
-          className="p-3 rounded-lg border border-gray-300 focus:outline-none flex-1"
+        >
+          <option value="">Escolha um aeroporto</option>
+          <optgroup label="Chile">
+            <option value="SCL">Santiago (SCL)</option>
+            <option value="CCP">Concepción (CCP)</option>
+            <option value="ANF">Antofagasta (ANF)</option>
+          </optgroup>
+          <optgroup label="Brasil">
+            <option value="GRU">São Paulo - Guarulhos (GRU)</option>
+            <option value="CGH">São Paulo - Congonhas (CGH)</option>
+            <option value="VCP">São Paulo - Viracopos (VCP)</option>
+            <option value="GIG">Rio de Janeiro - Galeão (GIG)</option>
+            <option value="SDU">Rio de Janeiro - Santos Dumont (SDU)</option>
+            <option value="FLN">Florianópolis (FLN)</option>
+            <option value="POA">Porto Alegre (POA)</option>
+            <option value="CNF">Belo Horizonte (CNF)</option>
+          </optgroup>
+        </select>
+        <label className="text-white font-semibold">Destino</label>
+        <select
+          className="p-3 rounded-lg border border-gray-300 focus:outline-none flex-1 bg-white text-black"
           value={destino}
-          onChange={e => setDestino(e.target.value.toUpperCase())}
-        />
+          onChange={e => setDestino(e.target.value)}
+          required
+        >
+          <option value="">Escolha um aeroporto</option>
+          <optgroup label="Chile">
+            <option value="SCL">Santiago (SCL)</option>
+            <option value="CCP">Concepción (CCP)</option>
+            <option value="ANF">Antofagasta (ANF)</option>
+          </optgroup>
+          <optgroup label="Brasil">
+            <option value="GRU">São Paulo - Guarulhos (GRU)</option>
+            <option value="CGH">São Paulo - Congonhas (CGH)</option>
+            <option value="VCP">São Paulo - Viracopos (VCP)</option>
+            <option value="GIG">Rio de Janeiro - Galeão (GIG)</option>
+            <option value="SDU">Rio de Janeiro - Santos Dumont (SDU)</option>
+            <option value="FLN">Florianópolis (FLN)</option>
+            <option value="POA">Porto Alegre (POA)</option>
+            <option value="CNF">Belo Horizonte (CNF)</option>
+          </optgroup>
+        </select>
         <input
           type="date"
           className="p-3 rounded-lg border border-gray-300 focus:outline-none flex-1 min-w-[180px]"

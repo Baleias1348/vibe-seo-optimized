@@ -24,6 +24,7 @@ const ToursPage = lazy(() => import('@/pages/tours/ToursPage'));
 const CasasCambioPage = lazy(() => import('@/pages/casas-cambio/CasasCambioPage'));
 const VinosVinicolasPage = lazy(() => import('@/pages/vinos-vinicolas/VinosVinicolasPage'));
 const FlightResults = lazy(() => import('@/pages/FlightResults.jsx'));
+const FlightNumberSearch = lazy(() => import('@/pages/FlightNumberSearch.jsx'));
 const LazySupabaseDebugPage = lazy(() => import('@/pages/SupabaseDebugPage.jsx'));
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import WhatsAppButton from '@/components/shared/WhatsAppButton';
@@ -163,7 +164,19 @@ const MainLayout = () => {
               }
             )}
           />
-
+          <Route
+            path="/flight-number-search"
+            element={renderWithSeo(
+              <Suspense fallback={<div>Cargando búsqueda por número de vuelo...</div>}>
+                <FlightNumberSearch />
+              </Suspense>,
+              {
+                title: 'Buscar vuelo por número',
+                description: 'Consulta el estado de tu vuelo ingresando el número. Resultados en tiempo real vía FlightAware.',
+                keywords: 'vuelos, buscar por número, estado de vuelo, FlightAware, real time'
+              }
+            )}
+          />
           {/* Resultados de búsqueda de vuelos */}
           <Route
             path="/flight-results"

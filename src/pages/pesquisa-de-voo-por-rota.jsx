@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import FlightRouteResultCard from "../components/FlightRouteResultCard";
 
 function formatarDataISO(date) {
   if (!date) return "";
@@ -114,52 +115,10 @@ export default function PesquisaDeVooPorRota() {
       </form>
       {carregando && <div className="text-white text-center animate-pulse">Procurando voos...</div>}
       {resultados.length > 0 && (
-        <div className="overflow-x-auto mt-4">
-          <table className="min-w-full bg-white rounded shadow text-sm">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 text-lg">Voo</th>
-                <th className="px-4 py-2">Rota</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2">Horários</th>
-                <th className="px-4 py-2">Terminal/Porta</th>
-                <th className="px-4 py-2">Situação</th>
-                <th className="px-4 py-2">Aerolínea</th>
-              </tr>
-            </thead>
-            <tbody>
-              {resultados.map((r, idx) => (
-                <tr key={idx} className="border-t hover:bg-blue-50">
-                  <td className="px-4 py-2 font-mono text-xl text-blue-900 font-bold whitespace-nowrap">{r.ident}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">
-                    <span className="font-semibold">{r.origin?.city}</span>
-                    <span className="mx-1 text-gray-500">→</span>
-                    <span className="font-semibold">{r.destination?.city}</span>
-                    <div className="text-xs text-gray-400">{r.origin?.code} - {r.destination?.code}</div>
-                  </td>
-                  <td className="px-4 py-2">
-                    <span className={`inline-block px-2 py-1 rounded text-xs font-bold ${/cancelado|cancelled|sim/i.test(r.status) || r.cancelled ? 'bg-red-200 text-red-800' : /chegada|arribado|arrived|plataforma/i.test(r.status) ? 'bg-green-200 text-green-800' : /em voo|en vuelo|airborne|voando/i.test(r.status) ? 'bg-blue-200 text-blue-800' : 'bg-yellow-100 text-yellow-800'}`}>{r.status || '-'}</span>
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap">
-                    <div><span className="font-semibold">Partida:</span> {r.scheduled_out ? new Date(r.scheduled_out).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) : '-'} <span className="text-xs text-gray-400">(prog.)</span></div>
-                    <div><span className="font-semibold">Chegada:</span> {r.scheduled_in ? new Date(r.scheduled_in).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) : '-'} <span className="text-xs text-gray-400">(prog.)</span></div>
-                    {r.actual_out && <div className="text-xs text-blue-800">Saiu: {new Date(r.actual_out).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</div>}
-                    {r.actual_in && <div className="text-xs text-green-800">Chegou: {new Date(r.actual_in).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</div>}
-                  </td>
-                  <td className="px-4 py-2">
-                    <div><span className="font-semibold">Origem:</span> T {r.terminal_origin || '-'} / G {r.gate_origin || '-'}</div>
-                    <div><span className="font-semibold">Destino:</span> T {r.terminal_destination || '-'} / G {r.gate_destination || '-'}</div>
-                  </td>
-                  <td className="px-4 py-2">
-                    {r.cancelled && <span className="inline-block bg-red-500 text-white px-2 py-1 rounded mr-1 text-xs">Cancelado</span>}
-                    {r.diverted && <span className="inline-block bg-yellow-500 text-white px-2 py-1 rounded text-xs">Desviado</span>}
-                    {!r.cancelled && !r.diverted && <span className="inline-block bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Normal</span>}
-                  </td>
-                  <td className="px-4 py-2 text-xs text-gray-600">{r.operator}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mt-4">
+          {resultados.map((r, idx) => (
+            <FlightRouteResultCard key={idx} vuelo={r} />
+          ))}
         </div>
       )}
     </div>

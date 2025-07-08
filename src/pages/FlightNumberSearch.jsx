@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 
 function normalizarNumeroVuelo(input) {
-  // Elimina espacios y convierte a mayúsculas
   return input.replace(/\s+/g, "").toUpperCase();
 }
 
 function formatarDataISO(date) {
-  // Retorna YYYY-MM-DD
   if (!date) return "";
   if (typeof date === "string" && date.match(/^\d{4}-\d{2}-\d{2}$/)) return date;
   const d = new Date(date);
@@ -14,101 +12,59 @@ function formatarDataISO(date) {
 }
 
 export default function FlightNumberSearch() {
-  return <div style={{fontSize:32, color:'red', textAlign:'center', marginTop:100}}>PRUEBA IMPORT DIRECTO</div>;
-}
+  const [flightNumber, setFlightNumber] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [resultados, setResultados] = useState([]);
+  const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(false);
+
+  async function handleBuscar(e) {
+    e.preventDefault();
+    setErro("");
+    setResultados([]);
+    const numeroNormalizado = normalizarNumeroVuelo(flightNumber);
     if (!numeroNormalizado) {
       setErro("Por favor, insira o número do voo.");
       return;
     }
-    // Si no hay fecha, usar la de hoy por defecto
     let start = startDate;
     const today = formatarDataISO(new Date());
     if (!start) start = today;
-    // Calcula endDate como start+1 día
+    // Asegura que start esté en formato YYYY-MM-DD
+    start = formatarDataISO(start);
+    // Calcula end como start + 1 día, siempre en formato YYYY-MM-DD
     const end = (() => {
       const d = new Date(start);
       d.setDate(d.getDate() + 1);
       return formatarDataISO(d);
     })();
+    const apiUrl = "https://vibechile.life";
+    // Debug: muestra la URL y parámetros
+    console.log('API URL:', `${apiUrl}/api/fa/flight/number/${numeroNormalizado}?start=${start}&end=${end}`);
     setCarregando(true);
     try {
-      const apiUrl =
-        "https://vibechile.life";
-      const url = `${apiUrl}/api/fa/flight/number/${numeroNormalizado}?start=${formatarDataISO(
-        start
-      )}&end=${formatarDataISO(end)}`;
+      const url = `${apiUrl}/api/fa/flight/number/${numeroNormalizado}?start=${formatarDataISO(start)}&end=${formatarDataISO(end)}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error("Não foi possível encontrar o voo.");
       const data = await res.json();
-      if (!Array.isArray(data)) {
-        setResultados([data]);
-      } else if (data.length === 0) {
+      let voos = [];
+      if (Array.isArray(data)) {
+        voos = data;
+      } else if (data && Array.isArray(data.flights)) {
+        voos = data.flights;
+      } else if (data) {
+        voos = [data];
+      }
+      if (voos.length === 0) {
         setErro("Nenhum voo encontrado para os critérios informados.");
       } else {
-        setResultados(data);
+        setResultados(voos);
       }
     } catch (err) {
-      setErro(
-        err?.message || "Erro ao buscar informações do voo. Tente novamente."
-      );
+      setErro(err?.message || "Erro ao buscar informações do voo. Tente novamente.");
     } finally {
       setCarregando(false);
     }
-  }
-
-  function exportarCSV() {
-    if (!resultados.length) return;
-    const campos = [
-      "ident",
-      "status",
-      "origin.code",
-      "origin.name",
-      "origin.city",
-      "origin.country",
-      "destination.code",
-      "destination.name",
-      "destination.city",
-      "destination.country",
-      "scheduled_out",
-      "actual_out",
-      "scheduled_in",
-      "actual_in",
-      "aircraft_type",
-      "operator",
-      "progress_percent",
-      "distance_filed",
-      "distance_flown",
-      "departure_delay",
-      "arrival_delay",
-      "gate_origin",
-      "gate_destination",
-      "terminal_origin",
-      "terminal_destination",
-      "cancelled",
-      "diverted"
-    ];
-    const linhas = [
-      campos.join(","),
-      ...resultados.map((r) =>
-        campos
-          .map((campo) => {
-            const partes = campo.split(".");
-            let valor = r;
-            for (const parte of partes) valor = valor?.[parte];
-            return valor == null ? "" : valor;
-          })
-          .join(",")
-      )
-    ];
-    const blob = new Blob([linhas.join("\n")], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `resultados_voo_${Date.now()}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   }
 
   return (
@@ -143,72 +99,55 @@ export default function FlightNumberSearch() {
         >Pesquisar</button>
         {erro && <div className="text-red-400 text-sm mt-2">{erro}</div>}
       </form>
-      {carregando && <div className="text-white text-center">Buscando informações...</div>}
+      {carregando && <div className="text-white text-center animate-pulse">Procurando voos...</div>}
       {resultados.length > 0 && (
-        <div>
-          <div className="flex justify-end mb-2">
-            <button
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded text-xs"
-              onClick={exportarCSV}
-              type="button"
-            >Exportar CSV</button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white rounded shadow text-xs md:text-sm">
-              <thead>
-                <tr>
-                  <th className="px-2 py-1">Número</th>
-                  <th className="px-2 py-1">Status</th>
-                  <th className="px-2 py-1">Origem</th>
-                  <th className="px-2 py-1">Destino</th>
-                  <th className="px-2 py-1">Horários</th>
-                  <th className="px-2 py-1">Aeronave</th>
-                  <th className="px-2 py-1">Operador</th>
-                  <th className="px-2 py-1">Progresso</th>
-                  <th className="px-2 py-1">Distâncias</th>
-                  <th className="px-2 py-1">Delays</th>
-                  <th className="px-2 py-1">Portas/Terminais</th>
-                  <th className="px-2 py-1">Cancelado</th>
-                  <th className="px-2 py-1">Desviado</th>
+        <div className="overflow-x-auto mt-4">
+          <table className="min-w-full bg-white rounded shadow text-xs md:text-sm">
+            <thead>
+              <tr>
+                <th className="px-2 py-1">Número</th>
+                <th className="px-2 py-1">Status</th>
+                <th className="px-2 py-1">Origem</th>
+                <th className="px-2 py-1">Destino</th>
+                <th className="px-2 py-1">Horários</th>
+                <th className="px-2 py-1">Aeronave</th>
+                <th className="px-2 py-1">Operador</th>
+                <th className="px-2 py-1">Progresso</th>
+                <th className="px-2 py-1">Distâncias</th>
+                <th className="px-2 py-1">Delays</th>
+                <th className="px-2 py-1">Portas/Terminais</th>
+                <th className="px-2 py-1">Cancelado</th>
+                <th className="px-2 py-1">Desviado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {resultados.map((r, idx) => (
+                <tr key={idx} className="border-t">
+                  <td className="px-2 py-1 font-mono font-bold">{r.ident}</td>
+                  <td className="px-2 py-1">{r.status}</td>
+                  <td className="px-2 py-1">{r.origin?.code} - {r.origin?.city}</td>
+                  <td className="px-2 py-1">{r.destination?.code} - {r.destination?.city}</td>
+                  <td className="px-2 py-1">
+                    <div>Prog. saída: {r.scheduled_out ? new Date(r.scheduled_out).toLocaleString('pt-BR') : '-'}</div>
+                    <div>Real saída: {r.actual_out ? new Date(r.actual_out).toLocaleString('pt-BR') : '-'}</div>
+                    <div>Prog. chegada: {r.scheduled_in ? new Date(r.scheduled_in).toLocaleString('pt-BR') : '-'}</div>
+                    <div>Real chegada: {r.actual_in ? new Date(r.actual_in).toLocaleString('pt-BR') : '-'}</div>
+                  </td>
+                  <td className="px-2 py-1">{r.aircraft_type}</td>
+                  <td className="px-2 py-1">{r.operator}</td>
+                  <td className="px-2 py-1">{r.progress_percent != null ? r.progress_percent + "%" : "-"}</td>
+                  <td className="px-2 py-1">{r.distance_filed} / {r.distance_flown} km</td>
+                  <td className="px-2 py-1">{r.departure_delay} / {r.arrival_delay} min</td>
+                  <td className="px-2 py-1">
+                    <div>Origem: T {r.terminal_origin || '-'} / G {r.gate_origin || '-'}</div>
+                    <div>Destino: T {r.terminal_destination || '-'} / G {r.gate_destination || '-'}</div>
+                  </td>
+                  <td className="px-2 py-1">{r.cancelled ? "Sim" : "Não"}</td>
+                  <td className="px-2 py-1">{r.diverted ? "Sim" : "Não"}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {resultados.map((r, idx) => (
-                  <tr key={idx} className="border-t">
-                    <td className="px-2 py-1 font-mono font-bold">{r.ident}</td>
-                    <td className="px-2 py-1">{r.status}</td>
-                    <td className="px-2 py-1">
-                      <div><b>{r.origin?.code}</b></div>
-                      <div>{r.origin?.name}</div>
-                      <div>{r.origin?.city}, {r.origin?.country}</div>
-                    </td>
-                    <td className="px-2 py-1">
-                      <div><b>{r.destination?.code}</b></div>
-                      <div>{r.destination?.name}</div>
-                      <div>{r.destination?.city}, {r.destination?.country}</div>
-                    </td>
-                    <td className="px-2 py-1">
-                      <div>Programada saída: {r.scheduled_out ? new Date(r.scheduled_out).toLocaleString('pt-BR') : '-'}</div>
-                      <div>Real saída: {r.actual_out ? new Date(r.actual_out).toLocaleString('pt-BR') : '-'}</div>
-                      <div>Programada chegada: {r.scheduled_in ? new Date(r.scheduled_in).toLocaleString('pt-BR') : '-'}</div>
-                      <div>Real chegada: {r.actual_in ? new Date(r.actual_in).toLocaleString('pt-BR') : '-'}</div>
-                    </td>
-                    <td className="px-2 py-1">{r.aircraft_type}</td>
-                    <td className="px-2 py-1">{r.operator}</td>
-                    <td className="px-2 py-1">{r.progress_percent != null ? r.progress_percent + "%" : "-"}</td>
-                    <td className="px-2 py-1">{r.distance_filed} / {r.distance_flown} km</td>
-                    <td className="px-2 py-1">{r.departure_delay} / {r.arrival_delay} min</td>
-                    <td className="px-2 py-1">
-                      <div>Origem: T {r.terminal_origin || '-'} / G {r.gate_origin || '-'}</div>
-                      <div>Destino: T {r.terminal_destination || '-'} / G {r.gate_destination || '-'}</div>
-                    </td>
-                    <td className="px-2 py-1">{r.cancelled ? "Sim" : "Não"}</td>
-                    <td className="px-2 py-1">{r.diverted ? "Sim" : "Não"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

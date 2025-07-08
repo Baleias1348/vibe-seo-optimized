@@ -16,34 +16,44 @@ function formatStatus(status, cancelled) {
 
 function FlightPathSVG({ status }) {
   // status puede ser "Aterrizó", "En vuelo", "A tiempo", "Programado", "Cancelado", etc.
-  // Normalizamos para posicionar el avión
   let pos = "left";
   if (/aterriz/i.test(status)) pos = "right";
   else if (/en vuelo|voando|airborne/i.test(status)) pos = "center";
   else pos = "left";
 
-  // Posiciones X del avión y círculos
-  const positions = {
-    left: 20,
-    center: 100,
-    right: 180
-  };
-  const airplaneX = positions[pos];
+  // Tamaño círculo y avión
+  const circleR = 10;
+  const circleCxL = 26; // círculo izquierdo centro X
+  const circleCxR = 174; // círculo derecho centro X
+  const lineY = 18;
+  const lineStart = circleCxL;
+  const lineEnd = circleCxR;
+  const svgW = 200;
+  const svgH = 40;
+  const airplaneW = 20;
+  const airplaneH = 20;
+
+  // Posición X de la nariz del avión (ajustar para que toque el borde del círculo)
+  let airplaneX = 0;
+  if (pos === "left") {
+    airplaneX = circleCxL + circleR - 2; // justo afuera del círculo izquierdo
+  } else if (pos === "center") {
+    airplaneX = (circleCxL + circleCxR) / 2 - airplaneW / 2 + 2;
+  } else if (pos === "right") {
+    airplaneX = circleCxR - circleR - airplaneW + 2; // justo antes del círculo derecho
+  }
 
   return (
-    <svg width="200" height="36" viewBox="0 0 200 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Línea */}
-      <line x1="20" y1="18" x2="180" y2="18" stroke="#B0BEC5" strokeWidth="3" />
-      {/* Círculos extremos */}
-      <circle cx="20" cy="18" r="7" fill="#fff" stroke="#1a237e" strokeWidth="2" />
-      <circle cx="180" cy="18" r="7" fill="#fff" stroke="#1a237e" strokeWidth="2" />
-      {/* Avión SVG */}
-      <g transform={`translate(${airplaneX-10}, 6)`}>
-        <svg width="20" height="24" viewBox="0 0 20 24" fill="none">
-          <path d="M10 0l2.5 9H19a1 1 0 01.9 1.45l-3.5 7A1 1 0 0115.5 18h-3l1.5 5h-3l1.5-5h-3a1 1 0 01-.9-1.55l-3.5-7A1 1 0 011 9h6.5L10 0z" fill="#1a237e"/>
-        </svg>
-      </g>
-    </svg>
+    <div style={{position: 'relative', width: svgW, height: svgH}}>
+      {/* Ícono avión fijo (icono avion 2.svg), tamaño grande y responsivo */}
+      <img
+        src="/logos/icono avion 2.svg"
+        alt="Avión en vuelo"
+        className="w-36 md:w-48 lg:w-60 h-auto mx-auto -mt-10 md:-mt-14 lg:-mt-20"
+        style={{display: 'block'}}
+      />
+
+    </div>
   );
 }
 

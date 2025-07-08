@@ -58,7 +58,45 @@ export default function FlightNumberSearch() {
       if (voos.length === 0) {
         setErro("Nenhum voo encontrado para os critérios informados.");
       } else {
-        setResultados(voos);
+        // Agrupa por origen, destino, horarios programados y aeronave
+        const grupos = {};
+        voos.forEach(v => {
+          const key = [
+            v.origin?.code,
+            v.destination?.code,
+            v.scheduled_out,
+            v.scheduled_in,
+            v.aircraft_type
+          ].join('|');
+          if (!grupos[key]) grupos[key] = [];
+          grupos[key].push(v);
+        });
+        // Para cada grupo, elige el vuelo más "real" según los criterios
+        const seleccionados = Object.values(grupos).map(grupo => {
+          if (grupo.length === 1) return grupo[0];
+          // Prioriza: tiene real_out y real_in, status válido, delays razonables, cancelado 'Não'
+          return grupo.sort((a, b) => {
+            // 1. Prioriza real_out y real_in
+            const aHasReal = a.actual_out || a.actual_in ? 1 : 0;
+            const bHasReal = b.actual_out || b.actual_in ? 1 : 0;
+            if (bHasReal !== aHasReal) return bHasReal - aHasReal;
+            // 2. Status válido
+            const aStatus = a.status && !/desconocido|unknown|programado|scheduled/i.test(a.status) ? 1 : 0;
+            const bStatus = b.status && !/desconocido|unknown|programado|scheduled/i.test(b.status) ? 1 : 0;
+            if (bStatus !== aStatus) return bStatus - aStatus;
+            // 3. Delays razonables (no negativos absurdos)
+            const aDelay = (a.departure_delay > -1000 && a.arrival_delay > -1000) ? 1 : 0;
+            const bDelay = (b.departure_delay > -1000 && b.arrival_delay > -1000) ? 1 : 0;
+            if (bDelay !== aDelay) return bDelay - aDelay;
+            // 4. Cancelado: 'Não' primero
+            const aCancel = a.cancelled === false || a.cancelled === 'Não' ? 1 : 0;
+            const bCancel = b.cancelled === false || b.cancelled === 'Não' ? 1 : 0;
+            if (bCancel !== aCancel) return bCancel - aCancel;
+            // Default: el primero
+            return 0;
+          })[0];
+        });
+        setResultados(seleccionados);
       }
     } catch (err) {
       setErro(err?.message || "Erro ao buscar informações do voo. Tente novamente.");

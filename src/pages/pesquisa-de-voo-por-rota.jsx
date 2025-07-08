@@ -19,59 +19,21 @@ export default function PesquisaDeVooPorRota() {
     e.preventDefault();
     setErro("");
     setResultados([]);
-    if (!origem || !destino) {
-      setErro("Por favor, preencha origem e destino.");
-      return;
-    }
-    let dataBusca = data;
-    const hoje = formatarDataISO(new Date());
-    if (!dataBusca) dataBusca = hoje;
-    dataBusca = formatarDataISO(dataBusca);
-    const apiUrl = "https://vibechile.life";
     setCarregando(true);
     try {
-      const url = `${apiUrl}/api/fa/flight/route/${origem}/${destino}?start=${dataBusca}`;
+      // Permitir código IATA manual si es de 3 letras
+      const origin = origem.length === 3 ? origem.toUpperCase() : origem;
+      const dest = destino.length === 3 ? destino.toUpperCase() : destino;
+      if (!origin || !dest) throw new Error("Por favor, preencha origem e destino com código IATA de 3 letras.");
+      const dataBusca = data ? formatarDataISO(data) : formatarDataISO(new Date());
+      const apiUrl = "https://vibechile.life";
+      const url = `${apiUrl}/api/fa/to-route/${origin}/${dest}/${dataBusca}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error("Não foi possível encontrar voos para a rota.");
-      const data = await res.json();
-      let voos = [];
-      if (Array.isArray(data)) {
-        voos = data;
-      } else if (data && Array.isArray(data.flights)) {
-        voos = data.flights;
-      } else if (data) {
-        voos = [data];
-      }
-      // Agrupa por horários e aeronave para deduplicar codeshare/virtuais
-      const grupos = {};
-      voos.forEach(v => {
-        const key = [
-          v.scheduled_out,
-          v.scheduled_in,
-          v.aircraft_type
-        ].join('|');
-        if (!grupos[key]) grupos[key] = [];
-        grupos[key].push(v);
-      });
-      const selecionados = Object.values(grupos).map(grupo => {
-        if (grupo.length === 1) return grupo[0];
-        return grupo.sort((a, b) => {
-          const aHasReal = a.actual_out || a.actual_in ? 1 : 0;
-          const bHasReal = b.actual_out || b.actual_in ? 1 : 0;
-          if (bHasReal !== aHasReal) return bHasReal - aHasReal;
-          const aStatus = a.status && !/desconocido|unknown|programado|scheduled/i.test(a.status) ? 1 : 0;
-          const bStatus = b.status && !/desconocido|unknown|programado|scheduled/i.test(b.status) ? 1 : 0;
-          if (bStatus !== aStatus) return bStatus - aStatus;
-          const aDelay = (a.departure_delay > -1000 && a.arrival_delay > -1000) ? 1 : 0;
-          const bDelay = (b.departure_delay > -1000 && b.arrival_delay > -1000) ? 1 : 0;
-          if (bDelay !== aDelay) return bDelay - aDelay;
-          const aCancel = a.cancelled === false || a.cancelled === 'Não' ? 1 : 0;
-          const bCancel = b.cancelled === false || b.cancelled === 'Não' ? 1 : 0;
-          if (bCancel !== aCancel) return bCancel - aCancel;
-          return 0;
-        })[0];
-      });
-      setResultados(selecionados);
+      const dataJson = await res.json();
+      // Igual que FlightAwareSearch.jsx: busca por ruta
+      const segmentos = (dataJson.flights || []).flatMap(f => f.segments || []);
+      setResultados(segmentos);
     } catch (err) {
       setErro(err?.message || "Erro ao buscar voos para a rota. Tente novamente.");
     } finally {

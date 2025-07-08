@@ -209,7 +209,7 @@ export default defineConfig({
 			'Cross-Origin-Embedder-Policy': 'credentialless',
 			'Content-Security-Policy': [
 				"default-src 'self';",
-				"connect-src 'self' http://localhost:3011 http://localhost:3002 http://localhost:3001 http://localhost:8081 https://yfgqpaxajeatchcqrehe.supabase.co https://*.supabase.co wss://*.supabase.co https://*.supabase.in https://api.openweathermap.org https://www.google-analytics.com https://analytics.google.com https://play.google.com https://www.recaptcha.net https://www.gstatic.com https://*.ingest.sentry.io https://api.segment.io https://csp.withgoogle.com https://api.freecurrencyapi.com https://v6.exchangerate-api.com/v6 https://open.er-api.com;",
+				"connect-src 'self' http://localhost:3011 http://localhost:3002 http://localhost:3001 http://localhost:8081 https://yfgqpaxajeatchcqrehe.supabase.co https://*.supabase.co wss://*.supabase.co https://*.supabase.in https://api.openweathermap.org https://www.google-analytics.com https://analytics.google.com https://play.google.com https://www.recaptcha.net https://www.gstatic.com https://*.ingest.sentry.io https://api.segment.io https://csp.withgoogle.com https://api.freecurrencyapi.com https://v6.exchangerate-api.com/v6 https://open.er-api.com https://vibechile.life;",
 				"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://www.google-analytics.com https://analytics.google.com;",
 				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://js.stripe.com;",
 				"style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://js.stripe.com;",

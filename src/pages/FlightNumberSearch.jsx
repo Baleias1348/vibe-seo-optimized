@@ -140,48 +140,54 @@ export default function FlightNumberSearch() {
       {carregando && <div className="text-white text-center animate-pulse">Procurando voos...</div>}
       {resultados.length > 0 && (
         <div className="overflow-x-auto mt-4">
-          <table className="min-w-full bg-white rounded shadow text-xs md:text-sm">
+          <table className="min-w-full bg-white rounded shadow text-sm">
             <thead>
               <tr>
-                <th className="px-2 py-1">Número</th>
-                <th className="px-2 py-1">Status</th>
-                <th className="px-2 py-1">Origem</th>
-                <th className="px-2 py-1">Destino</th>
-                <th className="px-2 py-1">Horários</th>
-                <th className="px-2 py-1">Aeronave</th>
-                <th className="px-2 py-1">Operador</th>
-                <th className="px-2 py-1">Progresso</th>
-                <th className="px-2 py-1">Distâncias</th>
-                <th className="px-2 py-1">Delays</th>
-                <th className="px-2 py-1">Portas/Terminais</th>
-                <th className="px-2 py-1">Cancelado</th>
-                <th className="px-2 py-1">Desviado</th>
+                <th className="px-4 py-2 text-lg">Voo</th>
+                <th className="px-4 py-2">Rota</th>
+                <th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2">Horários</th>
+                <th className="px-4 py-2">Terminal/Porta</th>
+                <th className="px-4 py-2">Situação</th>
+                <th className="px-4 py-2">Aerolínea</th>
               </tr>
             </thead>
             <tbody>
               {resultados.map((r, idx) => (
-                <tr key={idx} className="border-t">
-                  <td className="px-2 py-1 font-mono font-bold">{r.ident}</td>
-                  <td className="px-2 py-1">{r.status}</td>
-                  <td className="px-2 py-1">{r.origin?.code} - {r.origin?.city}</td>
-                  <td className="px-2 py-1">{r.destination?.code} - {r.destination?.city}</td>
-                  <td className="px-2 py-1">
-                    <div>Prog. saída: {r.scheduled_out ? new Date(r.scheduled_out).toLocaleString('pt-BR') : '-'}</div>
-                    <div>Real saída: {r.actual_out ? new Date(r.actual_out).toLocaleString('pt-BR') : '-'}</div>
-                    <div>Prog. chegada: {r.scheduled_in ? new Date(r.scheduled_in).toLocaleString('pt-BR') : '-'}</div>
-                    <div>Real chegada: {r.actual_in ? new Date(r.actual_in).toLocaleString('pt-BR') : '-'}</div>
+                <tr key={idx} className="border-t hover:bg-blue-50">
+                  {/* Número de vuelo grande */}
+                  <td className="px-4 py-2 font-mono text-xl text-blue-900 font-bold whitespace-nowrap">{r.ident}</td>
+                  {/* Ruta ciudad a ciudad */}
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <span className="font-semibold">{r.origin?.city}</span>
+                    <span className="mx-1 text-gray-500">→</span>
+                    <span className="font-semibold">{r.destination?.city}</span>
+                    <div className="text-xs text-gray-400">{r.origin?.code} - {r.destination?.code}</div>
                   </td>
-                  <td className="px-2 py-1">{r.aircraft_type}</td>
-                  <td className="px-2 py-1">{r.operator}</td>
-                  <td className="px-2 py-1">{r.progress_percent != null ? r.progress_percent + "%" : "-"}</td>
-                  <td className="px-2 py-1">{r.distance_filed} / {r.distance_flown} km</td>
-                  <td className="px-2 py-1">{r.departure_delay} / {r.arrival_delay} min</td>
-                  <td className="px-2 py-1">
-                    <div>Origem: T {r.terminal_origin || '-'} / G {r.gate_origin || '-'}</div>
-                    <div>Destino: T {r.terminal_destination || '-'} / G {r.gate_destination || '-'}</div>
+                  {/* Status destacado */}
+                  <td className="px-4 py-2">
+                    <span className={`inline-block px-2 py-1 rounded text-xs font-bold ${/cancelado|cancelled|sim/i.test(r.status) || r.cancelled ? 'bg-red-200 text-red-800' : /chegada|arribado|arrived|plataforma/i.test(r.status) ? 'bg-green-200 text-green-800' : /em voo|en vuelo|airborne|voando/i.test(r.status) ? 'bg-blue-200 text-blue-800' : 'bg-yellow-100 text-yellow-800'}`}>{r.status || '-'}</span>
                   </td>
-                  <td className="px-2 py-1">{r.cancelled ? "Sim" : "Não"}</td>
-                  <td className="px-2 py-1">{r.diverted ? "Sim" : "Não"}</td>
+                  {/* Horarios amigables */}
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <div><span className="font-semibold">Partida:</span> {r.scheduled_out ? new Date(r.scheduled_out).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) : '-'} <span className="text-xs text-gray-400">(prog.)</span></div>
+                    <div><span className="font-semibold">Chegada:</span> {r.scheduled_in ? new Date(r.scheduled_in).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) : '-'} <span className="text-xs text-gray-400">(prog.)</span></div>
+                    {r.actual_out && <div className="text-xs text-blue-800">Saiu: {new Date(r.actual_out).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</div>}
+                    {r.actual_in && <div className="text-xs text-green-800">Chegou: {new Date(r.actual_in).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</div>}
+                  </td>
+                  {/* Terminal/Porta */}
+                  <td className="px-4 py-2">
+                    <div><span className="font-semibold">Origem:</span> T {r.terminal_origin || '-'} / G {r.gate_origin || '-'}</div>
+                    <div><span className="font-semibold">Destino:</span> T {r.terminal_destination || '-'} / G {r.gate_destination || '-'}</div>
+                  </td>
+                  {/* Situação: badges cancelado/desviado */}
+                  <td className="px-4 py-2">
+                    {r.cancelled && <span className="inline-block bg-red-500 text-white px-2 py-1 rounded mr-1 text-xs">Cancelado</span>}
+                    {r.diverted && <span className="inline-block bg-yellow-500 text-white px-2 py-1 rounded text-xs">Desviado</span>}
+                    {!r.cancelled && !r.diverted && <span className="inline-block bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Normal</span>}
+                  </td>
+                  {/* Aerolínea/operador */}
+                  <td className="px-4 py-2 text-xs text-gray-600">{r.operator}</td>
                 </tr>
               ))}
             </tbody>

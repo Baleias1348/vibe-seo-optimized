@@ -25,6 +25,7 @@ const CasasCambioPage = lazy(() => import('@/pages/casas-cambio/CasasCambioPage'
 const VinosVinicolasPage = lazy(() => import('@/pages/vinos-vinicolas/VinosVinicolasPage'));
 const FlightResults = lazy(() => import('@/pages/FlightResults.jsx'));
 const FlightNumberSearch = lazy(() => import('@/pages/FlightNumberSearch.jsx'));
+const PesquisaDeVooPorRota = lazy(() => import('@/pages/pesquisa-de-voo-por-rota.jsx'));
 const LazySupabaseDebugPage = lazy(() => import('@/pages/SupabaseDebugPage.jsx'));
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import WhatsAppButton from '@/components/shared/WhatsAppButton';
@@ -174,6 +175,20 @@ const MainLayout = () => {
                 title: 'Buscar vuelo por número',
                 description: 'Consulta el estado de tu vuelo ingresando el número. Resultados en tiempo real vía FlightAware.',
                 keywords: 'vuelos, buscar por número, estado de vuelo, FlightAware, real time'
+              }
+            )}
+          />
+          {/* Página de pesquisa de voo por rota (SEO friendly, portugués) */}
+          <Route
+            path="/pesquisa-de-voo-por-rota"
+            element={renderWithSeo(
+              <Suspense fallback={<div>Carregando pesquisa de voo por rota...</div>}>
+                <PesquisaDeVooPorRota />
+              </Suspense>,
+              {
+                title: 'Pesquisa de voo por rota',
+                description: 'Encontre voos pesquisando por origem, destino e data. Resultados em tempo real via FlightAware.',
+                keywords: 'voos, pesquisa por rota, estado de voo, FlightAware, Brasil, Chile, Santiago, São Paulo, GRU, SCL, SCEL, SBGR, real time'
               }
             )}
           />

@@ -121,7 +121,7 @@ export default function FlightRouteResultCard({ vuelo }) {
       <div className="flex items-center justify-between px-4 pt-4">
         <div className="flex items-center gap-2">
           {vuelo.logo && <img src={vuelo.logo} alt={vuelo.operator} className="h-6 w-6 object-contain rounded bg-white" />}
-          <span className="font-extrabold text-3xl text-[#1a237e] tracking-wide">{vuelo.ident}</span>
+          <span className="font-extrabold text-3xl text-[#1a237e] tracking-wide">{vuelo.operator_code && vuelo.flight_number ? `${vuelo.operator_code}${vuelo.flight_number}` : vuelo.ident}</span>
         </div>
         <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${statusObj.color}`}>{statusObj.label}</span>
       </div>

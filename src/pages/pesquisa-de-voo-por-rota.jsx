@@ -15,6 +15,13 @@ export default function PesquisaDeVooPorRota() {
   const [resultados, setResultados] = useState([]);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const [companhia, setCompanhia] = useState("");
+  const [companhiasDisponiveis, setCompanhiasDisponiveis] = useState([
+    { code: "LA", name: "Latam Airlines" },
+    { code: "H2", name: "Sky Airline" },
+    { code: "JA", name: "JetSMART" }
+  ]);
+
 
   async function handleBuscar(e) {
     e.preventDefault();
@@ -34,7 +41,26 @@ export default function PesquisaDeVooPorRota() {
       const dataJson = await res.json();
       // Igual que FlightAwareSearch.jsx: busca por ruta
       const segmentos = (dataJson.flights || []).flatMap(f => f.segments || []);
+      // Detecta aerolíneas adicionales
+      const aerolineas = [...companhiasDisponiveis];
+      segmentos.forEach(seg => {
+        const code = seg.operator_code || seg.airline_iata || seg.airline || seg.operator || "";
+        const name = seg.operator_name || seg.airline_name || seg.airline || seg.operator || code;
+        if (code && !aerolineas.some(c => c.code === code)) {
+          aerolineas.push({ code, name });
+        }
+      });
+      setCompanhiasDisponiveis(aerolineas);
       setResultados(segmentos);
+      // Debug: guardar resultados crudos para inspección
+      try {
+        await fetch('/debug-resultados-segmentos.json', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(segmentos, null, 2)
+        });
+      } catch (e) { /* ignorar error de debug */ }
+
     } catch (err) {
       setErro(err?.message || "Erro ao buscar voos para a rota. Tente novamente.");
     } finally {
@@ -96,13 +122,25 @@ export default function PesquisaDeVooPorRota() {
             <option value="CNF">Belo Horizonte (CNF)</option>
           </optgroup>
         </select>
-        <input
-          type="date"
-          className="p-3 rounded-lg border border-gray-300 focus:outline-none flex-1 min-w-[180px]"
-          value={data}
-          onChange={e => setData(e.target.value)}
-          max={formatarDataISO(new Date())}
-        />
+        <div className="flex flex-row gap-2 items-end">
+          <input
+            type="date"
+            className="p-3 rounded-lg border border-gray-300 focus:outline-none min-w-[120px] max-w-[160px] w-full"
+            value={data}
+            onChange={e => setData(e.target.value)}
+            max={formatarDataISO(new Date())}
+          />
+          <select
+            className="p-3 rounded-lg border border-gray-300 focus:outline-none min-w-[120px] max-w-[200px] w-full"
+            value={companhia}
+            onChange={e => setCompanhia(e.target.value)}
+          >
+            <option value="">Todas las aerolíneas</option>
+            {companhiasDisponiveis.map(c => (
+              <option key={c.code} value={c.code}>{c.name}</option>
+            ))}
+          </select>
+        </div>
         <div className="text-gray-300 text-xs mt-2">
           Digite o código ou nome da cidade de origem e destino. Selecione a data do voo ou deixe a de hoje.
         </div>
@@ -114,13 +152,38 @@ export default function PesquisaDeVooPorRota() {
         {erro && <div className="text-red-400 text-sm mt-2">{erro}</div>}
       </form>
       {carregando && <div className="text-white text-center animate-pulse">Procurando voos...</div>}
-      {resultados.length > 0 && (
-        <div className="mt-4">
-          {resultados.map((r, idx) => (
-            <FlightRouteResultCard key={idx} vuelo={r} />
-          ))}
-        </div>
-      )}
+
+      {(() => {
+        resultados.forEach(r => {
+          const numVuelo = r.operator_code && r.flight_number ? `${r.operator_code}${r.flight_number}` : r.ident || '';
+          // eslint-disable-next-line no-console
+          console.log('[DEBUG]', {
+            operator_code: r.operator_code,
+            operator: r.operator,
+            ident: r.ident,
+            flight_number: r.flight_number,
+            numVueloMostrado: numVuelo
+          });
+        });
+        const filtrados = !companhia
+          ? resultados
+          : resultados.filter(r => {
+              // Coincidencia robusta: el número de vuelo mostrado debe empezar con el código seleccionado
+              const numVuelo = r.operator_code && r.flight_number ? `${r.operator_code}${r.flight_number}` : r.ident || '';
+              return numVuelo.startsWith(companhia);
+            });
+        return filtrados.length > 0 && (
+          <>
+            <div className="text-white text-sm font-semibold mb-2">{filtrados.length} vuelo{filtrados.length !== 1 ? 's' : ''} encontrado{filtrados.length !== 1 ? 's' : ''}</div>
+            <div className="mt-4">
+              {filtrados.map((r, idx) => (
+                <FlightRouteResultCard key={idx} vuelo={{...r, flight_number: r.operator_code && r.flight_number ? `${r.operator_code}${r.flight_number}` : r.ident}} />
+              ))}
+            </div>
+          </>
+        );
+      })()}
+
     </div>
   );
 }

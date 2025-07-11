@@ -26,7 +26,7 @@ const quickLinks = [
   {
     icon: Plane,
     label: "Estado do voo",
-    url: null,
+    url: "/pesquisar-por-numero-de-voo",
   },
   {
     icon: AlertTriangle,

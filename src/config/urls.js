@@ -16,7 +16,8 @@ const process = {
 };
 
 const urls = {
-  estadoVoosBrasilChile: '/estado-do-voos-entre-Brasil-e-Chile',
+  estadoVoosBrasilChile: '/pesquisar-por-numero-de-voo',
+  buscarVooNumero: '/pesquisar-por-numero-de-voo',
   banana: '/banana',
   // Páginas principales
   home: '/',

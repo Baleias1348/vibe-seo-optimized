@@ -555,6 +555,19 @@ const HomePage = () => {
             <NewsTicker weather={weather} rates={rates} loading={loading} error={error} />
             <HeroBanner />
             <HomeQuickAccessBar />
+            
+            {/* Banner Culinario */}
+            <div className="w-full bg-white py-4">
+                <div className="container mx-auto px-4">
+                    <div className="relative w-full max-w-6xl mx-auto" style={{ paddingTop: '15.625%' }}> {/* 200/1280 = 0.15625 */}
+                        <img 
+                            src="/images/banner-culinaria chilena.png" 
+                            alt="Gastronomía Chilena - Descubre los sabores de Chile"
+                            className="absolute top-0 left-0 w-full h-full object-contain rounded-lg shadow-md"
+                        />
+                    </div>
+                </div>
+            </div>
             <div className="bg-white w-full flex justify-center">
                 <HomeBoxModels weatherData={{
                     'Santiago': {

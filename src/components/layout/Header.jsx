@@ -163,7 +163,7 @@ const Header = ({ isLandingMode = false }) => {
     { to: urls.restaurantes, label: "Restaurantes", icon: Star },
     { to: urls.centrosEsqui, label: "Centros de Esquí", icon: MountainSnow },
     { to: urls.clima, label: "Clima", icon: Sun },
-    { to: urls.estadoVoosBrasilChile, label: "Vuelos Brasil-Chile", icon: Plane },
+    { to: urls.estadoVoosBrasilChile, label: "Estado do voo", icon: Plane },
     { to: urls.blog, label: "Blog", icon: BookOpen },
   ];
   

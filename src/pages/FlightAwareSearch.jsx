@@ -254,7 +254,7 @@ export default function FlightAwareSearch({ originPage }) {
   }
 
   return (
-    <div className="min-h-screen bg-black py-10 px-2">
+    <div className="min-h-screen py-10 px-2">
       <div className="max-w-2xl mx-auto bg-[#1a237e] rounded-2xl shadow-lg p-8 border border-blue-900 mb-10">
         <h2 className="text-2xl font-bold mb-6 text-orange-400 text-center flex items-center justify-center gap-2">
           <span role="img" aria-label="avion">🛫</span> Encontre seu voo

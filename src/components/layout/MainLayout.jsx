@@ -7,6 +7,8 @@ import Footer from '@/components/layout/Footer';
 import SocialPosts from '@/pages/SocialPosts.jsx';
 import FlightStatusAeroDataBox from '@/pages/FlightStatusAeroDataBox';
 const FlightAwareDemoLazy = React.lazy(() => import('@/pages/FlightAwareDemo.jsx'));
+const FlightAwareHybridRouteDemo = React.lazy(() => import('@/pages/FlightAwareHybridRouteDemo.jsx'));
+const HomeBoxEditor = lazy(() => import('@/pages/admin/HomeBoxEditor'));
 
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const BananaPage = lazy(() => import('@/pages/BananaPage'));
@@ -25,6 +27,7 @@ const CasasCambioPage = lazy(() => import('@/pages/casas-cambio/CasasCambioPage'
 const VinosVinicolasPage = lazy(() => import('@/pages/vinos-vinicolas/VinosVinicolasPage'));
 const FlightResults = lazy(() => import('@/pages/FlightResults.jsx'));
 const FlightNumberSearch = lazy(() => import('@/pages/FlightNumberSearch.jsx'));
+const FlightSearchResults = lazy(() => import('@/pages/FlightSearchResults.jsx'));
 const PesquisaDeVooPorRota = lazy(() => import('@/pages/pesquisa-de-voo-por-rota.jsx'));
 const LazySupabaseDebugPage = lazy(() => import('@/pages/SupabaseDebugPage.jsx'));
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
@@ -166,7 +169,7 @@ const MainLayout = () => {
             )}
           />
           <Route
-            path="/flight-number-search"
+            path={urls.buscarVooNumero}
             element={renderWithSeo(
               <Suspense fallback={<div>Cargando búsqueda por número de vuelo...</div>}>
                 <FlightNumberSearch />
@@ -175,6 +178,18 @@ const MainLayout = () => {
                 title: 'Buscar vuelo por número',
                 description: 'Consulta el estado de tu vuelo ingresando el número. Resultados en tiempo real vía FlightAware.',
                 keywords: 'vuelos, buscar por número, estado de vuelo, FlightAware, real time'
+              }
+            )}
+          />
+          <Route
+            path="/resultados-da-pesquisa-de-voos"
+            element={renderWithSeo(
+              <Suspense fallback={<div>Cargando resultados de búsqueda...</div>}>
+                <FlightSearchResults />
+              </Suspense>,
+              {
+                title: 'Resultados de Búsqueda de Vuelos | VibeChile',
+                description: 'Resultados de tu búsqueda de vuelos en tiempo real.'
               }
             )}
           />
@@ -216,6 +231,18 @@ const MainLayout = () => {
                 title: 'Demo Estado de Vuelos (FlightAware)',
                 description: 'Consulta vuelos en tiempo real usando FlightAware AeroAPI.',
                 keywords: 'vuelos, estado de vuelo, API, FlightAware, demo'
+              })}
+          />
+          {/* Demo Híbrida FlightAware: Ruta + Salidas Programadas */}
+          <Route
+            path="/flightaware-hybrid-demo"
+            element={renderWithSeo(
+              <React.Suspense fallback={<div>Cargando demo híbrida...</div>}>
+                <FlightAwareHybridRouteDemo />
+              </React.Suspense>, {
+                title: 'Demo Híbrida AeroAPI: Ruta + Salidas Programadas',
+                description: 'Comparativa de resultados de vuelos entre SCL y GRU combinando búsqueda por ruta y por salidas programadas usando AeroAPI.',
+                keywords: 'vuelos, AeroAPI, FlightAware, ruta, salidas programadas, comparación, demo'
               })}
           />
           
@@ -394,6 +421,16 @@ const MainLayout = () => {
           />
           
           {/* Rutas de administración */}
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <AdminPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/homepage/box1" element={
+            <ProtectedRoute>
+              <HomeBoxEditor />
+            </ProtectedRoute>
+          } />
           <Route 
             path={urls.admin.login} 
             element={renderWithSeo(

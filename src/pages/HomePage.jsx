@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import TourCard from '@/components/shared/TourCard';
+import HomeBoxModel from '@/components/homepage/HomeBoxModel';
 import TourCardSkeleton from '@/components/shared/TourCardSkeleton';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAllTours, getSiteConfig, subscribeToConfigChanges } from '@/lib/tourData';
@@ -574,6 +575,10 @@ const HomePage = () => {
                     </Link>
                 </div>
             </div>
+            
+            {/* Box Model Editable */}
+            <HomeBoxModel />
+            
             <div className="bg-white w-full flex justify-center">
                 <HomeBoxModels weatherData={{
                     'Santiago': {

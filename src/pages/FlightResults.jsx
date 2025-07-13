@@ -1,5 +1,5 @@
 import React from "react";
-import FlightAwareDemoGrouped from "./FlightAwareDemoGrouped";
+// import FlightAwareDemoGrouped from "./FlightAwareDemoGrouped";
 import { useLocation } from "react-router-dom";
 
 function useQuery() {
@@ -61,7 +61,7 @@ export default function FlightResults() {
         {!loading && !error && flights.length === 0 && (
           <div className="text-white text-center">No se encontraron vuelos.</div>
         )}
-        {!loading && flights.length > 0 && <FlightAwareDemoGrouped flights={flights} />}
+        {/* {!loading && flights.length > 0 && <FlightAwareDemoGrouped flights={flights} />} */}
       </div>
     </div>
   );

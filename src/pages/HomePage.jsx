@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import TourCard from '@/components/shared/TourCard';
 import HomeBoxModel from '@/components/homepage/HomeBoxModel';
 import HomeBoxModel2 from '@/components/homepage/HomeBoxModel2';
+import BoxBanner1 from '@/components/homepage/BoxBanner1';
 import TourCardSkeleton from '@/components/shared/TourCardSkeleton';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAllTours, getSiteConfig, subscribeToConfigChanges } from '@/lib/tourData';
@@ -577,12 +578,13 @@ const HomePage = () => {
                 </div>
             </div>
             
+            <BoxBanner1 />
             {/* Box Models Editable - dos cajas alineadas */}
-            <div className="w-full flex flex-col md:flex-row gap-3 justify-center items-stretch mt-[2px] mb-6">
-              <div className="flex-[1.1] min-w-[320px] max-w-2xl">
+            <div className="w-full flex flex-col md:flex-row justify-center items-stretch mt-[2px] mb-6" style={{gap: 0}}>
+              <div className="flex-[1.1] min-w-[320px] max-w-2xl !m-0 !p-0 !border-0 !rounded-none" style={{margin: 0, padding: 0, border: 0, borderRadius: 0}}>
                 <HomeBoxModel />
               </div>
-              <div className="flex-[1.1] min-w-[320px] max-w-2xl">
+              <div className="flex-[1.1] min-w-[320px] max-w-2xl !m-0 !p-0 !border-0 !rounded-none" style={{margin: 0, padding: 0, border: 0, borderRadius: 0}}>
                 <HomeBoxModel2 />
               </div>
             </div>

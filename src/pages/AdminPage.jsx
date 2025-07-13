@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabaseClient';
 import TourList from '@/components/admin/TourList';
 import TourForm from '@/components/admin/TourForm';
 import HomeBoxEditor2 from './admin/HomeBoxEditor2.jsx';
+import HomeBoxBannerEditor from './admin/HomeBoxBannerEditor.jsx';
 import BookingsList from '@/components/admin/BookingsList';
 import SiteSettingsForm from '@/components/admin/SiteSettingsForm';
 import StripeSettingsForm from '@/components/admin/StripeSettingsForm';
@@ -45,6 +46,7 @@ const AdminPage = () => {
         { path: 'stripe-settings', label: 'Configurações de Pagamento', icon: ShieldCheck },
         { path: 'homepage/box1', label: 'Editar Box Homepage', icon: Edit },
         { path: 'homepage/box2', label: 'Editar Box2 Homepage', icon: Edit },
+        { path: 'homepage/boxbanner1', label: 'Editar Banner Homepage', icon: Edit },
     ];
 
     return (
@@ -95,6 +97,7 @@ const AdminPage = () => {
                     <Route path="stripe-settings" element={<StripeSettingsForm />} />
                     <Route path="image-repository" element={<ImageRepositoryManager />} />
                     <Route path="homepage/box2" element={<HomeBoxEditor2 />} />
+                    <Route path="homepage/boxbanner1" element={<HomeBoxBannerEditor />} />
                 </Routes>
             </main>
         </div>

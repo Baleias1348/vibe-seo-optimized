@@ -27,6 +27,7 @@ const CasasCambioPage = lazy(() => import('@/pages/casas-cambio/CasasCambioPage'
 const VinosVinicolasPage = lazy(() => import('@/pages/vinos-vinicolas/VinosVinicolasPage'));
 const FlightResults = lazy(() => import('@/pages/FlightResults.jsx'));
 const FlightNumberSearch = lazy(() => import('@/pages/FlightNumberSearch.jsx'));
+const FlightNumberSearchTest = lazy(() => import('@/pages/flight-number-search-test.jsx'));
 const FlightSearchResults = lazy(() => import('@/pages/FlightSearchResults.jsx'));
 const PesquisaDeVooPorRota = lazy(() => import('@/pages/pesquisa-de-voo-por-rota.jsx'));
 const LazySupabaseDebugPage = lazy(() => import('@/pages/SupabaseDebugPage.jsx'));
@@ -155,19 +156,7 @@ const MainLayout = () => {
             })}
           />
           {/* Estado de vuelos entre Brasil y Chile */}
-          <Route
-            path={urls.estadoVoosBrasilChile}
-            element={renderWithSeo(
-              <Suspense fallback={<div>Cargando...</div>}>
-                <EstadoDoVoosEntreBrasilEChile />
-              </Suspense>,
-              {
-                title: 'Estado de vuelos entre Brasil y Chile',
-                description: 'Consulta el estado de vuelos directos entre Brasil y Chile: horarios, aerolíneas y estado en tiempo real.',
-                keywords: 'vuelos, Brasil, Chile, estado de vuelo, horarios, aerolíneas, directo'
-              }
-            )}
-          />
+
           <Route
             path={urls.buscarVooNumero}
             element={renderWithSeo(
@@ -514,6 +503,22 @@ const MainLayout = () => {
             element={<PermanentRedirect to={urls.contacto} />} 
           />
           
+          {/* Ruta de prueba para FlightNumberSearch aislado */}
+          <Route
+            path="/flight-number-search-test"
+            element={renderWithSeo(
+              <Suspense fallback={<div>Cargando...</div>}>
+                <FlightNumberSearchTest />
+              </Suspense>,
+              {
+                title: 'Test: FlightNumberSearch.jsx',
+                description: 'Página de prueba para validar el componente FlightNumberSearch.jsx en aislamiento.',
+                type: 'website',
+                noindex: true
+              }
+            )}
+          />
+
           {/* Ruta 404 */}
           <Route 
             path="*" 

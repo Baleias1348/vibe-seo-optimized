@@ -1,23 +1,22 @@
 import React from 'react';
-import { Editor } from '@tinymce/tinymce-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 
-const fetchBoxContent = async () => {
+const fetchBoxContent2 = async () => {
   const { data, error } = await supabase
     .from('homepage_boxes')
     .select('*')
-    .eq('id', 1)
+    .eq('id', 2)
     .single();
   
   if (error) throw error;
-  return data || { id: 1, image_url: '', content: '' };
+  return data || { id: 2, image_url: '', content: '' };
 };
 
-const HomeBoxModel = () => {
+const HomeBoxModel2 = () => {
   const { data: boxData, isLoading, error } = useQuery({
-    queryKey: ['homepageBox'],
-    queryFn: fetchBoxContent,
+    queryKey: ['homepageBox2'],
+    queryFn: fetchBoxContent2,
   });
 
   if (isLoading) return <div className="p-4">Cargando...</div>;
@@ -41,7 +40,6 @@ const HomeBoxModel = () => {
               </div>
             )}
           </div>
-          
           {/* Sección de contenido */}
           <div className="w-full md:w-1/2 p-6 overflow-y-auto">
             {boxData?.content ? (
@@ -59,4 +57,4 @@ const HomeBoxModel = () => {
   );
 };
 
-export default HomeBoxModel;
+export default HomeBoxModel2;

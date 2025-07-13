@@ -207,20 +207,7 @@ export default defineConfig({
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
 			'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, Authorization, apikey, x-client-info',
 			'Cross-Origin-Embedder-Policy': 'credentialless',
-			'Content-Security-Policy': [
-				"default-src 'self';",
-				"connect-src 'self' http://localhost:3011 http://localhost:3002 http://localhost:3001 http://localhost:8081 https://yfgqpaxajeatchcqrehe.supabase.co https://*.supabase.co wss://*.supabase.co https://*.supabase.in https://api.openweathermap.org https://www.google-analytics.com https://analytics.google.com https://play.google.com https://www.recaptcha.net https://www.gstatic.com https://*.ingest.sentry.io https://api.segment.io https://csp.withgoogle.com https://api.freecurrencyapi.com https://v6.exchangerate-api.com/v6 https://open.er-api.com https://vibechile.life;",
-				"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://www.google-analytics.com https://analytics.google.com;",
-				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://js.stripe.com;",
-				"style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://js.stripe.com;",
-				"font-src 'self' data: https: https://fonts.gstatic.com https://js.stripe.com;",
-				"img-src 'self' data: blob: https: http: https://upload.wikimedia.org;",
-				"frame-src 'self' https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/ https://js.stripe.com;",
-				"frame-ancestors 'self';",
-				"form-action 'self';",
-				"base-uri 'self';",
-				"object-src 'none';",
-			].join(' ').replace(/\s+/g, ' ').replace(/\n\s*/g, ' ').trim(),
+			'Content-Security-Policy': "default-src 'self' data: https: http:; connect-src 'self' https: http: ws: wss:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tiny.cloud https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' data: https:; img-src 'self' data: https: http: blob:; frame-src 'self' https:; frame-ancestors 'self'; form-action 'self'; base-uri 'self'; object-src 'none';",
 		},
 		proxy: {
 			'/api': {

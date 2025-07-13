@@ -11,11 +11,11 @@ const fetchBoxContent = async () => {
   const { data, error } = await supabase
     .from('homepage_boxes')
     .select('*')
-    .eq('id', 1)
+    .eq('id', 2)
     .single();
   
   if (error && error.code !== 'PGRST116') throw error;
-  return data || { id: 1, image_url: '', content: '' };
+  return data || { id: 2, image_url: '', content: '' };
 };
 
 const updateBoxContent = async ({ id, image_url, content }) => {
@@ -32,16 +32,16 @@ const updateBoxContent = async ({ id, image_url, content }) => {
   return data;
 };
 
-const HomeBoxEditor = () => {
+const HomeBoxEditor2 = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [content, setContent] = useState('');
+  const [bgColor, setBgColor] = useState('#ffffff');
   const [showSuccess, setShowSuccess] = useState(false);
   const [session, setSession] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const editorRef = useRef(null);
   const queryClient = useQueryClient();
 
-  // Esperar a que la sesión esté lista y escuchar cambios de sesión
   useEffect(() => {
     let mounted = true;
     async function fetchSession() {
@@ -53,7 +53,7 @@ const HomeBoxEditor = () => {
     fetchSession();
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
-      queryClient.invalidateQueries(['homepageBox']); // Refresca el box al cambiar sesión
+      queryClient.invalidateQueries(['homepageBox2']);
     });
     return () => {
       mounted = false;
@@ -62,23 +62,23 @@ const HomeBoxEditor = () => {
   }, [queryClient]);
 
   const { data: boxData, isLoading } = useQuery({
-    queryKey: ['homepageBox'],
+    queryKey: ['homepageBox2'],
     queryFn: fetchBoxContent,
-    enabled: !!session, // Solo fetch si hay sesión
+    enabled: !!session,
   });
 
-  // Sincroniza los campos de edición con el dato real de Supabase siempre que boxData cambie
   useEffect(() => {
     if (boxData) {
       setImageUrl(boxData.image_url || '');
       setContent(boxData.content || '');
+      setBgColor(boxData.bg_color || '#ffffff');
     }
   }, [boxData]);
 
   const updateMutation = useMutation({
     mutationFn: updateBoxContent,
     onSuccess: () => {
-      queryClient.invalidateQueries(['homepageBox']);
+      queryClient.invalidateQueries(['homepageBox2']);
       toast.success('Contenido actualizado correctamente');
     },
     onError: (error) => {
@@ -90,9 +90,10 @@ const HomeBoxEditor = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     updateMutation.mutate({
-      id: 1,
+      id: 2,
       image_url: imageUrl,
-      content: content
+      content: content,
+      bg_color: bgColor
     }, {
       onSuccess: () => {
         setShowSuccess(true);
@@ -104,12 +105,29 @@ const HomeBoxEditor = () => {
   if (sessionLoading || isLoading) return <div>Cargando...</div>;
   if (!session) return <div>Debes iniciar sesión para editar el box.</div>;
 
-
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Editar Box Model 1</h1>
-      
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+    <>
+      {/* Barra de menú de edición */}
+      <div className="w-full bg-gray-100 border-b border-gray-300 py-2 px-4 flex flex-wrap gap-2 items-center mb-6">
+        <a href="/admin" className="text-blue-700 hover:underline font-semibold mr-4">Voltar ao Admin</a>
+        <a href="/" className="text-blue-700 hover:underline font-semibold mr-4">Voltar ao Site</a>
+        <span className="text-gray-500 ml-auto text-sm">Você está editando o Box 2 da Homepage</span>
+      </div>
+      <div className="container mx-auto p-6">
+
+        <h1 className="text-2xl font-bold mb-6">Editar Box Model 2</h1>
+        <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+        <div>
+          <Label htmlFor="bgColor">Cor de fundo do conteúdo</Label>
+          <Input
+            id="bgColor"
+            type="color"
+            value={bgColor}
+            onChange={e => setBgColor(e.target.value)}
+            className="w-16 h-8 p-0 border-none shadow-none cursor-pointer mt-1"
+            style={{ background: 'none' }}
+          />
+        </div>
         <div>
           <Label htmlFor="imageUrl">URL de la Imagen</Label>
           <Input
@@ -121,12 +139,11 @@ const HomeBoxEditor = () => {
             className="mt-1"
           />
         </div>
-
         <div>
           <Label htmlFor="editor">Texto del Box</Label>
           <div className="mt-1">
             <Editor
-              id="editor"
+              id="editor2"
               apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
               onInit={(evt, editor) => (editorRef.current = editor)}
               value={content}
@@ -134,26 +151,22 @@ const HomeBoxEditor = () => {
                 height: 300,
                 menubar: true,
                 plugins: [
-                  'link', // Habilita hipervínculos
+                  'link',
                   'advlist autolink lists charmap preview anchor',
                   'searchreplace visualblocks code fullscreen',
                   'insertdatetime media table paste help wordcount'
                 ],
                 toolbar:
-                  'undo redo | formatselect | bold italic backcolor | link | \
-                  alignleft aligncenter alignright alignjustify | \
-                  bullist numlist outdent indent | removeformat | help',
+                  'undo redo | formatselect | bold italic backcolor | link | \\n                  alignleft aligncenter alignright alignjustify | \\n                  bullist numlist outdent indent | removeformat | help',
                 content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
               }}
               onEditorChange={(newValue) => setContent(newValue)}
             />
           </div>
         </div>
-
         {showSuccess && (
           <div className="text-green-600 font-semibold">¡Cambios guardados exitosamente!</div>
         )}
-
         <div className="flex flex-col md:flex-row gap-4 justify-end">
           <Button 
             type="submit" 
@@ -170,7 +183,6 @@ const HomeBoxEditor = () => {
           </Button>
         </div>
       </form>
-
       <div className="mt-12">
         <h2 className="text-xl font-semibold mb-4">Vista Previa</h2>
         <div className="border border-black rounded-lg overflow-hidden max-w-2xl">
@@ -188,7 +200,7 @@ const HomeBoxEditor = () => {
                 </div>
               )}
             </div>
-            <div className="w-full md:w-1/2 p-4 bg-white">
+            <div className="w-full md:w-1/2 p-4" style={{backgroundColor: bgColor}}>
               {content ? (
                 <div 
                   className="prose max-w-none"
@@ -202,7 +214,8 @@ const HomeBoxEditor = () => {
         </div>
       </div>
     </div>
+  </>
   );
 };
 
-export default HomeBoxEditor;
+export default HomeBoxEditor2;

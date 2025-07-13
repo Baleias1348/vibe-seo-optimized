@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import TourCard from '@/components/shared/TourCard';
 import HomeBoxModel from '@/components/homepage/HomeBoxModel';
+import HomeBoxModel2 from '@/components/homepage/HomeBoxModel2';
 import TourCardSkeleton from '@/components/shared/TourCardSkeleton';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAllTours, getSiteConfig, subscribeToConfigChanges } from '@/lib/tourData';
@@ -559,26 +560,33 @@ const HomePage = () => {
             
             {/* Banner Culinario */}
             <div className="w-full bg-white py-4">
-                <div className="container mx-auto px-4">
+                <div className="container mx-auto px-0">
                     <Link 
                         to="/ranking-dos-melhores-restaurantes-de-Santiago-do-chile" 
-                        className="block w-full max-w-6xl mx-auto hover:opacity-90 transition-opacity"
-                        aria-label="Descubra los mejores restaurantes de Santiago de Chile"
+                        className="block w-full hover:opacity-90 transition-opacity"
+                        aria-label="Descubra os melhores restaurantes de Santiago do Chile"
                     >
-                        <div className="relative w-full" style={{ paddingTop: '15.625%' }}> {/* 200/1280 = 0.15625 */}
+                        <div className="relative w-full" style={{ aspectRatio: '1280/200' }}>
                             <img 
-                                src="/images/banner-culinaria chilena.png" 
-                                alt="Gastronomía Chilena - Descubre los sabores de Chile"
-                                className="absolute top-0 left-0 w-full h-full object-contain rounded-lg shadow-md"
+                                src="/images/banne-culinaria-chilena.png" 
+                                alt="Gastronomia Chilena - Descubra os sabores do Chile"
+                                className="w-full h-auto object-cover rounded-lg shadow-md"
                             />
                         </div>
                     </Link>
                 </div>
             </div>
             
-            {/* Box Model Editable */}
-            <HomeBoxModel />
-            
+            {/* Box Models Editable - dos cajas alineadas */}
+            <div className="w-full flex flex-col md:flex-row gap-3 justify-center items-stretch mt-[2px] mb-6">
+              <div className="flex-[1.1] min-w-[320px] max-w-2xl">
+                <HomeBoxModel />
+              </div>
+              <div className="flex-[1.1] min-w-[320px] max-w-2xl">
+                <HomeBoxModel2 />
+              </div>
+            </div>
+
             <div className="bg-white w-full flex justify-center">
                 <HomeBoxModels weatherData={{
                     'Santiago': {

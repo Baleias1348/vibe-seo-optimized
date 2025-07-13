@@ -6,7 +6,6 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import SocialPosts from '@/pages/SocialPosts.jsx';
 import FlightStatusAeroDataBox from '@/pages/FlightStatusAeroDataBox';
-const FlightAwareHybridRouteDemo = React.lazy(() => import('@/pages/FlightAwareHybridRouteDemo.jsx'));
 const HomeBoxEditor = lazy(() => import('@/pages/admin/HomeBoxEditor'));
 
 const HomePage = lazy(() => import('@/pages/HomePage'));
@@ -225,7 +224,6 @@ const MainLayout = () => {
             path="/flightaware-hybrid-demo"
             element={renderWithSeo(
               <React.Suspense fallback={<div>Cargando demo híbrida...</div>}>
-                <FlightAwareHybridRouteDemo />
               </React.Suspense>, {
                 title: 'Demo Híbrida AeroAPI: Ruta + Salidas Programadas',
                 description: 'Comparativa de resultados de vuelos entre SCL y GRU combinando búsqueda por ruta y por salidas programadas usando AeroAPI.',

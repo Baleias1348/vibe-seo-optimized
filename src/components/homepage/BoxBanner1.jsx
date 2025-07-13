@@ -26,11 +26,11 @@ const BoxBanner1 = () => {
   return (
     <div className="w-full flex justify-center items-center mb-2">
       <div
-        className="flex w-full max-w-[1200px] h-[180px] md:h-[280px] bg-white rounded-lg overflow-hidden shadow border border-gray-200"
+        className="flex flex-col md:flex-row w-full max-w-[1200px] h-[200px] md:h-[200px] bg-white rounded-lg overflow-hidden shadow border border-gray-200"
         style={{ minHeight: 140 }}
       >
         {/* Imagen izquierda */}
-        <div className="w-1/2 h-full bg-gray-100 flex items-center justify-center overflow-hidden">
+        <div className="w-full md:w-1/2 h-1/2 md:h-full bg-gray-100 flex items-center justify-center overflow-hidden">
           {boxData?.image_url_left ? (
             <img
               src={boxData.image_url_left}
@@ -44,7 +44,7 @@ const BoxBanner1 = () => {
           )}
         </div>
         {/* Imagen derecha */}
-        <div className="w-1/2 h-full bg-gray-100 flex items-center justify-center overflow-hidden">
+        <div className="w-full md:w-1/2 h-1/2 md:h-full bg-gray-100 flex items-center justify-center overflow-hidden">
           {boxData?.image_url_right ? (
             <img
               src={boxData.image_url_right}

@@ -498,21 +498,6 @@ const MainLayout = () => {
             element={<PermanentRedirect to={urls.contacto} />} 
           />
           
-          {/* Ruta de prueba para FlightNumberSearch aislado */}
-          <Route
-
-            element={renderWithSeo(
-              <Suspense fallback={<div>Cargando...</div>}>
-                <FlightNumberSearchTest />
-              </Suspense>,
-              {
-                title: 'Test: FlightNumberSearch.jsx',
-                description: 'Página de prueba para validar el componente FlightNumberSearch.jsx en aislamiento.',
-                type: 'website',
-                noindex: true
-              }
-            )}
-          />
 
           {/* Ruta 404 */}
           <Route 

@@ -568,16 +568,6 @@ const HomePage = () => {
                         aria-label="Descubra os melhores restaurantes de Santiago do Chile"
                     >
                         <div className="relative w-full" style={{ aspectRatio: '1280/200' }}>
-                            <img 
-                                src="/images/banne-culinaria-chilena.png" 
-                                alt="Gastronomia Chilena - Descubra os sabores do Chile"
-                                className="w-full h-auto object-cover rounded-lg shadow-md"
-                            />
-                        </div>
-                    </Link>
-                </div>
-            </div>
-            
             <BoxBanner1 />
             {/* Box Models Editable - dos cajas alineadas */}
             <div className="w-full flex flex-col md:flex-row justify-center items-stretch mt-[2px] mb-6" style={{gap: 0}}>
@@ -635,8 +625,12 @@ const HomePage = () => {
                     </div>
                 </div>
             </section>
-        </>
-    );
-};
+          </div>
+        </Link>
+      </div>
+    </div>
+  </>
+  );
+}
 
 export default HomePage;

@@ -6,7 +6,6 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import SocialPosts from '@/pages/SocialPosts.jsx';
 import FlightStatusAeroDataBox from '@/pages/FlightStatusAeroDataBox';
-const FlightAwareDemoLazy = React.lazy(() => import('@/pages/FlightAwareDemo.jsx'));
 const FlightAwareHybridRouteDemo = React.lazy(() => import('@/pages/FlightAwareHybridRouteDemo.jsx'));
 const HomeBoxEditor = lazy(() => import('@/pages/admin/HomeBoxEditor'));
 
@@ -215,7 +214,6 @@ const MainLayout = () => {
             path="/flightaware-demo"
             element={renderWithSeo(
               <React.Suspense fallback={<div>Cargando...</div>}>
-                <FlightAwareDemoLazy />
               </React.Suspense>, {
                 title: 'Demo Estado de Vuelos (FlightAware)',
                 description: 'Consulta vuelos en tiempo real usando FlightAware AeroAPI.',

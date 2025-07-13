@@ -26,7 +26,7 @@ const BoxBanner1 = () => {
   return (
     <div className="w-full flex justify-center items-center mb-2">
       <div
-        className="flex w-full max-w-[calc(2*40vw+32px)] h-[180px] md:h-[280px] bg-white rounded-lg overflow-hidden shadow border border-gray-200"
+        className="flex w-full max-w-[1200px] h-[180px] md:h-[280px] bg-white rounded-lg overflow-hidden shadow border border-gray-200"
         style={{ minHeight: 140 }}
       >
         {/* Imagen izquierda */}

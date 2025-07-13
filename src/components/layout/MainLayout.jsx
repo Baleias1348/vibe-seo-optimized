@@ -25,7 +25,6 @@ const CasasCambioPage = lazy(() => import('@/pages/casas-cambio/CasasCambioPage'
 const VinosVinicolasPage = lazy(() => import('@/pages/vinos-vinicolas/VinosVinicolasPage'));
 const FlightResults = lazy(() => import('@/pages/FlightResults.jsx'));
 const FlightNumberSearch = lazy(() => import('@/pages/FlightNumberSearch.jsx'));
-const FlightNumberSearchTest = lazy(() => import('@/pages/flight-number-search-test.jsx'));
 const FlightSearchResults = lazy(() => import('@/pages/FlightSearchResults.jsx'));
 const PesquisaDeVooPorRota = lazy(() => import('@/pages/pesquisa-de-voo-por-rota.jsx'));
 const LazySupabaseDebugPage = lazy(() => import('@/pages/SupabaseDebugPage.jsx'));
@@ -501,7 +500,7 @@ const MainLayout = () => {
           
           {/* Ruta de prueba para FlightNumberSearch aislado */}
           <Route
-            path="/flight-number-search-test"
+
             element={renderWithSeo(
               <Suspense fallback={<div>Cargando...</div>}>
                 <FlightNumberSearchTest />

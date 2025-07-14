@@ -18,6 +18,7 @@ const ContactPage = lazy(() => import('@/pages/ContactPage'));
 const AdminPage = lazy(() => import('@/pages/AdminPage'));
 const AdminLoginPage = lazy(() => import('@/pages/AdminLoginPage'));
 const AdminUpdatePasswordPage = lazy(() => import('@/pages/AdminUpdatePasswordPage'));
+const EmergenciasPage = lazy(() => import('@/pages/EmergenciasPage.jsx'));
 const WeatherPage = lazy(() => import('@/pages/weather/WeatherPage'));
 const CurrencyPage = lazy(() => import('@/pages/currency/CurrencyPage'));
 const ToursPage = lazy(() => import('@/pages/tours/ToursPage'));
@@ -342,11 +343,11 @@ const MainLayout = () => {
           <Route 
             path={urls.emergencias} 
             element={renderWithSeo(
-              <div>Página de Emergencias</div>,
+              <EmergenciasPage />,
               {
-                title: 'Emergencias en Chile',
-                description: 'Números de emergencia y asistencia en Chile',
-                keywords: 'emergencias, números de emergencia, carabineros, bomberos, ambulancias, Chile'
+                title: 'Emergências no Chile para Brasileiros',
+                description: 'Guia rápido de emergências, números úteis e assistência médica para turistas brasileiros no Chile.',
+                keywords: 'emergencias, números de emergencia, carabineros, bomberos, ambulancias, Chile, Brasil, turistas'
               }
             )} 
           />

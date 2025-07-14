@@ -31,7 +31,7 @@ const quickLinks = [
   {
     icon: AlertTriangle,
     label: "Emergência",
-    url: null,
+    url: "/emergencias",
   },
 ];
 

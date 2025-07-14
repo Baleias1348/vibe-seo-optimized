@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 // Ajusta el import según dónde esté tu cliente de Supabase
-import { supabase } from "../services/supabase";
+import { supabase } from "@/lib/supabaseClient";
 
 const SupabaseDebugPage = () => {
   const [result, setResult] = useState(null);

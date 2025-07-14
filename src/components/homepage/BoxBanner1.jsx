@@ -30,12 +30,13 @@ const BoxBanner1 = () => {
         style={{ minHeight: 140 }}
       >
         {/* Imagen izquierda */}
-        <div className="w-full md:w-1/2 h-1/2 md:h-full bg-gray-100 flex items-center justify-center overflow-hidden">
+        <div className="w-full md:w-1/2 bg-gray-100 flex items-center justify-center overflow-hidden aspect-[16/9] md:aspect-auto">
           {boxData?.image_url_left ? (
             <img
               src={boxData.image_url_left}
               alt="Banner izquierdo"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
+              style={{ maxHeight: '100%', maxWidth: '100%' }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-200">
@@ -44,12 +45,13 @@ const BoxBanner1 = () => {
           )}
         </div>
         {/* Imagen derecha */}
-        <div className="w-full md:w-1/2 h-1/2 md:h-full bg-gray-100 flex items-center justify-center overflow-hidden">
+        <div className="w-full md:w-1/2 bg-gray-100 flex items-center justify-center overflow-hidden aspect-[16/9] md:aspect-auto">
           {boxData?.image_url_right ? (
             <img
               src={boxData.image_url_right}
               alt="Banner derecho"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
+              style={{ maxHeight: '100%', maxWidth: '100%' }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-200">

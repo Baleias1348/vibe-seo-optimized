@@ -5,8 +5,12 @@ import { getTodaysSchedule, isRestaurantOpen } from '@/utils/dateUtils';
 import { restaurantCities } from '../utils/restaurantCities';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import GooglePlacePhotoV2, { useGooglePlaceDetails } from '@/components/restaurants/GooglePlacePhotoV2';
 
 const RestaurantCard = ({ restaurant, className = '' }) => {
+  // Hook de Google Places
+  const { photoUrl, openingHours, openNow } = useGooglePlaceDetails(restaurant.place_id);
+
   const {
     name,
     address = 'Dirección no disponible',
@@ -78,13 +82,23 @@ const RestaurantCard = ({ restaurant, className = '' }) => {
       <Card className="h-full flex flex-col overflow-hidden border-2 border-orange-100 rounded-xl hover:shadow-lg transition-shadow duration-300 max-w-full">
         {/* Imagen */}
         <div className="relative h-40 sm:h-48 w-full">
-          {mainPhotoUrl ? (
-            <img 
-              src={mainPhotoUrl} 
+          {place_id ? (
+            <GooglePlacePhotoV2
+              placeId={place_id}
               alt={name || 'Restaurante'}
               className="w-full h-full object-cover"
-              loading="lazy"
+              fallback={mainPhotoUrl || "/img/default-restaurant.jpg"}
             />
+          ) : mainPhotoUrl ? (
+            <div className="h-full w-full relative">
+              <img
+                src={mainPhotoUrl}
+                alt={name || 'Restaurante'}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-xs text-white text-center p-1">Sin datos Google</div>
+            </div>
           ) : (
             <div className="w-full h-full bg-gray-200 flex items-center justify-center">
               <span className="text-gray-400">Sin imagen</span>
@@ -172,6 +186,35 @@ const RestaurantCard = ({ restaurant, className = '' }) => {
                       </a>
                     )}
                   </div>
+                  {/* Mostrar horarios y estado de Google si existen */}
+                  {openingHours ? (
+                    <div className="mt-1 text-xs text-gray-600 whitespace-pre-line">
+                      {openNow !== null && (
+                        <span className={openNow ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
+                          {openNow ? "Abierto ahora" : "Cerrado ahora"}
+                        </span>
+                      )}
+                      <br />
+                      {openingHours.map(line => (
+                        <div key={line}>{line}</div>
+                      ))}
+                    </div>
+                  ) : (
+                    // Si no hay datos de Google, mostrar los locales
+                    todaySchedule ? (
+                      <div className="mt-1 text-xs text-gray-600">
+                        {isOpen !== undefined && (
+                          <span className={isOpen ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
+                            {isOpen ? "Abierto ahora" : "Cerrado ahora"}
+                          </span>
+                        )}
+                        <br />
+                        {typeof todaySchedule === 'string' ? todaySchedule : ''}
+                      </div>
+                    ) : (
+                      <div className="mt-1 text-xs text-gray-400">Sin horario disponible</div>
+                    )
+                  )}
                 </div>
               </div>
             </div>

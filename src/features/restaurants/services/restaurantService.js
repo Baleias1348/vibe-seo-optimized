@@ -1,4 +1,4 @@
-import { supabase } from '@/utils/supabase';
+import { supabase } from '@/lib/supabaseClient';
 
 // Obtener todos los restaurantes con opciones de filtrado
 export const getRestaurants = async (filters = {}) => {

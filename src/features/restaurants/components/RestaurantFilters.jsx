@@ -111,7 +111,7 @@ const RestaurantFilters = ({
                   );
                 }
                 return (
-                  <SelectItem key={item.value} value={item.value} className="text-base">
+                  <SelectItem key={item.value + '-' + index} value={item.value} className="text-base">
                     {item.label}
                   </SelectItem>
                 );

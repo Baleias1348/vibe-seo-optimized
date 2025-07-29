@@ -14,22 +14,32 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // 3. Obtener imágenes del HeroBanner (ajusta el nombre de la tabla y campos según tu backend)
+  // 3. Obtener imágenes del HeroBanner desde site_config.hero_images
   supabase
-    .from('homepage_banners')
-    .select('*')
+    .from('site_config')
+    .select('hero_images')
+    .limit(1)
     .then(({ data, error }) => {
       const carousel = document.getElementById('hero-carousel');
       if (error) {
-        console.error('Error obteniendo banners:', error);
-        if (carousel) carousel.innerHTML = `<div style='color:red;padding:2em;text-align:center;'>Error obteniendo banners: ${error.message || error}</div>`;
+        console.error('Error obteniendo imágenes del HeroBanner:', error);
+        if (carousel) carousel.innerHTML = `<div style='color:red;padding:2em;text-align:center;'>Error obteniendo imágenes: ${error.message || error}</div>`;
         return;
       }
-      if (!data || data.length === 0) {
-        if (carousel) carousel.innerHTML = `<div style='color:orange;padding:2em;text-align:center;'>No se encontraron imágenes para el banner</div>`;
+      if (!data || data.length === 0 || !data[0].hero_images) {
+        if (carousel) carousel.innerHTML = `<div style='color:orange;padding:2em;text-align:center;'>No se encontraron imágenes configuradas para el HeroBanner</div>`;
         return;
       }
-      crearHeroCarousel(data);
+      let imagenes = data[0].hero_images;
+      // Si viene como JSON string, parsear
+      if (typeof imagenes === 'string') {
+        try { imagenes = JSON.parse(imagenes); } catch(e) { imagenes = []; }
+      }
+      // Adaptar a formato esperado [{image_url: ...}] si es array de strings
+      if (Array.isArray(imagenes) && typeof imagenes[0] === 'string') {
+        imagenes = imagenes.map(url => ({ image_url: url }));
+      }
+      crearHeroCarousel(imagenes);
     });
 
   // 4. Crear el carrusel dinámico

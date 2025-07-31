@@ -128,25 +128,25 @@
 
   <!-- Box Models Editable - dos cajas alineadas -->
   <!-- Flex1: Estado de voo + Box1 -->
-  <section class="flex1 w-full max-w-[1200px] mx-auto flex flex-col md:flex-row gap-8 mt-8 mb-12 px-2 md:px-0 items-stretch">
+  <section class="flex1 w-full max-w-[1200px] mx-auto flex flex-col md:flex-row gap-8 mt-8 mb-12 px-2 md:px-0 items-stretch border-2 border-dashed border-pink-500">
     <!-- Box de Consulta de Vuelos (Estado de voo) -->
     <div class="flex-[1.1] min-w-[320px] max-w-2xl" style="margin: 0; padding: 0; border: 0; border-radius: 0">
       <div class="w-full bg-white py-4">
         <div class="container mx-auto px-4">
           <div class="bg-white rounded-2xl border-4 border-red-500 p-6 shadow-lg w-full">
             <div class="flex flex-row items-start justify-between w-full mb-2 gap-2">
-              <div class="text-2xl md:text-3xl font-bold text-[#0c37e6] m-0">Estado de voo</div>
+              <div class="text-2xl font-bold text-[#0c37e6] m-0">Estado de voos</div>
               <span class="text-sm text-gray-500 font-normal text-right leading-tight max-w-[300px]">Mantenha-se informado sobre os horários<br>atualizados de partida e chegada do seu voo</span>
             </div>
-            <div class="mb-4">
+            <div class="mb-4 mt-6">
               
               <form id="form-pesquisa-numero" class="flex flex-col md:flex-row md:items-end gap-3 mb-6">
                 <div class="flex-1">
-                  <label for="ident" class="block text-sm font-medium text-gray-700 mb-1">Pesquise por número de voo</label>
+                  <label for="ident" class="block text-sm font-medium font-bold text-red-600 mb-1">Pesquise por número de voo</label>
                   <input type="text" id="ident" name="ident" placeholder="Ex: LA2345, TAM8080" required class="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div class="flex-1">
-                  <label for="fecha-numero" class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                  
                   <input type="date" id="fecha-numero" name="fecha-numero" class="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div class="flex-shrink-0">
@@ -154,37 +154,38 @@
                 </div>
               </form>
             </div>
-            <div class="grid grid-cols-4 gap-3 items-end w-full">
-  <label for="origen" class="block text-sm font-medium text-gray-700 mb-0">Pesquise por rota</label>
-  <div></div>
-  <label for="fecha-ruta" class="block text-sm font-medium text-gray-700 mb-0">Data</label>
-  <div></div>
-  <div class="col-span-4">
-    <form id="form-pesquisa-ruta" class="flex flex-row items-end gap-3 w-full mt-1">
-      <div class="flex-1">
-        <select id="origen" name="origen" required class="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          <option value="" disabled selected>Origem</option>
-        </select>
-      </div>
-      <div class="flex-1">
-        <select id="destino" name="destino" required class="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          <option value="" disabled selected>Destino</option>
-        </select>
-      </div>
-      <div class="flex-1">
-        <input type="date" id="fecha-ruta" name="fecha-ruta" class="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-      </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-1 items-end w-full">
+  <div class="md:flex-none">
+    <label for="origen" class="block text-sm font-medium font-bold text-red-600 mb-0">Pesquise por rota</label>
+    <select id="origen" name="origen" required class="block w-full md:w-32 md:max-w-[9rem] border border-gray-300 rounded-md px-3 py-2 mt-0 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+      <option value="" disabled selected>Origem</option>
+    </select>
+  </div>
+  <div class="md:flex-none">
+  <div class="flex-1">
+    <select id="destino" name="destino" required class="block w-full md:w-32 md:max-w-[9rem] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+      <option value="" disabled selected>Destino</option>
+    </select>
+  </div>
+  <div class="flex-1">
+    <input type="date" id="fecha-ruta" name="fecha-ruta" class="block w-full md:w-32 md:max-w-[9rem] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+  </div>
+  <div class="md:col-span-3 col-span-1 w-full mt-2">
+    <form id="form-pesquisa-ruta" class="flex flex-col md:flex-row items-end gap-1 w-full mt-0">
       <div class="flex-shrink-0">
         <button type="submit" class="mt-1 w-full bg-[#0c37e6] text-white px-4 py-2 rounded-md font-bold hover:bg-blue-700 transition">Pesquisar</button>
       </div>
     </form>
+  </div>
+
   </div>
 </div>
           </div>
         </div>
       </div>
     </div>
-    <!-- Box1 (ahora segundo) -->
+    
+    <!-- Box1 (restaurado, segundo hijo de Flex1) -->
     <div class="flex-1 min-h-[180px] md:min-h-[280px] h-full flex flex-col" style="margin: 0; padding: 0; border: 0; border-radius: 0;">
       <div id="home-box-model-1" class="w-full bg-white py-4 h-full flex flex-col min-h-[180px] md:min-h-[280px]">
         <div class="container mx-auto px-4 h-full flex flex-col">
@@ -206,31 +207,26 @@
       </div>
     </div>
   </section>
-    <!-- Box1 (ahora segundo) -->
-    <div class="flex-1 min-h-[180px] md:min-h-[280px] h-full flex flex-col" style="margin: 0; padding: 0; border: 0; border-radius: 0;">
-      <div id="home-box-model-1" class="w-full bg-white py-4 h-full flex flex-col min-h-[180px] md:min-h-[280px]">
-        <div class="container mx-auto px-4 h-full flex flex-col">
-          <div class="flex flex-col md:flex-row w-full max-w-4xl md:ml-0 ml-auto border border-black rounded-lg overflow-hidden h-full">
-            <!-- Sección de imagen -->
-            <div class="w-full md:w-1/2 h-[280px] bg-gray-100 overflow-hidden">
-              <div id="box1-image" class="w-full h-full flex items-center justify-center bg-gray-200">
-                <span class="text-gray-500">Carregando...</span>
-              </div>
-            </div>
-            <!-- Sección de contenido -->
-            <div class="w-full md:w-1/2 pt-0 pb-2 pr-1 pl-3 overflow-y-auto">
-              <div id="box1-content" class="prose max-w-none mt-0 [&>*:first-child]:mt-[3px]">
-                <p class="text-gray-500 italic">Carregando conteúdo...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    
   </section>
 
-  <!-- Box2 SOLO en HomeBoxModels -->
-  <section class="w-full max-w-[1200px] mx-auto flex flex-col md:flex-row gap-8 mt-8 mb-12 px-2 md:px-0 items-stretch">
+  <!-- Flex2: Clima ao vivo + Box2 -->
+  <section class="flex2 w-full max-w-[1200px] mx-auto flex flex-col md:flex-row gap-8 mt-8 mb-12 px-2 md:px-0 items-stretch">
+    <!-- Box Clima ao vivo -->
+    <div class="flex-1 min-h-[180px] md:min-h-[280px] h-full flex flex-col">
+      <div class="w-full bg-white py-4 h-full flex flex-col min-h-[180px] md:min-h-[280px] border border-blue-100 rounded-2xl shadow-lg">
+        <div class="container mx-auto px-4 h-full flex flex-col">
+          <div class="flex flex-col justify-between h-full">
+            <h2 class="font-bold text-xl md:text-2xl mb-6 text-[#0c37e6] font-sans">Clima ao vivo</h2>
+            <div id="weather-cards" class="grid grid-cols-1 gap-4 flex-1 mb-4">
+              <!-- Weather info here -->
+            </div>
+            <div class="text-xs text-gray-400 mt-2">Atualizado há poucos minutos.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Box2 -->
     <div class="flex-1 min-h-[180px] md:min-h-[280px] h-full flex flex-col">
       <div id="home-box-model-2" class="w-full bg-white py-4 h-full flex flex-col min-h-[180px] md:min-h-[280px]">
         <div class="container mx-auto px-4 h-full flex flex-col">

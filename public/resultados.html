@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultados da Pesquisa de Voos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Resultados da Pesquisa</h1>
+    <div id="contador-vuelos"></div>
+    <div id="resultados">Carregando...</div>
+    <a href="index.html">Nova pesquisa</a>
+  </div>
+  <script>
+    function getQueryParams() {
+      const params = {};
+      window.location.search.substring(1).split('&').forEach(pair => {
+        const [key, value] = pair.split('=');
+        params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+      });
+      return params;
+    }
+
+    // Mapeo de códigos IATA a nombres comerciales
+    const aerolineas = {
+      'LA': 'LATAM Airlines',
+      'LAN': 'LATAM Airlines',
+      'TAM': 'TAM Linhas Aéreas',
+      'JJ': 'TAM Linhas Aéreas',
+      'G3': 'GOL Linhas Aéreas',
+      'AD': 'Azul Brazilian Airlines',
+      'QF': 'Qantas Airways',
+      'AA': 'American Airlines',
+      'DL': 'Delta Air Lines',
+      'UA': 'United Airlines',
+      'AF': 'Air France',
+      'KL': 'KLM Royal Dutch Airlines',
+      'LH': 'Lufthansa',
+      'IB': 'Iberia',
+      'AR': 'Aerolíneas Argentinas',
+      'CM': 'Copa Airlines',
+      'AV': 'Avianca'
+    };
+
+    let airlinesMap = {};
+
+    async function cargarAirlinesMap() {
+      try {
+        const res = await fetch('airlines-codes-south-america.json');
+        const data = await res.json();
+        // Mapear por IATA y por ICAO
+        data.forEach(a => {
+          if (a.iata) airlinesMap[a.iata.toUpperCase()] = a.name;
+          if (a.icao) airlinesMap[a.icao.toUpperCase()] = a.name;
+        });
+      } catch (e) {
+        // fallback mínimo
+        airlinesMap = { 'SKU': 'Sky Airline', 'JA': 'JetSmart', 'JAT': 'JetSmart' };
+      }
+    }
+
+    function getNombreAerolinea(ident) {
+      if (!ident) return '';
+      // Buscar código IATA/ICAO como substring (case-insensitive)
+      const identUC = ident.toUpperCase();
+      // Primero, buscar coincidencia exacta de prefijo (2-3 letras)
+      const match = identUC.match(/^([A-Z]{2,3})/);
+      if (match && airlinesMap[match[1]]) return airlinesMap[match[1]];
+      // Si no, buscar si algún código del mapeo aparece como substring
+      for (const code in airlinesMap) {
+        if (identUC.includes(code)) return airlinesMap[code];
+      }
+      return identUC;
+    }
+
+    function formatearVuelos(vuelos, esPlano = false) {
+      let vuelosPlanos = [];
+      if (esPlano) {
+        vuelosPlanos = vuelos;
+      } else {
+        vuelos.forEach(vueloConSegmentos => {
+          if (vueloConSegmentos.segments && vueloConSegmentos.segments.length > 0) {
+            vuelosPlanos.push(...vueloConSegmentos.segments);
+          }
+        });
+      }
+      if (vuelosPlanos.length === 0) return '<div>Nenhum voo encontrado para os critérios especificados.</div>';
+      return vuelosPlanos.map(vuelo => {
+        const origem = vuelo.origin || {};
+        const destino = vuelo.destination || {};
+        const dataSaida = new Date(vuelo.scheduled_out).toLocaleString('pt-BR');
+        const dataChegada = new Date(vuelo.scheduled_in).toLocaleString('pt-BR');
+        const status = vuelo.status || 'Programado';
+        return `
+          <div class="vuelo-card">
+            <div class="vuelo-header">
+              <div class="vuelo-info">
+                <h3>${vuelo.ident_iata || vuelo.ident}</h3>
+                <div class="aerolinea font-semibold text-blue-700 text-base mb-2">
+                  ${getNombreAerolinea(vuelo.ident_iata || vuelo.ident) || vuelo.operator || 'Companhia aérea não identificada'}
+                </div>
+              </div>
+              <span class="estado">${status}</span>
+            </div>
+            <div class="vuelo-ruta">
+              <div class="aeropuerto">
+                <strong>${origem.code_iata || origem.code_icao || origem.code || 'N/A'}</strong><br>
+                <small>${origem.city || 'Cidade não disponível'}</small><br>
+                <small>${origem.name || 'Nome não disponível'}</small>
+              </div>
+              <div class="flecha">✈️</div>
+              <div class="aeropuerto">
+                <strong>${destino.code_iata || destino.code_icao || destino.code || 'N/A'}</strong><br>
+                <small>${destino.city || 'Cidade não disponível'}</small><br>
+                <small>${destino.name || 'Nome não disponível'}</small>
+              </div>
+            </div>
+            <div class="vuelo-horarios">
+              <div class="horario">
+                <strong>Saída:</strong> ${dataSaida}
+                ${vuelo.actual_out ? `<br><small>Real: ${new Date(vuelo.actual_out).toLocaleString('pt-BR')}</small>` : ''}
+              </div>
+              <div class="horario">
+                <strong>Chegada:</strong> ${dataChegada}
+                ${vuelo.actual_in ? `<br><small>Real: ${new Date(vuelo.actual_in).toLocaleString('pt-BR')}</small>` : ''}
+              </div>
+            </div>
+            <div class="vuelo-detalles">
+              <span><strong>Aeronave:</strong> ${vuelo.aircraft_type}</span>
+              <span><strong>Matrícula:</strong> ${vuelo.registration}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+
+    async function mostrarResultados() {
+      const params = getQueryParams();
+      let url = '';
+      let esPlano = false;
+      if (params.ident && params.fecha) {
+        // Consulta por número
+        const start = `${params.fecha}T00:00:00Z`;
+        const end = `${params.fecha}T23:59:59Z`;
+        url = `https://api-vuelos2.onrender.com/api/fa/flight/number/${encodeURIComponent(params.ident)}?start=${start}&end=${end}`;
+        esPlano = true;
+      } else if (params.origen && params.destino && params.fecha) {
+        // Consulta por ruta
+        url = `https://api-vuelos2.onrender.com/api/fa/to-route/${params.origen}/${params.destino}/${params.fecha}`;
+        esPlano = false;
+      } else {
+        document.getElementById('resultados').textContent = 'Parâmetros de consulta ausentes.';
+        return;
+      }
+      document.getElementById('resultados').textContent = 'Carregando...';
+      try {
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (data.flights) {
+          const total = esPlano ? data.flights.length : data.flights.reduce((acc, v) => acc + (v.segments ? v.segments.length : 0), 0);
+          document.getElementById('contador-vuelos').textContent = total > 0 ? `${total} voo(s) encontrado(s)` : '';
+          document.getElementById('resultados').innerHTML = formatearVuelos(data.flights, esPlano);
+        } else {
+          document.getElementById('contador-vuelos').textContent = '';
+          document.getElementById('resultados').textContent = 'Nenhum voo encontrado para os critérios especificados.';
+        }
+      } catch (err) {
+        document.getElementById('resultados').textContent = 'Erro ao consultar os dados.';
+      }
+    }
+    cargarAirlinesMap().then(() => mostrarResultados());
+  </script>
+</body>
+</html>

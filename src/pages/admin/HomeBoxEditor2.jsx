@@ -154,11 +154,37 @@ const HomeBoxEditor2 = () => {
                   'link',
                   'advlist autolink lists charmap preview anchor',
                   'searchreplace visualblocks code fullscreen',
-                  'insertdatetime media table paste help wordcount'
+                  'insertdatetime media table paste help wordcount',
+                  'lists',
+                  'code',
+                  'table',
+                  'emoticons',
+                  'directionality',
+                  'visualchars',
+                  'nonbreaking',
+                  'template',
+                  'pagebreak',
+                  'textcolor',
+                  'colorpicker',
+                  'textpattern',
+                  'importcss',
+                  'save',
+                  'style',
+                  'formatpainter'
                 ],
                 toolbar:
-                  'undo redo | formatselect | bold italic backcolor | link | \\n                  alignleft aligncenter alignright alignjustify | \\n                  bullist numlist outdent indent | removeformat | help',
-                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+                  'undo redo | styleselect | formatselect | fontselect | fontsizeselect | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | bullist numlist | blockquote | link image media | removeformat | code | ltr rtl | table | emoticons | visualchars nonbreaking template pagebreak | formatpainter',
+                content_style: `body { font-family:Helvetica,Arial,sans-serif; font-size:16px; margin:0; } h1, h2, h3, h4, h5, h6, p { margin-top: 3px !important; margin-bottom: 8px; }`,
+                style_formats: [
+                  { title: 'Espaciado superior 0px', block: 'p', styles: { 'margin-top': '0px' } },
+                  { title: 'Espaciado superior 3px', block: 'p', styles: { 'margin-top': '3px' } },
+                  { title: 'Espaciado superior 8px', block: 'p', styles: { 'margin-top': '8px' } },
+                  { title: 'Espaciado inferior 0px', block: 'p', styles: { 'margin-bottom': '0px' } },
+                  { title: 'Espaciado inferior 8px', block: 'p', styles: { 'margin-bottom': '8px' } },
+                  { title: 'Título sin margen', block: 'h2', styles: { 'margin-top': '0px' } },
+                  { title: 'Título con margen 3px', block: 'h2', styles: { 'margin-top': '3px' } },
+                  { title: 'Título con margen 8px', block: 'h2', styles: { 'margin-top': '8px' } }
+                ]
               }}
               onEditorChange={(newValue) => setContent(newValue)}
             />

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chile ao Vivo - Informações em Tempo Real sobre o Chile</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Clima, câmbio, voos e turismo do Chile em tempo real. Sua fonte confiável de informações sobre o Chile.">
+  <meta name="keywords" content="Chile, clima, câmbio, voos, turismo, Santiago, Valparaíso, Viña del Mar">
+</head>
+<body>
+  <!-- Header Negro -->
+  <header class="sticky top-0 z-50 w-full bg-black border-b border-transparent">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex h-20 items-center justify-between">
+        <a href="/" class="flex items-center">
+          <span class="text-xl font-bold text-white">Chile ao Vivo</span>
+        </a>
+        
+        <nav class="hidden lg:flex items-center space-x-8">
+          <a href="/" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Início</a>
+          <a href="/app/tours" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Tours</a>
+          <a href="/app/vinicolas-e-vinhos-chilenos" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Vinhos de Chile</a>
+          <a href="/app/ranking-dos-melhores-restaurantes-de-Santiago-do-chile" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Restaurantes</a>
+          <a href="/app/centros-de-esqui-chile" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Centros de Esqui</a>
+          <a href="/app/clima-no-santiago-do-chile" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Clima</a>
+          <a href="/app/pesquisar-por-numero-de-voo" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Estado do voo</a>
+          <a href="/app/blog" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Blog</a>
+        </nav>
+        
+        <div class="flex items-center space-x-3">
+          <button class="lg:hidden text-white hover:bg-white/10 p-2 rounded">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NewsTicker rojo inmediatamente debajo del encabezado -->
+  <div id="news-ticker" class="bg-red-600 text-white py-3 overflow-hidden">
+    <div class="flex items-center whitespace-nowrap animate-marquee" id="ticker-content">
+      <div class="flex items-center space-x-3 mx-5">
+        <span class="whitespace-nowrap text-lg md:text-xl italic font-bold">Carregando informações...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HeroCarousel -->
+  <div id="hero-carousel" class="relative w-full bg-black h-[132px] md:h-[374px] lg:h-[462px] overflow-hidden">
+    <div class="absolute inset-0 w-full h-full">
+      <img id="hero-image" 
+           src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop" 
+           alt="Imagen de portada" 
+           class="w-full h-full object-cover object-center block absolute inset-0">
+    </div>
+  </div>
+
+  <!-- HomeQuickAccessBar - Franja azul con íconos -->
+  <nav class="w-full bg-[#1238f5] px-0 py-2" aria-label="Acessos rápidos">
+    <div class="grid grid-cols-3 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:gap-4 sm:justify-center items-center w-full">
+      <a href="/app/clima-no-santiago-do-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.4 4.4 0 003 15z"></path>
+        </svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Clima</span>
+      </a>
+      <a href="/app/converter-reais-em-pesos-chilenos" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Conversor de Moeda</span>
+      </a>
+      <a href="/app/ranking-dos-melhores-restaurantes-de-Santiago-do-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+        </svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Guia gastronômico</span>
+      </a>
+      <a href="/app/centros-de-esqui-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z"></path>
+        </svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Centros de esqui</span>
+      </a>
+      <a href="/app/pesquisar-por-numero-de-voo" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+        </svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Estado do voo</span>
+      </a>
+      <a href="/emergencias" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Emergência</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Banner Homepage - dos imágenes -->
+  <div class="w-full bg-white py-4">
+    <div class="container mx-auto px-0">
+      <div class="w-full flex justify-center items-center mb-2">
+        <div id="homepage-banner" class="flex flex-col md:flex-row w-full max-w-[1200px] h-[200px] md:h-[200px] bg-white rounded-[8px] border border-gray-300 overflow-hidden shadow" style="min-height: 140px">
+          <!-- Imagen izquierda -->
+          <div class="w-full md:w-1/2 bg-gray-100 flex items-center justify-center overflow-hidden aspect-[16/9] md:aspect-auto">
+            <div id="banner-left-image" class="w-full h-full flex items-center justify-center bg-gray-200">
+              <span class="text-gray-400">Carregando...</span>
+            </div>
+          </div>
+          <!-- Imagen derecha -->
+          <div class="w-full md:w-1/2 bg-gray-100 flex items-center justify-center overflow-hidden aspect-[16/9] md:aspect-auto">
+            <div id="banner-right-image" class="w-full h-full flex items-center justify-center bg-gray-200">
+              <span class="text-gray-400">Carregando...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Box Models Editable - dos cajas alineadas -->
+  <!-- Flex1: Estado de voo + Box1 -->
+  <section class="flex1 w-full max-w-[1200px] mx-auto flex flex-col md:flex-row gap-8 mt-8 mb-12 px-2 md:px-0 items-stretch">
+    <!-- Box de Consulta de Vuelos (Estado de voo) -->
+    <div class="flex-[1.1] min-w-[320px] max-w-2xl" style="margin: 0; padding: 0; border: 0; border-radius: 0">
+      <div class="w-full bg-white py-4">
+        <div class="container mx-auto px-4">
+          <div class="bg-white rounded-2xl border-4 border-red-500 p-6 shadow-lg w-full">
+            <div class="flex flex-row items-start justify-between w-full mb-2 gap-2">
+              <div class="text-2xl md:text-3xl font-bold text-[#0c37e6] m-0">Estado de voo</div>
+              <span class="text-sm text-gray-500 font-normal text-right leading-tight max-w-[300px]">Mantenha-se informado sobre os horários<br>atualizados de partida e chegada do seu voo</span>
+            </div>
+            <div class="mb-4">
+              
+              <form id="form-pesquisa-numero" class="flex flex-col md:flex-row md:items-end gap-3 mb-6">
+                <div class="flex-1">
+                  <label for="ident" class="block text-sm font-medium text-gray-700 mb-1">Pesquise por número de voo</label>
+                  <input type="text" id="ident" name="ident" placeholder="Ex: LA2345, TAM8080" required class="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex-1">
+                  <label for="fecha-numero" class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                  <input type="date" id="fecha-numero" name="fecha-numero" class="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex-shrink-0">
+                  <button type="submit" class="mt-1 w-full bg-[#0c37e6] text-white px-4 py-2 rounded-md font-bold hover:bg-blue-700 transition">Pesquisar</button>
+                </div>
+              </form>
+            </div>
+            <div class="grid grid-cols-4 gap-3 items-end w-full">
+  <label for="origen" class="block text-sm font-medium text-gray-700 mb-0">Pesquise por rota</label>
+  <div></div>
+  <label for="fecha-ruta" class="block text-sm font-medium text-gray-700 mb-0">Data</label>
+  <div></div>
+  <div class="col-span-4">
+    <form id="form-pesquisa-ruta" class="flex flex-row items-end gap-3 w-full mt-1">
+      <div class="flex-1">
+        <select id="origen" name="origen" required class="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <option value="" disabled selected>Origem</option>
+        </select>
+      </div>
+      <div class="flex-1">
+        <select id="destino" name="destino" required class="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <option value="" disabled selected>Destino</option>
+        </select>
+      </div>
+      <div class="flex-1">
+        <input type="date" id="fecha-ruta" name="fecha-ruta" class="block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+      </div>
+      <div class="flex-shrink-0">
+        <button type="submit" class="mt-1 w-full bg-[#0c37e6] text-white px-4 py-2 rounded-md font-bold hover:bg-blue-700 transition">Pesquisar</button>
+      </div>
+    </form>
+  </div>
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Box1 (ahora segundo) -->
+    <div class="flex-1 min-h-[180px] md:min-h-[280px] h-full flex flex-col" style="margin: 0; padding: 0; border: 0; border-radius: 0;">
+      <div id="home-box-model-1" class="w-full bg-white py-4 h-full flex flex-col min-h-[180px] md:min-h-[280px]">
+        <div class="container mx-auto px-4 h-full flex flex-col">
+          <div class="flex flex-col md:flex-row w-full max-w-4xl md:ml-0 ml-auto border border-black rounded-lg overflow-hidden h-full">
+            <!-- Sección de imagen -->
+            <div class="w-full md:w-1/2 h-[280px] bg-gray-100 overflow-hidden">
+              <div id="box1-image" class="w-full h-full flex items-center justify-center bg-gray-200">
+                <span class="text-gray-500">Carregando...</span>
+              </div>
+            </div>
+            <!-- Sección de contenido -->
+            <div class="w-full md:w-1/2 pt-0 pb-2 pr-1 pl-3 overflow-y-auto">
+              <div id="box1-content" class="prose max-w-none mt-0 [&>*:first-child]:mt-[3px]">
+                <p class="text-gray-500 italic">Carregando conteúdo...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+    <!-- Box1 (ahora segundo) -->
+    <div class="flex-1 min-h-[180px] md:min-h-[280px] h-full flex flex-col" style="margin: 0; padding: 0; border: 0; border-radius: 0;">
+      <div id="home-box-model-1" class="w-full bg-white py-4 h-full flex flex-col min-h-[180px] md:min-h-[280px]">
+        <div class="container mx-auto px-4 h-full flex flex-col">
+          <div class="flex flex-col md:flex-row w-full max-w-4xl md:ml-0 ml-auto border border-black rounded-lg overflow-hidden h-full">
+            <!-- Sección de imagen -->
+            <div class="w-full md:w-1/2 h-[280px] bg-gray-100 overflow-hidden">
+              <div id="box1-image" class="w-full h-full flex items-center justify-center bg-gray-200">
+                <span class="text-gray-500">Carregando...</span>
+              </div>
+            </div>
+            <!-- Sección de contenido -->
+            <div class="w-full md:w-1/2 pt-0 pb-2 pr-1 pl-3 overflow-y-auto">
+              <div id="box1-content" class="prose max-w-none mt-0 [&>*:first-child]:mt-[3px]">
+                <p class="text-gray-500 italic">Carregando conteúdo...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Box2 SOLO en HomeBoxModels -->
+  <section class="w-full max-w-[1200px] mx-auto flex flex-col md:flex-row gap-8 mt-8 mb-12 px-2 md:px-0 items-stretch">
+    <div class="flex-1 min-h-[180px] md:min-h-[280px] h-full flex flex-col">
+      <div id="home-box-model-2" class="w-full bg-white py-4 h-full flex flex-col min-h-[180px] md:min-h-[280px]">
+        <div class="container mx-auto px-4 h-full flex flex-col">
+          <div class="flex flex-col md:flex-row w-full max-w-4xl md:ml-0 ml-auto border border-black rounded-lg overflow-hidden h-full">
+            <!-- Sección de imagen -->
+            <div class="w-full md:w-1/2 h-[280px] bg-gray-100 overflow-hidden">
+              <div id="box2-image" class="w-full h-full flex items-center justify-center bg-gray-200">
+                <span class="text-gray-500">Carregando...</span>
+              </div>
+            </div>
+            <!-- Sección de contenido -->
+            <div class="w-full md:w-1/2 p-6 overflow-y-auto">
+              <div id="box2-content" class="prose max-w-none">
+                <p class="text-gray-500 italic">Carregando conteúdo...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+
+    <script>
+
+      // --- Redirección por número ---
+      document.getElementById('form-pesquisa-numero').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const ident = document.getElementById('ident').value.trim();
+        let fecha = document.getElementById('fecha-numero').value;
+        if (!fecha) fecha = new Date().toISOString().slice(0, 10);
+        window.location.href = `resultados.html?ident=${encodeURIComponent(ident)}&fecha=${encodeURIComponent(fecha)}`;
+      });
+      // --- Redirección por ruta ---
+      document.getElementById('form-pesquisa-ruta').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const origen = document.getElementById('origen').value;
+        const destino = document.getElementById('destino').value;
+        let fecha = document.getElementById('fecha-ruta').value;
+        if (!fecha) fecha = new Date().toISOString().slice(0, 10);
+        window.location.href = `resultados.html?origen=${encodeURIComponent(origen)}&destino=${encodeURIComponent(destino)}&fecha=${encodeURIComponent(fecha)}`;
+      });
+      // --- Poblar selects de aeropuertos ---
+      // Listas de aeropuertos internacionales de Chile y Brasil
+      const aeropuertosChile = [
+        { code: 'SCL', city: 'Santiago' },
+        { code: 'ANF', city: 'Antofagasta' },
+        { code: 'ARI', city: 'Arica' },
+        { code: 'CCP', city: 'Concepción' },
+        { code: 'IQQ', city: 'Iquique' },
+        { code: 'PMC', city: 'Puerto Montt' },
+        { code: 'PUQ', city: 'Punta Arenas' },
+        { code: 'ZOS', city: 'Osorno' },
+        { code: 'LSC', city: 'La Serena' },
+      ];
+      const aeropuertosBrasil = [
+        { code: 'GRU', city: 'São Paulo (Guarulhos)' },
+        { code: 'CGH', city: 'São Paulo (Congonhas)' },
+        { code: 'GIG', city: 'Río de Janeiro (Galeão)' },
+        { code: 'SDU', city: 'Río de Janeiro (Santos Dumont)' },
+        { code: 'FLN', city: 'Florianópolis' },
+        { code: 'POA', city: 'Porto Alegre' },
+        { code: 'BEL', city: 'Belém' },
+        { code: 'CNF', city: 'Belo Horizonte' },
+        { code: 'BSB', city: 'Brasília' },
+        { code: 'CWB', city: 'Curitiba' },
+        { code: 'FOR', city: 'Fortaleza' },
+        { code: 'REC', city: 'Recife' },
+        { code: 'SSA', city: 'Salvador' },
+      ];
+      function llenarSelectAeropuertos() {
+        const origen = document.getElementById('origen');
+        const destino = document.getElementById('destino');
+        function addOptions(select, lista, label) {
+          const optgroup = document.createElement('optgroup');
+          optgroup.label = label;
+          lista.forEach(a => {
+            const option = document.createElement('option');
+            option.value = a.code;
+            option.textContent = `${a.code} (${a.city})`;
+            optgroup.appendChild(option);
+          });
+          select.appendChild(optgroup);
+        }
+        // Preserva la primera opción (Origem/Destino) al repoblar
+        const origenFirst = origen.querySelector('option');
+        const destinoFirst = destino.querySelector('option');
+        origen.innerHTML = '';
+        destino.innerHTML = '';
+        if (origenFirst) origen.appendChild(origenFirst);
+        if (destinoFirst) destino.appendChild(destinoFirst);
+        addOptions(origen, aeropuertosChile, 'Chile');
+        addOptions(origen, aeropuertosBrasil, 'Brasil');
+        addOptions(destino, aeropuertosChile, 'Chile');
+        addOptions(destino, aeropuertosBrasil, 'Brasil');
+      }
+      llenarSelectAeropuertos();
+    </script>
+    <style>
+      .tabs { display:flex; gap:5px; margin-bottom:1em; }
+      .tab { padding:0.5em 1em; border:none; background:#eee; cursor:pointer; border-radius:4px 4px 0 0;}
+      .pesquisa-form { margin-bottom:1em; }
+      .pesquisa-form label { display:block; margin-top:0.5em; }
+      .pesquisa-form input, .pesquisa-form select { width:100%; padding:0.3em; margin-top:0.2em; }
+      .pesquisa-form button { margin-top:1em; padding:0.5em 1em; background:#007bff; color:#fff; border:none; border-radius:4px; cursor:pointer;}
+      .pesquisa-form button:hover { background:#0056b3; }
+    </style>
+  </div>
+
+  <!-- Noticias destacadas -->
+  <section class="py-12 bg-white">
+    <div class="container mx-auto p-4">
+      <h2 class="text-3xl font-bold mb-4">Notícias destacadas</h2>
+      <div class="flex flex-wrap justify-center mb-4">
+        <div class="overflow-hidden h-full hover:shadow-lg transition-shadow duration-300 flex flex-col bg-white rounded-lg shadow-md max-w-md">
+          <div class="aspect-[16/9] w-full overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1558464876-94cf36537234?q=80&w=1374&auto=format&fit=crop" 
+                 alt="Prato de mariscos chilenos frescos" 
+                 class="w-full h-full object-cover">
+          </div>
+          <div class="p-6 flex-grow flex flex-col">
+            <p class="text-sm font-semibold text-blue-600 mb-1">Reportagem destacada</p>
+            <h3 class="text-xl font-semibold mb-2 text-gray-900">O Sabor dos Mariscos Chilenos</h3>
+            <p class="text-gray-600 mb-4 flex-grow">Uma imersão na rica culinária costeira do Chile.</p>
+            <a href="/blog/mariscos-chilenos" class="text-blue-600 hover:text-blue-800 font-semibold">Leia Mais →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Supabase Library -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  
+  <!-- JavaScript Files -->
+  <script src="assets/js/env-config.js"></script>
+  <script src="assets/js/homepage-exact.js"></script>
+  <script src="/hero-banner.js"></script>
+</body>
+</html>

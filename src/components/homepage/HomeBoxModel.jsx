@@ -43,10 +43,11 @@ const HomeBoxModel = () => {
           </div>
           
           {/* Sección de contenido */}
-          <div className="w-full md:w-1/2 p-6 overflow-y-auto">
+          <div className="w-full md:w-1/2 p-1 overflow-y-auto">
             {boxData?.content ? (
               <div 
                 className="prose max-w-none"
+                style={{ border: '2px dashed #e91e63' }}
                 dangerouslySetInnerHTML={{ __html: boxData.content }} 
               />
             ) : (

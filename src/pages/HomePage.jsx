@@ -562,13 +562,18 @@ const HomePage = () => {
             {/* Banner Culinario */}
             <div className="w-full bg-white py-4">
                 <div className="container mx-auto px-0">
-                    <Link 
-                        to="/ranking-dos-melhores-restaurantes-de-Santiago-do-chile" 
+                    <Link
+                        to="/ranking-dos-melhores-restaurantes-de-Santiago-do-chile"
                         className="block w-full hover:opacity-90 transition-opacity"
                         aria-label="Descubra os melhores restaurantes de Santiago do Chile"
                     >
                         <div className="relative w-full" style={{ aspectRatio: '1280/200' }}>
-            <BoxBanner1 />
+                            <BoxBanner1 />
+                        </div>
+                    </Link>
+                </div>
+            </div>
+
             {/* Box Models Editable - dos cajas alineadas */}
             <div className="w-full flex flex-col md:flex-row justify-center items-stretch mt-[2px] mb-6" style={{gap: 0}}>
               <div className="flex-[1.1] min-w-[320px] max-w-2xl !m-0 !p-0 !border-0 !rounded-none" style={{margin: 0, padding: 0, border: 0, borderRadius: 0}}>
@@ -625,10 +630,6 @@ const HomePage = () => {
                     </div>
                 </div>
             </section>
-          </div>
-        </Link>
-      </div>
-    </div>
   </>
   );
 }

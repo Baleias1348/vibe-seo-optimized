@@ -1,0 +1,171 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f7fa;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 30px 24px 24px 24px;
+}
+
+/* Responsividad para móviles */
+@media (max-width: 768px) {
+  .container {
+    margin: 20px 16px;
+    padding: 20px 16px;
+    max-width: none;
+  }
+  
+  h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .tabs {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .tab {
+    margin: 0;
+    border-radius: 5px;
+  }
+}
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.tab {
+  border: none;
+  background: #e5e9f2;
+  color: #2a3b4d;
+  padding: 10px 20px;
+  margin: 0 4px;
+  border-radius: 5px 5px 0 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+.tab.active {
+  background: #fff;
+  border-bottom: 2px solid #2a3b4d;
+  color: #0d1a26;
+}
+.consulta-form {
+  margin-bottom: 20px;
+}
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+input, select, button {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 14px;
+  border: 1px solid #c2c8d0;
+  border-radius: 4px;
+  font-size: 15px;
+}
+button {
+  background: #2a3b4d;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover {
+  background: #1a2533;
+}
+.vuelo-card {
+  border: 1px solid #e5e9f2;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  padding: 16px 20px;
+  background: #fafdff;
+  box-shadow: 0 1px 4px #0001;
+}
+.vuelo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.vuelo-info h3 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  color: #0c37e6;
+}
+.aerolinea {
+  font-size: 14px;
+  color: #2a3b4d;
+  margin-bottom: 2px;
+}
+.estado {
+  font-size: 16px;
+  font-weight: bold;
+  color: #0c37e6;
+}
+.vuelo-ruta {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.aeropuerto {
+  flex: 1;
+  text-align: center;
+}
+.flecha {
+  font-size: 20px;
+  margin: 0 10px;
+}
+.vuelo-horarios {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.horario {
+  flex: 1;
+  font-size: 14px;
+  color: #2a3b4d;
+}
+.vuelo-detalles {
+  display: flex;
+  gap: 18px;
+  font-size: 13px;
+  color: #0c37e6;
+  margin-top: 4px;
+}
+#contador-vuelos {
+  font-weight: bold;
+  color: #0c37e6;
+  margin-bottom: 1em;
+  text-align: center;
+}
+#resultados {
+  min-height: 80px;
+}
+.error {
+  color: #e11d48;
+  background: #fee2e2;
+  padding: 1em;
+  border-radius: 8px;
+  margin-bottom: 1em;
+  text-align: center;
+}
+.loading {
+  color: #0c37e6;
+  text-align: center;
+}

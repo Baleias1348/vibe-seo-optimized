@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chile ao Vivo - Informações em Tempo Real sobre o Chile</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Clima, câmbio, voos e turismo do Chile em tempo real. Sua fonte confiável de informações sobre o Chile.">
+  <meta name="keywords" content="Chile, clima, câmbio, voos, turismo, Santiago, Valparaíso, Viña del Mar">
+</head>
+<body>
+  <!-- Header Negro -->
+  <header class="sticky top-0 z-50 w-full bg-black border-b border-transparent">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex h-20 items-center justify-between">
+        <a href="http://localhost:8081/" class="flex items-center">
+          <span class="text-xl font-bold text-white">Chile ao Vivo</span>
+        </a>
+        
+        <nav class="hidden lg:flex items-center space-x-8">
+          <a href="http://localhost:8081/" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Início</a>
+          <a href="http://localhost:8081/tours" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Tours</a>
+          <a href="http://localhost:8081/vinicolas-e-vinhos-chilenos" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Vinhos de Chile</a>
+          <a href="http://localhost:8081/ranking-dos-melhores-restaurantes-de-Santiago-do-chile" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Restaurantes</a>
+          <a href="http://localhost:8081/centros-de-esqui-chile" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Centros de Esqui</a>
+          <a href="http://localhost:8081/clima-no-santiago-do-chile" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Clima</a>
+          <a href="http://localhost:8081/pesquisar-por-numero-de-voo" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Estado do voo</a>
+          <a href="http://localhost:8081/blog" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Blog</a>
+        </nav>
+        
+        <div class="flex items-center space-x-3">
+          <button class="lg:hidden text-white hover:bg-white/10 p-2 rounded">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NewsTicker rojo inmediatamente debajo del encabezado -->
+  <div id="news-ticker" class="bg-red-600 text-white py-3 overflow-hidden">
+    <div class="flex items-center whitespace-nowrap animate-marquee" id="ticker-content">
+      <div class="flex items-center space-x-3 mx-5">
+        <span class="whitespace-nowrap text-lg md:text-xl italic font-bold">Carregando informações...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HeroCarousel -->
+  <div id="hero-carousel" class="relative w-full bg-black h-[132px] md:h-[374px] lg:h-[462px] overflow-hidden">
+    <div class="absolute inset-0 w-full h-full">
+      <img id="hero-image" 
+           src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1470&auto=format&fit=crop" 
+           alt="Imagen de portada" 
+           class="w-full h-full object-cover object-center block absolute inset-0">
+    </div>
+  </div>
+
+  <!-- HomeQuickAccessBar - Franja azul con íconos -->
+  <nav class="w-full bg-[#1238f5] px-0 py-2" aria-label="Acessos rápidos">
+    <div class="grid grid-cols-3 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:gap-4 sm:justify-center items-center w-full">
+      <a href="http://localhost:8081/clima-no-santiago-do-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.4 4.4 0 003 15z"></path>
+        </svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Clima</span>
+      </a>
+      
+      <a href="http://localhost:8081/converter-reais-em-pesos-chilenos" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Conversor de Moeda</span>
+      </a>
+      
+      <a href="http://localhost:8081/ranking-dos-melhores-restaurantes-de-Santiago-do-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+        </svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Guia gastronômico</span>
+      </a>
+      
+      <a href="http://localhost:8081/centros-de-esqui-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z"></path>
+        </svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Centros de esqui</span>
+      </a>
+      
+      <a href="http://localhost:8081/pesquisar-por-numero-de-voo" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+        </svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Estado do voo</span>
+      </a>
+      
+      <a href="http://localhost:8081/emergencias" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Emergência</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Banner Homepage - dos imágenes -->
+  <div class="w-full bg-white py-4">
+    <div class="container mx-auto px-0">
+      <div class="w-full flex justify-center items-center mb-2">
+        <div id="homepage-banner" class="flex flex-col md:flex-row w-full max-w-[1200px] h-[200px] md:h-[200px] bg-white rounded-lg overflow-hidden shadow border border-gray-200" style="min-height: 140px">
+          <!-- Imagen izquierda -->
+          <div class="w-full md:w-1/2 bg-gray-100 flex items-center justify-center overflow-hidden aspect-[16/9] md:aspect-auto">
+            <div id="banner-left-image" class="w-full h-full flex items-center justify-center bg-gray-200">
+              <span class="text-gray-400">Carregando...</span>
+            </div>
+          </div>
+          <!-- Imagen derecha -->
+          <div class="w-full md:w-1/2 bg-gray-100 flex items-center justify-center overflow-hidden aspect-[16/9] md:aspect-auto">
+            <div id="banner-right-image" class="w-full h-full flex items-center justify-center bg-gray-200">
+              <span class="text-gray-400">Carregando...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Box Models Editable - dos cajas alineadas -->
+  <div class="w-full flex flex-col md:flex-row justify-center items-stretch mt-[2px] mb-6" style="gap: 0">
+    <div class="flex-[1.1] min-w-[320px] max-w-2xl" style="margin: 0; padding: 0; border: 0; border-radius: 0">
+      <div id="home-box-model-1" class="w-full bg-white py-4">
+        <div class="container mx-auto px-4">
+          <div class="flex flex-col md:flex-row w-full max-w-4xl md:ml-0 ml-auto border border-black rounded-lg overflow-hidden">
+            <!-- Sección de imagen -->
+            <div class="w-full md:w-1/2 h-[280px] bg-gray-100 overflow-hidden">
+              <div id="box1-image" class="w-full h-full flex items-center justify-center bg-gray-200">
+                <span class="text-gray-500">Carregando...</span>
+              </div>
+            </div>
+            <!-- Sección de contenido -->
+            <div class="w-full md:w-1/2 p-6 overflow-y-auto">
+              <div id="box1-content" class="prose max-w-none">
+                <p class="text-gray-500 italic">Carregando conteúdo...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex-[1.1] min-w-[320px] max-w-2xl" style="margin: 0; padding: 0; border: 0; border-radius: 0">
+      <div id="home-box-model-2" class="w-full bg-white py-4">
+        <div class="container mx-auto px-4">
+          <div class="flex flex-col md:flex-row w-full max-w-4xl md:ml-0 ml-auto border border-black rounded-lg overflow-hidden">
+            <!-- Sección de imagen -->
+            <div class="w-full md:w-1/2 h-[280px] bg-gray-100 overflow-hidden">
+              <div id="box2-image" class="w-full h-full flex items-center justify-center bg-gray-200">
+                <span class="text-gray-500">Carregando...</span>
+              </div>
+            </div>
+            <!-- Sección de contenido -->
+            <div class="w-full md:w-1/2 p-6 overflow-y-auto">
+              <div id="box2-content" class="prose max-w-none">
+                <p class="text-gray-500 italic">Carregando conteúdo...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HomeBoxModels -->
+  <section class="w-full flex flex-col md:flex-row gap-8 mt-8 mb-12 px-2 md:px-0 max-w-7xl mx-auto items-start">
+    <!-- Weather Box -->
+    <div class="flex-[0.5] min-w-[160px] max-w-[340px] flex items-stretch">
+      <div class="bg-white rounded-2xl border border-blue-100 shadow-lg p-6 flex flex-col h-full w-full justify-between">
+        <h2 class="font-bold text-xl md:text-2xl mb-6 text-[#0c37e6] font-sans">Clima ao vivo</h2>
+        <div id="weather-cards" class="grid grid-cols-1 gap-4 flex-1 mb-4">
+          <!-- Weather cards will be populated by JS -->
+        </div>
+        <a href="http://localhost:8081/clima-no-santiago-do-chile" 
+           class="mt-2 bg-[#1238f5] hover:bg-blue-700 transition-colors text-white py-3 px-4 rounded-lg text-center font-semibold text-base shadow-md w-full">
+          Veja a previsão para os próximos 5 dias
+        </a>
+      </div>
+    </div>
+
+    <!-- Rates Box -->
+    <div class="flex-[0.5] min-w-[160px] max-w-[340px] flex items-stretch">
+      <div class="bg-white rounded-2xl border border-green-100 shadow-lg p-6 flex flex-col h-full w-full justify-between">
+        <h2 class="font-bold text-xl md:text-2xl mb-6 text-[#0c37e6] font-sans">Cotações de moeda</h2>
+        <div id="rates-cards" class="flex flex-col gap-4 flex-1 mb-2 justify-center">
+          <!-- Rate cards will be populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Flights Box -->
+    <div class="flex-[1.5] min-w-[340px] max-w-[700px] flex items-stretch">
+      <div class="bg-white rounded-2xl border border-blue-100 shadow-lg p-6 flex flex-col h-full w-full justify-between">
+        <h2 class="font-bold text-2xl md:text-3xl mb-8 text-[#0c37e6] font-sans">Estado do voo</h2>
+        <div id="flight-search-widget">
+          <!-- Flight search widget will be populated by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Noticias destacadas -->
+  <section class="py-12 bg-white">
+    <div class="container mx-auto p-4">
+      <h2 class="text-3xl font-bold mb-4">Notícias destacadas</h2>
+      <div class="flex flex-wrap justify-center mb-4">
+        <div class="overflow-hidden h-full hover:shadow-lg transition-shadow duration-300 flex flex-col bg-white rounded-lg shadow-md max-w-md">
+          <div class="aspect-[16/9] w-full overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1558464876-94cf36537234?q=80&w=1374&auto=format&fit=crop" 
+                 alt="Prato de mariscos chilenos frescos" 
+                 class="w-full h-full object-cover">
+          </div>
+          <div class="p-6 flex-grow flex flex-col">
+            <p class="text-sm font-semibold text-blue-600 mb-1">Reportagem destacada</p>
+            <h3 class="text-xl font-semibold mb-2 text-gray-900">O Sabor dos Mariscos Chilenos</h3>
+            <p class="text-gray-600 mb-4 flex-grow">Uma imersão na rica culinária costeira do Chile.</p>
+            <a href="http://localhost:8081/blog/mariscos-chilenos" class="text-blue-600 hover:text-blue-800 font-semibold">Leia Mais →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Supabase Library -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  
+  <!-- JavaScript Files -->
+  <script src="assets/js/env-config.js"></script>
+  <script src="assets/js/homepage-exact.js"></script>
+  <script src="/hero-banner.js"></script>
+</body>
+</html>

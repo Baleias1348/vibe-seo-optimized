@@ -1,0 +1,1 @@
+import{j as e}from"./index-0a9f64ee.js";function i(){return e.jsx("div",{className:"w-full min-h-screen bg-white flex justify-center py-6 px-2",children:e.jsx(VinosVinicolasPage,{})})}export{i as default};

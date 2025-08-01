@@ -64,59 +64,55 @@
 
   <!-- HomeQuickAccessBar - Franja azul con íconos -->
   <nav class="w-full bg-[#1238f5] px-0 py-2" aria-label="Acessos rápidos">
-    <div class="grid grid-cols-3 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:gap-4 sm:justify-center items-center w-full">
-      <a href="/app/clima-no-santiago-do-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
-        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.4 4.4 0 003 15z"></path>
-        </svg>
-        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Clima</span>
-      </a>
-      <a href="/app/converter-reais-em-pesos-chilenos" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
-        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-        </svg>
+  <div class="grid grid-cols-3 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:gap-4 sm:justify-center items-center w-full">
+    <a href="/app/clima-no-santiago-do-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M5 5l1.5 1.5"/><path d="M17.5 17.5L19 19"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M5 19l1.5-1.5"/><path d="M17.5 6.5L19 5"/></svg>
+      <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Clima</span>
+    </a>
+    <a href="/app/converter-reais-em-pesos-chilenos" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+      <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-7.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 7.36L3 16"/></svg>
+      <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Conversor de Moeda</span>
+    </a>
+    <a href="/ranking-dos-melhores-restaurantes-de-Santiago-do-chile.html" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-utensils-icon lucide-utensils w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+      <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Guia gastronômico</span>
+    </a>
+    <a href="/app/centros-de-esqui-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mountain-snow-icon lucide-mountain-snow w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/><path d="M4.14 15.08c2.62-1.57 5.24-1.43 7.86.42 2.74 1.94 5.49 2 8.23.19"/></svg>
+      <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Centros de esqui</span>
+    </a>
+    <a href="/app/pesquisar-por-numero-de-voo" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plane-icon lucide-plane w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+      <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Estado de voos</span>
+    </a>
+    <a href="/emergencias" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert-icon lucide-triangle-alert w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+      <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Emergências</span>
+    </a>
+  </div>
+</nav>
+
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-7.36L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 7.36L3 16"></path></svg>
         <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Conversor de Moeda</span>
       </a>
-      <a href="/app/ranking-dos-melhores-restaurantes-de-Santiago-do-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
-        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
-        </svg>
-        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Guia gastronômico</span>
-      </a>
-      <a href="/app/centros-de-esqui-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
-        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z"></path>
-        </svg>
-        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Centros de esqui</span>
-      </a>
-      <a href="/app/pesquisar-por-numero-de-voo" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
-        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-        </svg>
-        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Estado do voo</span>
-      </a>
-      <a href="/emergencias" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
-        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-        </svg>
-        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Emergência</span>
-      </a>
-    </div>
-  </nav>
 
   <!-- Banner Homepage - dos imágenes -->
   <div class="w-full bg-white py-4">
     <div class="container mx-auto px-0">
       <div class="w-full flex justify-center items-center mb-2">
-        <div id="homepage-banner" class="flex flex-col md:flex-row w-full max-w-[1200px] h-[200px] md:h-[200px] bg-white rounded-[8px] border border-gray-300 overflow-hidden shadow" style="min-height: 140px">
-          <!-- Imagen izquierda -->
-          <div class="w-full md:w-1/2 bg-gray-100 flex items-center justify-center overflow-hidden aspect-[16/9] md:aspect-auto">
-            <div id="banner-left-image" class="w-full h-full flex items-center justify-center bg-gray-200">
-              <span class="text-gray-400">Carregando...</span>
+        <a href="/culinaria-do-chile.html" aria-label="Ver pratos típicos chilenos">
+          <div id="homepage-banner" class="flex flex-col md:flex-row w-full max-w-[1200px] h-[200px] md:h-[200px] bg-white rounded-[8px] border border-gray-300 overflow-hidden shadow transition hover:shadow-lg hover:scale-[1.01] cursor-pointer" style="min-height: 140px">
+            <!-- Imagen izquierda -->
+            <div class="w-full md:w-1/2 bg-gray-100 flex items-center justify-center overflow-hidden aspect-[16/9] md:aspect-auto">
+              <div id="banner-left-image" class="w-full h-full flex items-center justify-center bg-gray-200">
+                <span class="text-gray-400">Carregando...</span>
+              </div>
             </div>
-          </div>
-          <!-- Imagen derecha -->
-          <div class="w-full md:w-1/2 bg-gray-100 flex items-center justify-center overflow-hidden aspect-[16/9] md:aspect-auto">
+            <!-- Imagen derecha -->
+            <div class="w-full md:w-1/2 bg-gray-100 flex items-center justify-center overflow-hidden aspect-[16/9] md:aspect-auto">
+              <div id="banner-right-image" class="w-full h-full flex items-center justify-center bg-gray-200">
+                <span class="text-gray-400">Carregando...</span>
+              </div>
             <div id="banner-right-image" class="w-full h-full flex items-center justify-center bg-gray-200">
               <span class="text-gray-400">Carregando...</span>
             </div>
@@ -135,7 +131,10 @@
         <div class="container mx-auto px-4">
           <div class="bg-white rounded-2xl border-4 border-red-500 p-6 shadow-lg w-full">
             <div class="flex flex-row items-start justify-between w-full mb-2 gap-2">
-              <div class="text-2xl font-bold text-[#0c37e6] m-0">Estado de voos</div>
+              <div class="flex items-center gap-2">
+  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plane text-[#0c37e6]"><path d="M17.5 17.5 3 21l3.5-14.5M21 3l-8.5 8.5"/><path d="m21 3-6.5 18-4-7-7-4 18-6.5z"/></svg>
+  <span id="estado-de-voos" class="text-2xl font-bold text-[#0c37e6] m-0">Estado de voos</span>
+</div>
               <span class="text-sm text-gray-500 font-normal text-right leading-tight max-w-[300px]">Mantenha-se informado sobre os horários<br>atualizados de partida e chegada do seu voo</span>
             </div>
             <div class="mb-4 mt-6">
@@ -154,32 +153,25 @@
                 </div>
               </form>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-1 items-end w-full">
-  <div class="md:flex-none">
-    <label for="origen" class="block text-sm font-medium font-bold text-red-600 mb-0">Pesquise por rota</label>
-    <select id="origen" name="origen" required class="block w-full md:w-32 md:max-w-[9rem] border border-gray-300 rounded-md px-3 py-2 mt-0 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-      <option value="" disabled selected>Origem</option>
-    </select>
-  </div>
-  <div class="md:flex-none">
-  <div class="flex-1">
-    <select id="destino" name="destino" required class="block w-full md:w-32 md:max-w-[9rem] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-      <option value="" disabled selected>Destino</option>
-    </select>
-  </div>
-  <div class="flex-1">
-    <input type="date" id="fecha-ruta" name="fecha-ruta" class="block w-full md:w-32 md:max-w-[9rem] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-  </div>
-  <div class="md:col-span-3 col-span-1 w-full mt-2">
-    <form id="form-pesquisa-ruta" class="flex flex-col md:flex-row items-end gap-1 w-full mt-0">
-      <div class="flex-shrink-0">
-        <button type="submit" class="mt-1 w-full bg-[#0c37e6] text-white px-4 py-2 rounded-md font-bold hover:bg-blue-700 transition">Pesquisar</button>
-      </div>
-    </form>
-  </div>
-
-  </div>
-</div>
+            <form id="form-pesquisa-ruta" class="flex flex-col md:flex-row items-end gap-1 w-full mt-0">
+              <div class="md:flex-none">
+                <label for="origen" class="block text-sm font-medium font-bold text-red-600 mb-0">Pesquise por rota</label>
+                <select id="origen" name="origen" required class="block w-full md:w-32 md:max-w-[9rem] border border-gray-300 rounded-md px-3 py-2 mt-0 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option value="" disabled selected>Origem</option>
+                </select>
+              </div>
+              <div class="md:flex-none">
+                <select id="destino" name="destino" required class="block w-full md:w-32 md:max-w-[9rem] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option value="" disabled selected>Destino</option>
+                </select>
+              </div>
+              <div class="md:flex-none">
+                <input type="date" id="fecha-ruta" name="fecha-ruta" class="block w-full md:w-32 md:max-w-[9rem] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              </div>
+              <div class="flex-shrink-0 md:flex-none">
+                <button type="submit" class="mt-1 w-full bg-[#0c37e6] text-white px-4 py-2 rounded-md font-bold hover:bg-blue-700 transition">Pesquisar</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

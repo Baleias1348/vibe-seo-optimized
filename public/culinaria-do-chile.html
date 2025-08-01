@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Culinária Chilena</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <!-- Header Negro -->
+  <header class="sticky top-0 z-50 w-full bg-black border-b border-transparent">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex h-20 items-center justify-between">
+        <a href="/" class="flex items-center">
+          <span class="text-xl font-bold text-white">Chile ao Vivo</span>
+        </a>
+        <nav class="hidden lg:flex items-center space-x-8">
+          <a href="/" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Início</a>
+          <a href="/app/tours" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Tours</a>
+          <a href="/app/vinicolas-e-vinhos-chilenos" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Vinhos de Chile</a>
+          <a href="/app/ranking-dos-melhores-restaurantes-de-Santiago-do-chile" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Restaurantes</a>
+          <a href="/app/centros-de-esqui-chile" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Centros de Esqui</a>
+          <a href="/app/clima-no-santiago-do-chile" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Clima</a>
+          <a href="/app/pesquisar-por-numero-de-voo" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Estado de voos</a>
+          <a href="/app/blog" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Blog</a>
+        </nav>
+        <div class="flex items-center space-x-3">
+          <button class="lg:hidden text-white hover:bg-white/10 p-2 rounded">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- Franja azul accesos rápidos -->
+  <nav class="w-full bg-[#1238f5] px-0 py-2" aria-label="Acessos rápidos">
+    <div class="grid grid-cols-3 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:gap-4 sm:justify-center items-center w-full">
+      <a href="/app/clima-no-santiago-do-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M5 5l1.5 1.5"/><path d="M17.5 17.5L19 19"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M5 19l1.5-1.5"/><path d="M17.5 6.5L19 5"/></svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Clima</span>
+      </a>
+      <a href="/app/converter-reais-em-pesos-chilenos" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-7.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 7.36L3 16"/></svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Conversor de Moeda</span>
+      </a>
+      <a href="/ranking-dos-melhores-restaurantes-de-Santiago-do-chile.html" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-utensils-icon lucide-utensils w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Guia gastronômico</span>
+      </a>
+      <a href="/app/centros-de-esqui-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mountain-snow-icon lucide-mountain-snow w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/><path d="M4.14 15.08c2.62-1.57 5.24-1.43 7.86.42 2.74 1.94 5.49 2 8.23.19"/></svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Centros de esqui</span>
+      </a>
+      <a href="/app/pesquisar-por-numero-de-voo" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plane-icon lucide-plane w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Estado de voos</span>
+      </a>
+      <a href="/emergencias" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert-icon lucide-triangle-alert w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Emergências</span>
+      </a>
+    </div>
+  </nav>
+  <main class="max-w-[1200px] mx-auto px-2 md:px-4 py-8">
+    <header class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Pratos Típicos Chilenos</h1>
+      <p class="text-xl text-gray-600">Uma Jornada de Sabores</p>
+    </header>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Palta Reina -->
+      <div class="bg-white rounded-2xl shadow-lg transition-transform transform hover:scale-105 flex flex-col overflow-hidden min-h-[320px] md:min-h-[380px]">
+        <img src="images/culinaria chilena/1. palta reina culinaria chilena.jpg" alt="Palta Reina" class="w-full h-56 md:h-64 object-cover rounded-t-2xl">
+        <div class="p-6 md:p-8 flex-1 flex flex-col justify-center">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">1. Palta Reina</h2>
+          <p class="text-gray-700 leading-[1.2] mb-4">Imagine um abacate (ou "palta", como é conhecido no Chile) maduro e cremoso, cortado ao meio e delicadamente recheado. A Palta Reina, um clássico dos almoços leves e das entradas refrescantes, geralmente ostenta um recheio generoso de frango desfiado, maionese e, por vezes, um toque de cebolinha ou salsinha picada.</p>
+<p class="text-gray-700 leading-[1.2] mb-4">É a personificação da leveza e do frescor, ideal para os dias quentes, especialmente nas estações de primavera e verão, quando os abacates estão no auge. Sua origem é caseira e popular, presente em quase todas as mesas chilenas.</p>
+        </div>
+      </div>
+      <!-- Paila Marina -->
+      <div class="bg-white rounded-2xl shadow-lg transition-transform transform hover:scale-105 flex flex-col overflow-hidden min-h-[320px] md:min-h-[380px]">
+        <img src="images/culinaria chilena/2 paila marina culinaria chilena.jpeg" alt="Paila Marina" class="w-full h-56 md:h-64 object-cover rounded-t-2xl">
+        <div class="p-6 md:p-8 flex-1 flex flex-col justify-center">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">2. Paila Marina</h2>
+          <p class="text-gray-700 leading-[1.2] mb-4">Mergulhe em um caldeirão de sabores do oceano! A Paila Marina é uma sopa de frutos do mar exuberante, servida tradicionalmente em uma "paila" (tigela de barro), que mantém o calor e o aroma. Mexilhões, mariscos, camarões, lulas e peixes brancos dançam em um caldo aromático, enriquecido com vegetais como cebola, alho, cenoura e pimentão, e temperado com vinho branco, coentro e um toque de pimentão moído.</p>
+<p class="text-gray-700 leading-[1.2] mb-4">É um prato robusto e reconfortante, perfeito para qualquer época do ano, mas especialmente apreciado nos meses mais frios ou como um potente revigorante após uma noite de festa. Sua tradição remonta às áreas costeiras do Chile, onde a abundância de frutos do mar moldou a culinária local.</p>
+        </div>
+      </div>
+      <!-- Completo Chileno -->
+      <div class="bg-white rounded-2xl shadow-lg transition-transform transform hover:scale-105 flex flex-col overflow-hidden min-h-[320px] md:min-h-[380px]">
+        <img src="images/culinaria chilena/3 completo-chileno cachorro quente.jpg" alt="Completo Chileno" class="w-full h-56 md:h-64 object-cover rounded-t-2xl">
+        <div class="p-6 md:p-8 flex-1 flex flex-col justify-center">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">3. Completo Chileno</h2>
+          <p class="text-gray-700 leading-[1.2] mb-4">Esqueça tudo o que você sabe sobre cachorros-quentes. O Completo Chileno é uma instituição, uma obra-prima da comida de rua que eleva o humilde pão com salsicha a outro nível. A salsicha, geralmente de boa qualidade, é a base para uma avalanche de coberturas: o cremoso "palta" (abacate amassado), a fresca e picadinha "tomate" (tomate picado) e a onipresente "mayo" (maionese).</p>
+<p class="text-gray-700 leading-[1.2] mb-4">Há variações, como o "italiano" (tomate, palta e maionese, em alusão às cores da bandeira italiana) ou o "dinámico" (com chucrute e mostarda, além do trio básico). É um lanche democrático, consumido a qualquer hora do dia, em qualquer estação, e profundamente enraizado na cultura popular chilena.</p>
+        </div>
+      </div>
+      <!-- Pastel de Choclo -->
+      <div class="bg-white rounded-2xl shadow-lg transition-transform transform hover:scale-105 flex flex-col overflow-hidden min-h-[320px] md:min-h-[380px]">
+        <img src="images/culinaria chilena/4 pastel de choclo culinaria chilena.jpg" alt="Pastel de Choclo" class="w-full h-56 md:h-64 object-cover rounded-t-2xl">
+        <div class="p-6 md:p-8 flex-1 flex flex-col justify-center">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">4. Pastel de Choclo</h2>
+          <p class="text-gray-700 leading-[1.2] mb-4">Uma verdadeira joia da culinária camponesa, o Pastel de Choclo é um gratinado rústico e reconfortante que une o doce e o salgado em perfeita harmonia. No fundo, um suculento recheio de "pino" (carne moída temperada com cebola, cominho e, às vezes, azeitonas e ovos cozidos).</p>
+<p class="text-gray-700 leading-[1.2] mb-4">Por cima, uma generosa camada de um creme espesso e adocicado de milho fresco (choclo), moído e temperado, que forma uma crosta dourada e levemente caramelizada ao ser gratinado. É um prato típico do verão chileno, quando o milho está no auge de sua doçura, e reflete a forte herança agrícola do país, com raízes pré-hispânicas.</p>
+        </div>
+      </div>
+      <!-- Costillar Aliñado -->
+      <div class="bg-white rounded-2xl shadow-lg transition-transform transform hover:scale-105 flex flex-col overflow-hidden min-h-[320px] md:min-h-[380px]">
+        <img src="images/culinaria chilena/5 costillar aliñado.jpg" alt="Costillar Aliñado" class="w-full h-56 md:h-64 object-cover rounded-t-2xl">
+        <div class="p-6 md:p-8 flex-1 flex flex-col justify-center">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">5. Costillar Aliñado</h2>
+          <p class="text-gray-700 leading-[1.2] mb-4">O Costillar Aliñado é a celebração do porco no Chile. São costelas de porco marinadas com um tempero especial, que pode incluir alho, orégano, pimentão, cominho e vinagre, e depois assadas lentamente até ficarem incrivelmente tenras por dentro e crocantes por fora.</p>
+<p class="text-gray-700 leading-[1.2] mb-4">É um prato robusto, frequentemente servido em festas familiares e grandes reuniões, especialmente durante o outono e o inverno, quando um prato mais substancioso é bem-vindo. Sua preparação e consumo são um ritual, um convite à partilha e à celebração, presente em churrascos e almoços de domingo.</p>
+        </div>
+      </div>
+      <!-- Curanto -->
+      <div class="bg-white rounded-2xl shadow-lg transition-transform transform hover:scale-105 flex flex-col overflow-hidden min-h-[320px] md:min-h-[380px]">
+        <img src="images/culinaria chilena/6 curanto chilote culinaria chilena.jpg" alt="Curanto" class="w-full h-56 md:h-64 object-cover rounded-t-2xl">
+        <div class="p-6 md:p-8 flex-1 flex flex-col justify-center">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">6. Curanto</h2>
+          <p class="text-gray-700 leading-[1.2] mb-4">Mais do que um prato, o Curanto é uma experiência culinária milenar e comunitária, originária do sul do Chile, especialmente da Ilha de Chiloé. Não se prepara na cozinha, mas sim em um buraco cavado na terra, aquecido com pedras vulcânicas incandescentes. Sobre as pedras, camadas de folhas de nalca (uma planta local) ou repolho servem de base para frutos do mar variados (mexilhões, mariscos, vôngoles, linguiças), carne de porco, frango, batatas, chapalele (pão de batata) e milcao (bolinho de batata ralada).</p>
+<p class="text-gray-700 leading-[1.2] mb-4">Tudo é coberto com mais folhas e terra, cozinhando lentamente no vapor por horas. É um ritual social, típico de grandes celebrações e encontros familiares, geralmente realizado no verão, e representa a fusão da culinária indígena (mapuche e huilliche) com ingredientes introduzidos pelos colonizadores.</p>
+        </div>
+      </div>
+      <!-- Machas a la Parmesana -->
+      <div class="bg-white rounded-2xl shadow-lg transition-transform transform hover:scale-105 flex flex-col overflow-hidden min-h-[320px] md:min-h-[380px]">
+        <img src="images/culinaria chilena/7 machas a la parmesana culinaria chilena.jpg" alt="Machas a la Parmesana" class="w-full h-56 md:h-64 object-cover rounded-t-2xl">
+        <div class="p-6 md:p-8 flex-1 flex flex-col justify-center">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">7. Machas a la Parmesana</h2>
+          <p class="text-gray-700 leading-[1.2] mb-4">Um hino à simplicidade e ao sabor do mar. As Machas a la Parmesana são conchas de machas (um tipo de molusco bivalve abundante na costa chilena) recheadas com sua própria carne tenra, um toque de vinho branco, manteiga, um pisco de queijo parmesão ralado e, por vezes, um toque de alho e salsinha.</p>
+<p class="text-gray-700 leading-[1.2] mb-4">Gratinadas rapidamente no forno até o queijo dourar e borbulhar, são uma entrada perfeita, cheia de um sabor umami intenso. Popular em restaurantes de frutos do mar ao longo da costa chilena, é um prato que se pode desfrutar durante todo o ano, mas especialmente no verão, acompanhado de um bom vinho branco gelado.</p>
+        </div>
+      </div>
+      <!-- Pastel de Jaiba -->
+      <div class="bg-white rounded-2xl shadow-lg transition-transform transform hover:scale-105 flex flex-col overflow-hidden min-h-[320px] md:min-h-[380px]">
+        <img src="images/culinaria chilena/8 pastel de jaiba.jpg" alt="Pastel de Jaiba" class="w-full h-56 md:h-64 object-cover rounded-t-2xl">
+        <div class="p-6 md:p-8 flex-1 flex flex-col justify-center">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">8. Pastel de Jaiba</h2>
+          <p class="text-gray-700 leading-[1.2] mb-4">Uma iguaria sofisticada e deliciosa, o Pastel de Jaiba é a versão chilena do gratinado de carne de caranguejo. A carne suculenta da jaiba (caranguejo) é desfiada e cozida em um molho cremoso à base de creme de leite, vinho branco, alho, cebola e especiarias, às vezes com um toque de queijo.</p>
+<p class="text-gray-700 leading-[1.2] mb-4">Essa mistura é então colocada em uma cumbuca de barro e gratinada no forno até ficar dourada e borbulhante. É um prato que exala elegância e sabor marinho, muito apreciado em restaurantes mais refinados e em ocasiões especiais, especialmente no verão, quando os caranguejos estão mais disponíveis.</p>
+        </div>
+      </div>
+      <!-- Torta de Merengue Lúcuma -->
+      <div class="bg-white rounded-2xl shadow-lg transition-transform transform hover:scale-105 flex flex-col overflow-hidden min-h-[320px] md:min-h-[380px]">
+        <img src="images/culinaria chilena/9 torta de merengue lucuma culinaria chilena.webp" alt="Torta de Merengue Lúcuma" class="w-full h-56 md:h-64 object-cover rounded-t-2xl">
+        <div class="p-6 md:p-8 flex-1 flex flex-col justify-center">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">9. Torta de Merengue Lúcuma</h2>
+          <p class="text-gray-700 leading-[1.2] mb-4">Para os amantes de doces, a Torta de Merengue Lúcuma é uma verdadeira tentação e uma celebração de um fruto autóctone dos Andes. Camadas crocantes de merengue se alternam com um creme aveludado feito da polpa da lúcuma, uma fruta de sabor único que lembra uma mistura de batata doce caramelizada e abacate, com notas de bordo e baunilha.</p>
+<p class="text-gray-700 leading-[1.2] mb-4">É uma sobremesa elegante, perfeita para qualquer época do ano, mas especialmente apreciada em festas e comemorações. A lúcuma, com sua história milenar, confere a este doce uma identidade profundamente sul-americana e uma doçura natural e exótica.</p>
+        </div>
+      </div>
+      <!-- Locos con Mayo o con Salsa Verde -->
+      <div class="bg-white rounded-2xl shadow-lg transition-transform transform hover:scale-105 flex flex-col overflow-hidden min-h-[320px] md:min-h-[380px]">
+        <img src="images/culinaria chilena/10 locos mayo culinaria chilena.png" alt="Locos con Mayo o con Salsa Verde" class="w-full h-56 md:h-64 object-cover rounded-t-2xl">
+        <div class="p-6 md:p-8 flex-1 flex flex-col justify-center">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">10. Locos con Mayo o con Salsa Verde</h2>
+          <p class="text-gray-700 leading-[1.2] mb-4">Os "locos" são um tesouro do Pacífico, um molusco gasterópode de carne firme e saborosa, muito apreciado no Chile. Prepará-los é uma arte para garantir a textura perfeita. Tradicionalmente, são cozidos lentamente até ficarem tenros e, em seguida, servidos de duas maneiras clássicas: "con mayo", onde a simplicidade da maionese caseira realça o sabor delicado do molusco, ou "con salsa verde", uma mistura vibrante de cebola roxa picada, coentro fresco, azeite e suco de limão, que confere um contraste cítrico e refrescante.</p>
+<p class="text-gray-700 leading-[1.2] mb-4">São considerados uma iguaria, muitas vezes reservados para ocasiões especiais ou para os verdadeiros apreciadores de frutos do mar, e são mais comuns no verão, quando a pesca é mais abundante.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="w-full bg-white border-t mt-8 py-4 text-center text-gray-400 text-sm">
+    © 2025 Chile ao Vivo, Santiago. Todos os direitos reservados.
+  </footer>
+</body>
+</html>

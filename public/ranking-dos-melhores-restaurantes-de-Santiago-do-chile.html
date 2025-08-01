@@ -4,9 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ranking dos Melhores Restaurantes de Santiago do Chile</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="/public/restaurants-full-data.js"></script>
+  <script src="restaurants-full-data.js"></script>
 </head>
 <body class="bg-gray-50">
   <!-- Header Negro -->
@@ -71,8 +70,21 @@
   <main class="max-w-[1200px] mx-auto px-2 md:px-4 py-8">
     <h1 class="text-3xl md:text-4xl font-bold text-center text-pink-700 mb-2">Ranking dos Melhores Restaurantes de Santiago do Chile</h1>
     <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">Descubra os restaurantes mais bem avaliados de Santiago segundo milhares de viajantes e locais. Veja fotos, avaliações e informações práticas para escolher sua próxima experiência gastronômica!</p>
+    <!-- Filtro Especialidade Gastronômica -->
+    <div id="filters-bar" class="mx-auto max-w-xs mb-6 p-2 md:p-3 bg-white rounded-xl shadow-xl border border-gray-200 flex flex-col items-center gap-3">
+      <div class="mx-auto max-w-[200px]">
+        <label for="specialtyFilter" class="block text-sm font-medium text-gray-700 mb-1.5 text-center">Selecione um tipo de especialidade culinária.</label>
+        <select id="specialtyFilter" class="rounded-md border-gray-300 focus:border-pink-500 focus:ring-pink-500 py-1.5 text-sm w-full">
+          <!-- opciones generadas por JS -->
+        </select>
+      </div>
+    </div>
     <div id="restaurants-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
     <nav class="flex justify-center items-center gap-2" id="pagination"></nav>
+<div class="text-base text-gray-600 text-center max-w-xl mx-auto mt-6 mb-4 px-2">
+  <strong>As classificações do Chile ao Vivo</strong> são baseadas nas avaliações e comentários do Google Places.<br>
+  O Chile ao Vivo equilibra as avaliações (que variam de 1 a 5 estrelas) com o número de avaliações dos usuários.
+</div>
 
   </main>
 
@@ -82,42 +94,159 @@
 
   <script>
     // Ordenar por ranking descendente siempre
-const RESTAURANTS = window.RESTAURANTS_DATA_FULL.slice().sort((a,b) => b.ranking - a.ranking);
-    const PER_PAGE = 6;
-    let currentPage = 1;
-    
-    function renderRestaurants(page) {
-      const start = (page-1)*PER_PAGE;
-      const end = start+PER_PAGE;
-      const restaurants = RESTAURANTS.slice(start, end);
-      const list = document.getElementById('restaurants-list');
-      list.innerHTML = restaurants.map(r => `
-        <div class="bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full border border-gray-100 hover:shadow-lg transition">
-          <img src="${r.photo_url || (r.photos && r.photos[0]) || '/public/placeholder.jpg'}" alt="Foto de ${r.name}" class="w-full h-48 object-cover">
-          <div class="flex-1 flex flex-col p-4">
-            <h2 class="text-xl font-bold text-pink-700 mb-1">${r.name}</h2>
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-yellow-500 font-bold">★ ${r.rating}</span>
-              <span class="text-gray-500 text-sm">(${r.review_count} avaliações)</span>
-            </div>
-            <div class="text-sm text-gray-600 mb-2 flex items-center gap-1">
-              <span class="font-semibold text-gray-700">Culinária</span>
-              <span>${r.cuisine || ''}</span>
-              ${r.price_level ? '<span class="text-gray-400">· ' + r.price_level + '</span>' : ''}
-            </div>
-            <div class="text-xs text-gray-500 mb-2">${r.address}</div>
-            <div class="text-xs text-gray-500 mb-2 flex items-center gap-2">
-              <a href="${r.place_link || r.website}" target="_blank" class="text-pink-600 underline hover:text-pink-700">Ver no Google Maps</a>
-              ${r.website ? `<a href="${r.website}" target="_blank" class="ml-1 px-2 py-0.5 rounded bg-pink-50 text-pink-700 border border-pink-200 text-xs font-semibold hover:bg-pink-100 transition">Site oficial</a>` : ''}
-            </div>
-            <p class="text-gray-700 text-sm mt-auto">${r.description || ''}</p>
-          </div>
-        </div>
-      `).join('');
-    }
+const RESTAURANTS = window.RESTAURANTS_DATA_FULL.slice().map(r => ({...r, ranking: Number(r.ranking)})).sort((a,b) => b.ranking - a.ranking);
+const PER_PAGE = 6;
+let currentPage = 1;
+let currentSpecialty = '';
+let currentNeighborhood = '';
 
-    function renderPagination() {
-  const total = Math.ceil(RESTAURANTS.length / PER_PAGE);
+function getUniqueOptions(field) {
+  const opts = new Set();
+  for (const r of RESTAURANTS) {
+    const val = (r[field] || '').trim();
+    if (val) opts.add(val);
+  }
+  return Array.from(opts).sort((a, b) => a.localeCompare(b, 'pt'));
+}
+
+function populateFilters() {
+  const specialtySel = document.getElementById('specialtyFilter');
+  // Orden y leyendas fijas
+  const MAIS_PROCURADO = [
+    'Chilena',
+    'Frutos do Mar',
+    'Churrascaria',
+    'Peruana',
+    'Italiana',
+    'Japonesa',
+    'Pizzaria',
+    'Chinesa',
+    'Internacional'
+  ];
+  // Extraer todos los tipos únicos normalizados (case-insensitive, sin espacios)
+  let specialties = getUniqueOptions('cuisine');
+  // Quitar vacíos y duplicados por case
+  specialties = Array.from(new Set(specialties.map(s => s.trim())));
+  // Separar los "mais procurado" y el resto
+  const procurado = [];
+  const rest = [];
+  specialties.forEach(s => {
+    if (MAIS_PROCURADO.map(x => x.toLowerCase()).includes(s.toLowerCase())) {
+      procurado.push(s);
+    } else {
+      rest.push(s);
+    }
+  });
+  // Ordenar procurado según orden fijo
+  procurado.sort((a, b) => {
+    return MAIS_PROCURADO.map(x => x.toLowerCase()).indexOf(a.toLowerCase()) - MAIS_PROCURADO.map(x => x.toLowerCase()).indexOf(b.toLowerCase());
+  });
+  // Ordenar resto alfabéticamente
+  rest.sort((a, b) => a.localeCompare(b, 'pt'));
+
+  // Construir HTML del selector
+  let html = '';
+  html += '<option value="" selected>Todas as culinarias</option>';
+  html += '<option value="" disabled>O MAIS PROCURADO</option>';
+  procurado.forEach(s => {
+    html += `<option value="${s}">${s}</option>`;
+  });
+  html += '<option value="" disabled>──────────</option>';
+  rest.forEach(s => {
+    html += `<option value="${s}">${s}</option>`;
+  });
+  specialtySel.innerHTML = html;
+}
+
+function getFilteredRestaurants() {
+  // Si no hay filtro, mostrar todos
+  if (!currentSpecialty) return RESTAURANTS;
+  // Filtrar por cuisine, case-insensitive y tolerante a variantes
+  return RESTAURANTS.filter(r => {
+    if (!r.cuisine) return false;
+    return r.cuisine.trim().toLowerCase() === currentSpecialty.trim().toLowerCase();
+  });
+}
+
+// Forzar que el placeholder esté seleccionado al cargar
+function setSpecialtyPlaceholder() {
+  const specialtySel = document.getElementById('specialtyFilter');
+  specialtySel.selectedIndex = 0;
+  currentSpecialty = '';
+}
+
+// Llamar esto tras poblar filtros y tras resetear
+// (Asegura UX consistente)
+function resetSpecialtyFilter() {
+  setSpecialtyPlaceholder();
+  currentPage = 1;
+  renderRestaurants(currentPage);
+  renderPagination();
+}
+
+// Corregir inicialización
+document.addEventListener('DOMContentLoaded', () => {
+  populateFilters();
+  setSpecialtyPlaceholder();
+  setupFilterEvents();
+  renderRestaurants(currentPage);
+  renderPagination();
+});
+
+function renderRestaurants(page) {
+  const filtered = getFilteredRestaurants();
+  const start = (page-1)*PER_PAGE;
+  const end = start+PER_PAGE;
+  const restaurants = filtered.slice(start, end);
+  const list = document.getElementById('restaurants-list');
+  if (restaurants.length === 0) {
+    list.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500 text-lg">Nenhum restaurante encontrado com os filtros selecionados.</div>`;
+    return;
+  }
+  list.innerHTML = restaurants.map((r, i) => {
+    const globalIndex = RESTAURANTS.indexOf(r);
+    return `
+      <div class="bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full border border-gray-100 hover:shadow-lg transition">
+        <div class="relative w-full h-48">
+          ${(globalIndex < 10) ? `<div class="absolute top-1 left-1 flex items-center gap-1 z-10 bg-white/80 rounded px-1.5 py-0.5 shadow-sm">
+            <span class="inline-block align-middle" style="width:22px;height:22px;min-width:22px;min-height:22px;">
+              <svg viewBox="-3.5 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+                <path d="M9.73795 18.8436L12.9511 20.6987L6.42625 32L4.55349 27.8233L9.73795 18.8436Z" fill="#CE4444"/>
+                <path d="M9.73795 18.8436L6.52483 16.9885L0 28.2898L4.55349 27.8233L9.73795 18.8436Z" fill="#983535"/>
+                <path d="M14.322 18.8436L11.1088 20.6987L17.6337 32L19.5064 27.8233L14.322 18.8436Z" fill="#983535"/>
+                <path d="M14.322 18.8436L17.5351 16.9885L24.0599 28.2898L19.5064 27.8233L14.322 18.8436Z" fill="#CE4444"/>
+              </svg>
+            </span>
+            <span class="text-xs font-semibold text-yellow-700 whitespace-nowrap">top ${globalIndex+1} do Ranking</span>
+          </div>` : ''}
+          <img src="${r.photo_url || (r.photos && r.photos[0]) || '/public/placeholder.jpg'}" alt="Foto de ${r.name}" class="w-full h-48 object-cover rounded-t-xl">
+        </div>
+        <div class="flex-1 flex flex-col p-4">
+          <h2 class="text-xl font-bold text-pink-700 mb-1">${r.name}</h2>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-yellow-500 font-bold">★ ${r.rating}</span>
+            <span class="text-gray-500 text-sm">(${r.review_count} avaliações)</span>
+          </div>
+          <div class="text-sm text-gray-600 mb-2 flex items-center gap-1">
+            <span class="font-semibold text-gray-700">Culinária</span>
+            <span>${r.cuisine || ''}</span>
+            ${r.price_level ? '<span class="text-gray-400">· ' + r.price_level + '</span>' : ''}
+          </div>
+          <div class="text-xs text-gray-500 mb-2">${r.address}</div>
+          <div class="text-xs text-gray-500 mb-2 flex items-center gap-2">
+            <a href="${r.place_link || r.website}" target="_blank" class="text-pink-600 underline hover:text-pink-700">Ver no Google Maps</a>
+            ${r.website ? `<a href="${r.website}" target="_blank" class="ml-1 px-2 py-0.5 rounded bg-pink-50 text-pink-700 border border-pink-200 text-xs font-semibold hover:bg-pink-100 transition">Site oficial</a>` : ''}
+          </div>
+          <p class="text-gray-700 text-sm mt-auto">${r.description || ''}</p>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderPagination() {
+  const filtered = getFilteredRestaurants();
+  const total = Math.ceil(filtered.length / PER_PAGE);
   const pag = document.getElementById('pagination');
   pag.innerHTML = '';
   if (total <= 1) return;
@@ -138,17 +267,34 @@ const RESTAURANTS = window.RESTAURANTS_DATA_FULL.slice().sort((a,b) => b.ranking
     <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-chevron-right'><path d='M9 18l6-6-6-6'/></svg>
   </button>`;
 }
-    function goToPage(n) {
-  const total = Math.ceil(RESTAURANTS.length / PER_PAGE);
+
+function goToPage(n) {
+  const filtered = getFilteredRestaurants();
+  const total = Math.ceil(filtered.length / PER_PAGE);
   if (n < 1 || n > total) return;
   currentPage = n;
   renderRestaurants(currentPage);
   renderPagination();
   window.scrollTo({top:0,behavior:'smooth'});
 }
-    // Inicializa
+
+// Eventos de filtro
+function setupFilterEvents() {
+  document.getElementById('specialtyFilter').addEventListener('change', function(e) {
+    const sel = e.target;
+    // Si selecciona el placeholder (primer option, index 0), resetear filtro
+    if (sel.selectedIndex === 0 || !sel.value) {
+      resetSpecialtyFilter();
+      return;
+    }
+    currentSpecialty = sel.value;
+    currentPage = 1;
     renderRestaurants(currentPage);
     renderPagination();
+  });
+}
+
+// Inicializa
   </script>
 </body>
 </html>

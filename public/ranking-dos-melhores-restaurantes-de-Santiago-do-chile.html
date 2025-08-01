@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ranking dos Melhores Restaurantes de Santiago do Chile</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/public/restaurants-full-data.js"></script>
+</head>
+<body class="bg-gray-50">
+  <!-- Header Negro -->
+  <header class="sticky top-0 z-50 w-full bg-black border-b border-transparent">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex h-20 items-center justify-between">
+        <a href="/" class="flex items-center">
+          <span class="text-xl font-bold text-white">Chile ao Vivo</span>
+        </a>
+        <nav class="hidden lg:flex items-center space-x-8">
+          <a href="/" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Início</a>
+          <a href="/app/tours" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Tours</a>
+          <a href="/app/vinicolas-e-vinhos-chilenos" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Vinhos de Chile</a>
+          <a href="/app/ranking-dos-melhores-restaurantes-de-Santiago-do-chile" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Restaurantes</a>
+          <a href="/app/centros-de-esqui-chile" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Centros de Esqui</a>
+          <a href="/app/clima-no-santiago-do-chile" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Clima</a>
+          <a href="/app/pesquisar-por-numero-de-voo" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Estado de voos</a>
+          <a href="/app/blog" class="text-sm font-medium text-white hover:text-gray-300 transition-colors duration-300 pb-1">Blog</a>
+        </nav>
+
+        <div class="flex items-center space-x-3">
+          <button class="lg:hidden text-white hover:bg-white/10 p-2 rounded">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- Menú rápido/franja azul -->
+  
+  <nav class="w-full bg-[#1238f5] px-0 py-2" aria-label="Acessos rápidos">
+  <div class="grid grid-cols-3 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:gap-4 sm:justify-center items-center w-full">
+    <a href="/app/clima-no-santiago-do-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M5 5l1.5 1.5"/><path d="M17.5 17.5L19 19"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M5 19l1.5-1.5"/><path d="M17.5 6.5L19 5"/></svg>
+      <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Clima</span>
+    </a>
+    <a href="/app/converter-reais-em-pesos-chilenos" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+      <svg class="w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-7.36L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 7.36L3 16"/></svg>
+      <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Conversor de Moeda</span>
+    </a>
+    <a href="/ranking-dos-melhores-restaurantes-de-Santiago-do-chile.html" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-utensils-icon lucide-utensils w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+      <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Guia gastronômico</span>
+    </a>
+    <a href="/app/centros-de-esqui-chile" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mountain-snow-icon lucide-mountain-snow w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/><path d="M4.14 15.08c2.62-1.57 5.24-1.43 7.86.42 2.74 1.94 5.49 2 8.23.19"/></svg>
+      <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Centros de esqui</span>
+    </a>
+    <a href="/app/pesquisar-por-numero-de-voo" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plane-icon lucide-plane w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+      <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Estado de voos</span>
+    </a>
+    <a href="/emergencias" class="flex flex-col items-center group focus:outline-none w-full py-2 sm:w-auto sm:min-w-[80px]">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert-icon lucide-triangle-alert w-10 h-10 sm:w-7 sm:h-7 text-white mb-1 group-hover:text-yellow-300 transition-colors"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+      <span class="text-base sm:text-xs md:text-sm font-semibold text-white group-hover:text-yellow-300 text-center leading-tight">Emergências</span>
+    </a>
+  </div>
+</nav>
+
+  <main class="max-w-[1200px] mx-auto px-2 md:px-4 py-8">
+    <h1 class="text-3xl md:text-4xl font-bold text-center text-pink-700 mb-2">Ranking dos Melhores Restaurantes de Santiago do Chile</h1>
+    <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">Descubra os restaurantes mais bem avaliados de Santiago segundo milhares de viajantes e locais. Veja fotos, avaliações e informações práticas para escolher sua próxima experiência gastronômica!</p>
+    <div id="restaurants-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+    <nav class="flex justify-center items-center gap-2" id="pagination"></nav>
+
+  </main>
+
+  <footer class="w-full bg-white border-t mt-8 py-4 text-center text-gray-400 text-sm">
+    © 2025 Chile ao Vivo,  Santiago. Todos os direitos reservados.
+  </footer>
+
+  <script>
+    // Ordenar por ranking descendente siempre
+const RESTAURANTS = window.RESTAURANTS_DATA_FULL.slice().sort((a,b) => b.ranking - a.ranking);
+    const PER_PAGE = 6;
+    let currentPage = 1;
+    
+    function renderRestaurants(page) {
+      const start = (page-1)*PER_PAGE;
+      const end = start+PER_PAGE;
+      const restaurants = RESTAURANTS.slice(start, end);
+      const list = document.getElementById('restaurants-list');
+      list.innerHTML = restaurants.map(r => `
+        <div class="bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full border border-gray-100 hover:shadow-lg transition">
+          <img src="${r.photo_url || (r.photos && r.photos[0]) || '/public/placeholder.jpg'}" alt="Foto de ${r.name}" class="w-full h-48 object-cover">
+          <div class="flex-1 flex flex-col p-4">
+            <h2 class="text-xl font-bold text-pink-700 mb-1">${r.name}</h2>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-yellow-500 font-bold">★ ${r.rating}</span>
+              <span class="text-gray-500 text-sm">(${r.review_count} avaliações)</span>
+            </div>
+            <div class="text-sm text-gray-600 mb-2 flex items-center gap-1">
+              <span class="font-semibold text-gray-700">Culinária</span>
+              <span>${r.cuisine || ''}</span>
+              ${r.price_level ? '<span class="text-gray-400">· ' + r.price_level + '</span>' : ''}
+            </div>
+            <div class="text-xs text-gray-500 mb-2">${r.address}</div>
+            <div class="text-xs text-gray-500 mb-2 flex items-center gap-2">
+              <a href="${r.place_link || r.website}" target="_blank" class="text-pink-600 underline hover:text-pink-700">Ver no Google Maps</a>
+              ${r.website ? `<a href="${r.website}" target="_blank" class="ml-1 px-2 py-0.5 rounded bg-pink-50 text-pink-700 border border-pink-200 text-xs font-semibold hover:bg-pink-100 transition">Site oficial</a>` : ''}
+            </div>
+            <p class="text-gray-700 text-sm mt-auto">${r.description || ''}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderPagination() {
+  const total = Math.ceil(RESTAURANTS.length / PER_PAGE);
+  const pag = document.getElementById('pagination');
+  pag.innerHTML = '';
+  if (total <= 1) return;
+  // Flecha izquierda
+  pag.innerHTML += `<button onclick="goToPage(currentPage-1)" ${currentPage===1?'disabled':''} aria-label="Anterior" class="inline-flex items-center justify-center w-7 h-7 rounded-full text-gray-500 hover:bg-pink-100 disabled:opacity-40 disabled:cursor-not-allowed mr-1">
+    <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-chevron-left'><path d='M15 18l-6-6 6-6'/></svg>
+  </button>`;
+  // Números de página (máximo 5 visibles)
+  let start = Math.max(1, currentPage-2);
+  let end = Math.min(total, currentPage+2);
+  if (currentPage <= 3) { end = Math.min(5,total); start=1; }
+  if (currentPage >= total-2) { start = Math.max(1,total-4); end=total; }
+  for(let i=start; i<=end; i++) {
+    pag.innerHTML += `<button onclick="goToPage(${i})" class="mx-0.5 px-2 py-0.5 rounded text-xs ${i===currentPage ? 'bg-pink-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-pink-100'} font-semibold">${i}</button>`;
+  }
+  // Flecha derecha
+  pag.innerHTML += `<button onclick="goToPage(currentPage+1)" ${currentPage===total?'disabled':''} aria-label="Próxima" class="inline-flex items-center justify-center w-7 h-7 rounded-full text-gray-500 hover:bg-pink-100 disabled:opacity-40 disabled:cursor-not-allowed ml-1">
+    <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-chevron-right'><path d='M9 18l6-6-6-6'/></svg>
+  </button>`;
+}
+    function goToPage(n) {
+  const total = Math.ceil(RESTAURANTS.length / PER_PAGE);
+  if (n < 1 || n > total) return;
+  currentPage = n;
+  renderRestaurants(currentPage);
+  renderPagination();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+    // Inicializa
+    renderRestaurants(currentPage);
+    renderPagination();
+  </script>
+</body>
+</html>
